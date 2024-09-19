@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import time
 import numpy.fft as fft
 from numpy import savetxt
+from scipy.stats import norm
 import os
 
 
@@ -65,11 +66,18 @@ if __name__ == '__main__':
     head = "Test done: " + time.strftime("%Y-%m-%d %H:%M:%S") +" - time taken: " + str(time.time() - start_time) + "\nSF, SNR, Error count, Number of symbols, SER"
     savetxt(file_name, output, delimiter=',',header=head)
 
+    
+    # Theorectical SER
+    snr_values_fac = 10**(snr_values/10)
+    theorectical_ser = 1 - norm.cdf(1.28 * np.sqrt(snr_values_fac * M) - 1.28 * np.sqrt(SF) + 0.4)
+
     plt.plot(snr_values, result_list/N,marker='^',linestyle='dashed')
+    plt.plot(snr_values, theorectical_ser, marker='o',linestyle='dashed')
     plt.yscale('log')
     plt.xlabel('SNR [dB]')
     plt.ylabel('SER')
+    plt.grid(True, which = 'both')
     plt.legend(['SF'+str(SF)])
     plt.title('SER vs SNR')
-    plt.savefig(path+time_str+"_SER_simulations_results_SF"+str(SF)+".png")
+    # plt.savefig(path+time_str+"_SER_simulations_results_SF"+str(SF)+".png")
     plt.show()
