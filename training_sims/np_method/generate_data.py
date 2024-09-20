@@ -7,7 +7,6 @@ import numpy.fft as fft
 from numpy import savetxt
 import os
 
-
 if __name__ == '__main__':
     # LoRa PHY parameters (based on EU863-870 DR0 channel)
     SF = 7 # Spreading factor 

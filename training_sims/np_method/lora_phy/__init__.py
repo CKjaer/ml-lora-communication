@@ -13,12 +13,17 @@ def upchirp_lut(M, basic_chirp):
 @njit(parallel=True)
 def create_basechirp(M):
     n = np.linspace(0, M-1, M)
+    mult1 = 2 * 1j * np.pi
     basis_chirp = np.exp(2 * 1j * np.pi * ((n**2 / (2 * M)) - (n / 2)))
+    print(basis_chirp)
     return basis_chirp
-
+ 
 # Symmetrical circular AWGN channel
 @njit(parallel=True)
 def gaussian_channel(SNR, signal_length, M):
     noise_power = 1 / (10**(SNR/10))
     noise =  np.sqrt(noise_power/2) * (np.random.randn(signal_length, M) + 1j * np.random.randn(signal_length, M))
     return noise
+
+if __name__ == '__main__':
+    create_basechirp(128)
