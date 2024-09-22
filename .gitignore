@@ -126,3 +126,4 @@ cython_debug/
 # data folder
 data/
 test_data_fft*
+test
