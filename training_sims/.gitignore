@@ -1,7 +1,8 @@
 test_data_*
 test*
 .vscode
-snr_estimate_output
+
+snr_estimate_output/
 
 __pycache__/
 *.py[cod]
