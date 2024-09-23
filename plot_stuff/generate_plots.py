@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from load_files import load_data
 import os
+from PIL import Image
 
 def generate_plots(data, directory=""):
     """This function takes a list of data of form ['freqs', 'snr', 'symbol'] and generated binary FFT modulus plots.
@@ -37,7 +38,20 @@ def generate_plots(data, directory=""):
         
         #save images to folder
         fig.savefig(os.path.join(plots_dir, f"snr_{data['snr'].iloc[i]}_symbol_{data['symbol'].iloc[i]}_{sample_idx}.png"), bbox_inches='tight', pad_inches=0)
+        resize_plot(128, directory=plots_dir)
 
+def resize_plot(num_symbols, directory="plots"):
+    """this function resizes the plots to MxM where M is the number of symbols
+    Args:
+        num_symbols (_type_): number of symbols
+        directory (str, optional): Directory to where the plots are located. Defaults to "plots".
+    """
+    for filename in os.listdir(directory):
+        if filename.endswith(".png"):
+            file_path = os.path.join(directory, filename)
+            img = Image.open(file_path)
+            img = img.resize((num_symbols, num_symbols))
+            img.save(file_path)
 
 if __name__ == "__main__":
     data = load_data("test_data_for_plots")
