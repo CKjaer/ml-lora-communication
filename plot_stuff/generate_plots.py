@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from load_files import load_data
 import os
 from PIL import Image
+from tqdm import tqdm
 
 def generate_plots(data, directory=""):
     """This function takes a list of data of form ['freqs', 'snr', 'symbol'] and generated binary FFT modulus plots.
@@ -16,7 +17,7 @@ def generate_plots(data, directory=""):
     sample_idx = 0
     plt.switch_backend('agg')
     
-    for i in range(len(data)):
+    for i in tqdm(range(len(data)), desc="Generating plots"):
         freqs = list(map(float, data["freqs"].iloc[i].split(';'))) # split string and convert to float
         freqs_idx = np.arange(0, len(freqs), 1)
         #print(data["symbol"].iloc[i])
