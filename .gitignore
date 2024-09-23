@@ -126,4 +126,5 @@ cython_debug/
 # data folder
 data/
 test_data_fft*
-test
+test_data_for_plots
+plots/
