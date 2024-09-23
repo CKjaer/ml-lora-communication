@@ -13,6 +13,7 @@ def generate_plots(data, directory=""):
         directory (str, optional): Directory to where the plots folder should be created. Defaults to current working directory.
     """    
     sample_idx = 0
+    plt.switch_backend('agg')
     
     for i in range(len(data)):
         freqs = list(map(float, data["freqs"].iloc[i].split(';'))) # split string and convert to float
