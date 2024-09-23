@@ -6,3 +6,4 @@ snr_estimate_output/
 
 __pycache__/
 *.py[cod]
+output/

@@ -1,6 +1,13 @@
+
+import sys
+import os
+file_path = os.path.dirname(__file__)
+include_dir = os.path.abspath(os.path.join(file_path, '../include'))
+sys.path.append(include_dir)
+
 import time
 from numpy import savetxt
-import os
+
 import lora_phy as lora
 from json_handler import json_handler
 import tensorflow as tf
@@ -28,7 +35,8 @@ def main():
     
     # Load the setup file
     try:
-        setup_path = os.path.join(os.getcwd(), config_file)
+        setup_path = os.path.abspath(os.path.join(os.getcwd(), config_file))
+        print(setup_path)
         setup_file = json_handler(setup_path)
     except FileNotFoundError:
         print(f"File {config_file} not found. Check the path and try again.")
@@ -44,7 +52,7 @@ def main():
     #Setup file structure for saving the results
     if output_dir == "DEFAULT":
         output_dir = setup_file.get_test_id()
-    og_path = os.path.join(os.getcwd(), output_dir)
+    og_path = os.path.abspath(os.path.join(file_path, "output",output_dir))
     os.makedirs(og_path, exist_ok=True)
 
     # Check if GPU is available - if it is, tensor flow runs on the GPU

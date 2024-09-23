@@ -1,10 +1,17 @@
+import sys
+import os
+file_path = os.path.dirname(__file__)
+include_dir = os.path.abspath(os.path.join(file_path,'../include'))
+sys.path.append(include_dir)
+
+import lora_phy as lora
+import model_space as model
+
 import matplotlib.pyplot as plt
 import time
 from numpy import savetxt
 import os
 import math as m
-import lora_phy as lora
-import model_space as model
 
 import tensorflow as tf
 
@@ -40,12 +47,12 @@ if __name__ == '__main__':
         # to be accurate at high SNR values.
         # A reasonable batchsize value is 500e3
         N = int(1e7)
-        batch_size = int(500e3)
+        batch_size = int(1e6)
         nr_of_batches = int(N/batch_size)
         #^Note: currently N MUST be divisible by N :)
 
         # Generate a list of SNR values to test for, alongside a list to store the results
-        snr_values = tf.linspace(-16, -4, 12)
+        snr_values = tf.linspace(-16, -4, 13)
         print(f"Testing for following SNR values: {snr_values}")
         snr_values = tf.reverse(snr_values, axis=[0])
         result_list = [0]*len(snr_values)
@@ -95,10 +102,10 @@ if __name__ == '__main__':
         ser_list = tf.divide(res_list,N)
         output = tf.stack((SF_list, snr_values, res_list, N_list, ser_list),axis=0)
 
-        path = os.getcwd()+"/snr_estimate_output/"
-        os.makedirs(path, exist_ok=True)
+        output_path = os.path.abspath(os.path.join(file_path,"output"))
+        os.makedirs(output_path, exist_ok=True)
         time_str = time.strftime("%Y_%m_%d_%H_%M_%S")
-        file_name = f"{path}{time_str}_SER_simulations_results_SF{SF}.txt"
+        file_name = f"{output_path}/{time_str}_SER_simulations_results_SF{SF}.txt"
         head = (
             f"Test done: {time_str} - "
             f"time taken: {time.time() - start_time} \n"
@@ -112,5 +119,5 @@ if __name__ == '__main__':
         plt.ylabel('SER')
         plt.legend(['SF'+str(SF)])
         plt.title('SER vs SNR')
-        plt.savefig(f"{path}{time_str}_SER_simulations_results_SF{SF}.png")
+        plt.savefig(f"{output_path}/{time_str}_SER_simulations_results_SF{SF}.png")
         plt.show()
