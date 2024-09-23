@@ -1,4 +1,5 @@
 import json
+import os
 
 class json_handler:
     data = {}
@@ -9,6 +10,8 @@ class json_handler:
 
     def _load_data(self):
         """Load data from the JSON file into the data attribute."""
+        if not os.path.isfile(self.filename):
+            raise FileNotFoundError(f"File {self.filename} not found.")
         try:
             with open(self.filename, 'r') as json_file:
                 self.data = json.load(json_file)
@@ -33,11 +36,14 @@ class json_handler:
         """Getter function for number_of_samples."""
         return self.data.get("number_of_samples", 0)
 
+    def print_setup_data(self):
+        """Print the setup data."""
+        print(f"Setup Data from {self.filename}:")
+        print(f"SNR Values: {self.get_snr_values()}")
+        print(f"Test ID: {self.get_test_id()}")
+        print(f"Spreading Factor: {self.get_spreading_factor()}")
+        print(f"Number of Samples: {self.number_of_samples()}")
+
 if __name__ == '__main__':
     filename = 'snr_data.json'
     data = json_handler(filename)
-    print(f"SNR Values: {data.get_snr_values()}")
-    print(f"Test ID: {data.get_test_id()}")
-    print(f"Sample ID: {data.get_sample_id()}")
-    print(f"Spreading Factor: {data.get_spreading_factor()}")
-    print(f"Sample Number: {data.get_sample_number()}")
