@@ -96,7 +96,7 @@ def main():
                 fft_result = process_batch(tf_snr,tf_symbol)
                 
                 file_name = og_path+"/"+f"snr_{snr}_symbol_{j}.csv"
-                savetxt(file_name, fft_result, delimiter=',')
+                savetxt(file_name, fft_result, delimiter=';')
 
                 end_time = time.time()
                 if verbose: print(f"Processed symbol {j}/{M} for SNR {snr} in {end_time - beginning_time:.4f} seconds - Total: {j+i*M}/{M*len(snr_values)}")
