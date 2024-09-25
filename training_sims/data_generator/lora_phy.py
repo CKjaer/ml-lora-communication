@@ -60,4 +60,18 @@ def channel_model(SNR, signal_length, M, device):
         tfr2 = tf.random.normal((signal_length, M),dtype=tf.float32)
         noise_complex = tf.complex(tfr1,tfr2)
         noise = noise_complex*tf.sqrt(noise_power/2.0)
-        return noise 
+        return noise
+
+#@tf.function
+#def generate_intererer_table(lut, M, N, device):
+#    """Generates the interference table for the LoRa PHY.
+#    Returns:
+#        tf.complex64: A [M, M] tensor of complex64 values representing the interference table
+#    """
+#    with device:
+#        # Create the basic chirp
+#        int_vec = tf.random.uniform((2,N), minval=0, maxval=M, dtype=tf.int32)
+#        int_vec = tf.squeeze(int_vec)
+#        symbol1 = tf.gather(lut, int_vec, axis=1)
+#
+        #return interference_table
