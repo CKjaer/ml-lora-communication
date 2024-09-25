@@ -29,27 +29,22 @@ if __name__ == '__main__':
         M = int(2**SF) # Number of symbols per chirp
         
         # Create the basic chirp - Formula based on "Efficient Design of Chirp Spread Spectrum Modulation for Low-Power Wide-Area Networks" by Nguyen et al.
-        basis_chirp = lora.create_basechirp(M,device)
+        basic_chirp = lora.create_basechirp(M, device)
         # Once the basic chirp is created, we can create the upchirp LUT, as it is faster than calculating it on the fly
-        upchirp = lora.upchirp_lut(M,basis_chirp,device)
+        upchirp = lora.upchirp_lut(M, basic_chirp, device)
         # A dechirp is simply the conjugate of the upchirp - predefined to make the dechirping operation faster
-        basic_dechirp = tf.math.conj(basis_chirp)
+        basic_dechirp = tf.math.conj(basic_chirp)
 
-        # As the number of samples become quite large, the simulation is split into batches.
-        # N is the number of symbols to simulate. At least 1e6 samples are nessecary for the simulation
-        # to be accurate at high SNR values.
-        # A reasonable batchsize value is 500e3
-        N = int(1e7)
-        batch_size = int(500e3)
-        nr_of_batches = int(N/batch_size)
-        #^Note: currently N MUST be divisible by N :)
+        
+        N = int(1e7) # Number of symbols to simulate for accurate SER 
+        batch_size = int(500e3) # Split into batches to avoid memory issues
+        nr_of_batches = int(N/batch_size) # NB. N should be divisible by batch_size
 
-        # Generate a list of SNR values to test for, alongside a list to store the results
-        snr_values = tf.linspace(-16, -4, 12)
+        snr_values = tf.linspace(-16, -4, 12) # SNR values to test
         print(f"Testing for following SNR values: {snr_values}")
         snr_values = tf.reverse(snr_values, axis=[0])
         result_list = [0]*len(snr_values)
-        #Sets a start timer for the simulation
+
         start_time = time.time()
 
         @tf.function

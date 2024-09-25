@@ -61,3 +61,5 @@ def channel_model(SNR, signal_length, M, device):
         noise_complex = tf.complex(tfr1,tfr2)
         noise = noise_complex*tf.sqrt(noise_power/2.0)
         return noise 
+
+def channel_mod
