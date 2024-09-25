@@ -7,14 +7,21 @@ import argparse
 import json
 import logging
 
+def log_and_print(log:logging, message:str):
+    log.debug(message)
+    print(message)
+
+
 def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_dir:str, lamb:float):
     # Check if GPU is available - if it is, tensor flow runs on the GPU
+    log.name = "LoRa Phy gen"
+
     gpus = tf.config.list_physical_devices('GPU')
     if gpus:
-        if verbose: print('Found GPU, using that')
+        if verbose: log_and_print(log,'Found GPU, using that')
         device = tf.device('/device:GPU:0')
     else:
-        if verbose: print('GPU device not found, using CPU')
+        if verbose: log_and_print(log,'GPU device not found, using CPU')
         device = tf.device('/device:CPU:0')
 
     with device:
@@ -47,7 +54,7 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
         
         for i, snr in enumerate(snr_values):
             tf_snr = tf.constant(snr, dtype=tf.int32)
-            log.debug(f"Processing SNR {snr} ({i + 1}/{len(snr_values)})")
+            log_and_print(log,f"Processing SNR {snr} ({i + 1}/{len(snr_values)})")
 
             for j in tf.range(M):
                 # Setup - Start the timer - mostly for fun
@@ -60,8 +67,8 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
                 savetxt(file_name, fft_result, delimiter=';')
 
                 end_time = time.time()
-                log.debug(f"\tProcessed symbol {j}/{M} for SNR {snr} in {end_time - beginning_time:.4f} seconds - Total: {j+i*M}/{M*len(snr_values)}")
-        log.debug(f"Total processing taken: {time.time() - start_time}")
+                log_and_print(log,f"\tProcessed symbol {j}/{M} for SNR {snr} in {end_time - beginning_time:.4f} seconds - Total: {j+i*M}/{M*len(snr_values)}")
+        log_and_print(log,f"Total processing taken: {time.time() - start_time}")
 
 if __name__ == '__main__':
     for i in range(10): print("\n")
