@@ -1,7 +1,10 @@
 import os
 import time
 from numpy import savetxt
-import lora_phy as lora
+if os.getcwd().endswith("training_sims"):
+    import lora_phy as lora
+else:
+    import training_sims.data_generator.lora_phy as lora
 import tensorflow as tf
 import argparse
 import json
@@ -12,7 +15,7 @@ def log_and_print(log:logging, message:str):
     print(message)
 
 
-def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_dir:str, lamb:float):
+def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_dir:str, lamb:float, verbose:bool=True):
     # Check if GPU is available - if it is, tensor flow runs on the GPU
     log.name = "LoRa Phy gen"
 
@@ -67,8 +70,8 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
                 savetxt(file_name, fft_result, delimiter=';')
 
                 end_time = time.time()
-                log_and_print(log,f"\tProcessed symbol {j}/{M} for SNR {snr} in {end_time - beginning_time:.4f} seconds - Total: {j+i*M}/{M*len(snr_values)}")
-        log_and_print(log,f"Total processing taken: {time.time() - start_time}")
+                #log_and_print(log,f"\tProcessed symbol {j}/{M} for SNR {snr} in {end_time - beginning_time:.4f} seconds - Total: {j+i*M}/{M*len(snr_values)}")
+        log_and_print(log,f"Total CSV creation time: {time.time() - start_time}")
 
 if __name__ == '__main__':
     for i in range(10): print("\n")

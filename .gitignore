@@ -138,3 +138,4 @@ test_data_for_plots
 plots/
 plots/
 *.pyc
+csv/
