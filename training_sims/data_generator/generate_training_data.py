@@ -19,10 +19,10 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
 
     with device:
         # LoRa PHY parameters (based on EU863-870 DR0 channel)
-        SF = tf.constant(SF_raw, dtype=tf.int32)
+        SF = tf.constant(SF, dtype=tf.int32)
         M = tf.constant(tf.pow(2,SF), dtype=tf.int32)
-        N_samp = tf.constant(N_samp_raw, dtype=tf.int32)
-        snr_values = tf.constant(snr_values_raw, dtype=tf.int32)
+        N_samp = tf.constant(N_samples, dtype=tf.int32)
+        snr_values = tf.constant(snr_values, dtype=tf.int32)
         
         # Precompute chirps
         basis_chirp = lora.create_basechirp(M,device)
@@ -56,7 +56,7 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
                 tf_symbol = tf.constant(j, dtype=tf.int32)
                 fft_result = process_batch(tf_snr,tf_symbol)
                 
-                file_name = og_path+"/"+f"snr_{snr}_symbol_{j}.csv"
+                file_name = output_dir+"/"+f"snr_{snr}_symbol_{j}.csv"
                 savetxt(file_name, fft_result, delimiter=';')
 
                 end_time = time.time()
