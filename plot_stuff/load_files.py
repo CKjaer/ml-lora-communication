@@ -35,3 +35,5 @@ def load_data(directory):
     
     return combined_data
 
+if __name__ == "__main__":
+    ...
