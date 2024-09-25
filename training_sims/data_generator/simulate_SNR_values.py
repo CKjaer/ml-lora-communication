@@ -1,20 +1,11 @@
-import sys
 import os
-file_path = os.path.dirname(__file__)
-include_dir = os.path.abspath(os.path.join(file_path,'../include'))
-sys.path.append(include_dir)
-
 import lora_phy as lora
 import model_space as model
-
 import matplotlib.pyplot as plt
 import time
 from numpy import savetxt
 import os
-import math as m
-
 import tensorflow as tf
-
 
 if __name__ == '__main__':
     # Check if GPU is available - if it is, tensor flow runs on the GPU
