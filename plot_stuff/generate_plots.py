@@ -3,8 +3,10 @@ import matplotlib.pyplot as plt
 import os
 from PIL import Image
 from tqdm import tqdm
+import logging
+import time
 
-def generate_plots(data, spreading_factor, num_samples, directory=""):
+def generate_plots(data, logger, spreading_factor: int, num_samples: int, directory: str):
     """This function takes a list of data of form ['freqs', 'snr', 'symbol'] and generated binary FFT modulus plots.
     
         Use load_data from load_data.py to get data from csv to dataframe of this form
@@ -12,10 +14,12 @@ def generate_plots(data, spreading_factor, num_samples, directory=""):
     Args:
         data (_type_): list containing absolute values of the generated FFT.\n
         spreading_factor (int): spreading factor is used to determine the number of symbols, and the size of the plots.\n
-        directory (str, optional): Directory to where the plots folder should be created. Defaults to current working directory.
+        num_samples (int): number of samples used for naming the plots.\n
+        directory (str): Directory to where the plots folder should be created.
     """    
     sample_idx = 0
     num_symbols = 2**spreading_factor
+    start_time = time.time()
     plt.switch_backend('agg')
     
     for i in tqdm(range(len(data)), desc="Generating plots"):
@@ -40,22 +44,17 @@ def generate_plots(data, spreading_factor, num_samples, directory=""):
         os.makedirs(plots_dir, exist_ok=True)
         
         #save images to folder
-        fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
-        fig.savefig(os.path.join(plots_dir, f"snr_{data['snr'].iloc[i]}_symbol_{data['symbol'].iloc[i]}_{sample_idx}.png"), dpi=num_symbols)
-        # resize_plot(128, directory=plots_dir)
+        try:
+            fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
+            fig.savefig(os.path.join(plots_dir, f"snr_{data['snr'].iloc[i]}_symbol_{data['symbol'].iloc[i]}_{sample_idx}.png"), dpi=num_symbols)
+        except Exception as e:
+            logger.error(f"Error generating plot for sample {sample_idx} in file snr_{data['snr'].iloc[i]}_symbol_{data['symbol'].iloc[i]}. Error: {e}")
+        
+        if (i + 1) % 5000 == 0:
+            logger.info(f"Generated {i + 1} plots in {time.time() - start_time:.4f} seconds") 
 
-def resize_plot(num_symbols, directory="plots"):
-    """this function resizes the plots to MxM where M is the number of symbols
-    Args:
-        num_symbols (_type_): number of symbols
-        directory (str, optional): Directory to where the plots are located. Defaults to "plots".
-    """
-    for filename in os.listdir(directory):
-        if filename.endswith(".png"):
-            file_path = os.path.join(directory, filename)
-            img = Image.open(file_path)
-            img = img.resize((num_symbols, num_symbols))
-            img.save(file_path)
+    logger.info(f"Finished generating {len(data)} plots in {time.time() - start_time:.4f} seconds")
+
 
 if __name__ == "__main__":
     from load_files import load_data

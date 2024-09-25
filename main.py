@@ -20,13 +20,16 @@ if __name__ == "__main__":
     log_path = os.path.join("output",logfilename)
     logger = logging.getLogger(__name__)
     logging.basicConfig(filename=log_path, encoding='utf-8', level=logging.DEBUG)
-    logger.debug("Starting the program")
+    logger.info("Starting the program")
 
     # generate data
     create_data_csvs(logger, config["number_of_samples"], config["snr_values"], config["SF"], csv_dir, config["lambda"])
     
+    # plot data
+    plot_data = load_data(csv_dir, logger)
+    
     # generate plots
-    generate_plots(load_data(csv_dir), config["spreading_factor"], config["number_of_samples"], os.join("output", test_id))
+    generate_plots(plot_data, logger, config["spreading_factor"], config["number_of_samples"], os.join("output", test_id))
     
     # save config
     with open(os.join("output", test_id, "config.json"), 'w') as f:
