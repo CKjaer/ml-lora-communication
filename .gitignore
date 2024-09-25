@@ -136,3 +136,5 @@ data/
 test_data_fft*
 test_data_for_plots
 plots/
+plots/
+*.pyc
