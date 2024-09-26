@@ -23,13 +23,17 @@ if __name__ == "__main__":
     logging.basicConfig(filename=log_path, encoding='utf-8', level=logging.DEBUG)
     logger.info("Starting the program")
 
-    # generate data
+    ################# data simulation #################
     create_data_csvs(logger, config["number_of_samples"], config["snr_values"], config["spreading_factor"], csv_dir, config["lambda"])
     
-    # plot data
+    
+    ################# plot data #################
     plot_data = load_data(csv_dir, logger)
-    # generate plots
     generate_plots(plot_data, logger, config["spreading_factor"], config["number_of_samples"], os.path.join("output", test_id))
+    
+    
+    ################# train model #################
+    # function calls to train the model go here
     
     # save config
     config["test_id"] = test_id
