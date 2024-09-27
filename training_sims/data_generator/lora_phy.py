@@ -1,10 +1,9 @@
 import tensorflow as tf
 from math import pi
 
-# Create chirp
 @tf.function
 def create_basechirp(M,device):
-    """Create the basic chirp
+    """Create the basic LoRa chirp
      
     Formula based on "Efficient Design of Chirp Spread Spectrum Modulation for Low-Power Wide-Area Networks" by Nguyen et al.
     The base chirp is calculated as exp(2*pi*1j*((n^2/(2*M)) - (n/2))).
@@ -26,8 +25,6 @@ def create_basechirp(M,device):
         mult2 = tf.subtract(frac1,frac2)
         return tf.exp(tf.multiply(mult1, mult2))
     
-
-# Generate a LUT for the upchirps
 @tf.function
 def upchirp_lut(M, basic_chirp, device):
     """Create a lookup table based on the basic chirp.
@@ -44,11 +41,9 @@ def upchirp_lut(M, basic_chirp, device):
             lut_array = lut_array.write(i, rolled_chirp)
         return lut_array.stack()
 
-
-# Symmetrical circular AWGN channel
 @tf.function
 def channel_model(SNR, signal_length, M, device):
-    """Creates a channel model, in this case AWGN.
+    """A circular AWGN channel as a function of SNR.
     Returns:
         tf.complex64: A [signal_length, M] tensor of complex64 values representing the noise
     """
@@ -62,16 +57,31 @@ def channel_model(SNR, signal_length, M, device):
         noise = noise_complex*tf.sqrt(noise_power/2.0)
         return noise
 
-#@tf.function
-#def generate_intererer_table(lut, M, N, device):
-#    """Generates the interference table for the LoRa PHY.
-#    Returns:
-#        tf.complex64: A [M, M] tensor of complex64 values representing the interference table
-#    """
-#    with device:
-#        # Create the basic chirp
-#        int_vec = tf.random.uniform((2,N), minval=0, maxval=M, dtype=tf.int32)
-#        int_vec = tf.squeeze(int_vec)
-#        symbol1 = tf.gather(lut, int_vec, axis=1)
-#
-        #return interference_table
+# @tf.function
+# def channel_model_new(signal_length, M, device):
+#      """A circular AWGN channel with a fixed noise power and 
+#     Returns:
+#         tf.complex64: A [signal_length, M] tensor of complex64 values representing the noise and intefering users
+#     """
+#     with device:
+        
+
+#         return 
+    
+@tf.function
+def generate_inteference_lut(lut, M, n_users, device):
+    """Generates the interference table for the LoRa PHY.
+    Returns:
+        tf.complex64: A [M, M] tensor of complex64 values representing the interference table
+    """
+    with device:
+        # Create the basic chirp
+        int_vec = tf.random.uniform((2, n_users), minval=0, maxval=M, dtype=tf.int32)
+        int_vec = tf.squeeze(int_vec)
+        symbol1 = tf.gather(lut, int_vec[0, :], axis=0)
+        symbol2 = tf.gather(lut, int_vec[1, :], axis=0)
+   
+        # interference_table = tf.multiply(symbol1, symbol2)
+        # symbol2 = tf.gather(lut, int_vec, axis=1)
+
+        return 0
