@@ -6,6 +6,7 @@ from plot_stuff.load_files import load_data
 from training_sims.data_generator.generate_training_data import create_data_csvs
 import training_sims.data_generator.lora_phy #Must be imported for create_data_csvs to work
 import logging
+import shutil
 
 if __name__ == "__main__":
     # generate a unique
@@ -46,3 +47,5 @@ if __name__ == "__main__":
     config["test_id"] = test_id
     with open(os.path.join(output_dir, test_id, "config.json"), 'w') as f:
         json.dump(config, f)
+    
+    shutil.make_archive(os.path.join(output_dir,test_id),'zip',test_id)
