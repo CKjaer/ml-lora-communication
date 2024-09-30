@@ -66,5 +66,16 @@ def split_freqs_column(df):
     df['freqs'] = np.array(split_freqs, dtype=object)
     return df
 
+def find_max(df, logger):
+    flattened_freqs = [(value, row_idx, col_idx) 
+                   for row_idx, sublist in enumerate(df['freqs']) 
+                   for col_idx, value in enumerate(sublist)]
+
+    # Find the maximum value and its location
+    max_value, max_row_idx, max_col_idx = max(flattened_freqs, key=lambda x: x[0])
+
+
+    logger.info(f"Maximum value: {max_value} found at row {max_row_idx}, column {max_col_idx}, in symbol {df['symbol'][max_row_idx]}, snr {df['snr'][max_row_idx]}")
+
 if __name__ == "__main__":
     ...

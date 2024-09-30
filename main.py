@@ -2,7 +2,7 @@ import os
 import json
 import uuid
 from plot_stuff.generate_plots import generate_plots
-from plot_stuff.load_files import load_data
+from plot_stuff.load_files import load_data, find_max
 from training_sims.data_generator.generate_training_data import create_data_csvs
 import training_sims.data_generator.lora_phy #Must be imported for create_data_csvs to work
 import logging
@@ -29,6 +29,10 @@ if __name__ == "__main__":
     
     ################# plot data #################
     plot_data = load_data(csv_dir, logger)
+    
+    # Debugging to check for max value in FFT magnitude
+    find_max(plot_data, logger)
+    
     generate_plots(plot_data, logger, config["spreading_factor"], config["number_of_samples"], os.path.join("output", test_id))
     
     
