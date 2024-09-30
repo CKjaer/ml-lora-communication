@@ -1,21 +1,20 @@
 #!/bin/bash
 #SBATCH --job-name=726_Symbol_Generator
-#SBATCH --output=result_%j.out
-#SBATCH --error=error_%j.err
+#SBATCH --output=./job_results/result_%j.out
+#SBATCH --error=./job_results/error_%j.err
 #SBATCH --time=00:10:00
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:0
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=1G
 
-singularity shell ./tensorflow_24.07.sif << 'EOF'
-BASE_DIR = "$(pwd)"
+
+singularity shell "$(pwd)/tensorflow_24.07.sif" << 'EOF'
+BASE_DIR="$(pwd)"
 
 # 2. Create virtual environment (if it doesn't already exist)
 VENV_DIR="$BASE_DIR/virtualenv"
-if [ ! -d "$VENV_DIR" ]; then
-    python3 -m venv "$VENV_DIR"
-fi
+python3 -m venv "$VENV_DIR"
 
 # 3. Enter virtual environment
 source "$VENV_DIR/bin/activate"
