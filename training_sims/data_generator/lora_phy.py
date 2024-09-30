@@ -63,26 +63,7 @@ def channel_model(SNR, signal_length, M, device):
 
 
 @tf.function
-def generate_inteference_lut(lut, M, n_users, device):
-    """Generates the interference table for the LoRa PHY.
-    Returns:
-        tf.complex64: A [M, M] tensor of complex64 values representing the interference table
-    """
-    with device:
-        # Create the basic chirp
-        int_vec = tf.random.uniform((2, n_users), minval=0, maxval=M, dtype=tf.int32)
-        int_vec = tf.squeeze(int_vec)
-        symbol1 = tf.gather(lut, int_vec[0, :], axis=0)
-        symbol2 = tf.gather(lut, int_vec[1, :], axis=0)
-
-        # interference_table = tf.multiply(symbol1, symbol2)
-        # symbol2 = tf.gather(lut, int_vec, axis=1)'
-
-        return 0
-
-
-@tf.function
-def generate_interferer_symbols(batch_size, rate_param, M, upchirp):
+def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut):
     """
     Generate symbols for interferers based on a Poisson distribution.
 
@@ -99,17 +80,18 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp):
         tf.complex64: A tensor containing the shifted complex symbols for each batch.
         tf.float32: A tensor containing the distances for each interferer.
     """
+
     # Draw the number of interferers from a Poisson distribution
     n_interferers = tf.random.poisson((batch_size,), rate_param, dtype=tf.int32)
 
     # Create 2 random symbols for each interferer
-    max_interferers = tf.reduce_max(n_interferers).numpy()
+    max_interferers = tf.reduce_max(n_interferers)
     rand_inter_symbols = tf.random.uniform(
         (batch_size, 2 * max_interferers), minval=0, maxval=M, dtype=tf.int32
     )
 
     # Create a mask to zero out the symbols that are not used if the number of interferers is less than the max
-    mask = tf.sequence_mask(n_interferers, max_interferers, dtype=tf.int32)
+    mask = tf.sequence_mask(n_interferers, 2 * max_interferers, dtype=tf.int32)
 
     # Fill the masked symbols with 128 pointing to a zero symbol in the LUT
     masked_symbols = tf.where(
@@ -117,31 +99,36 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp):
     )
 
     # Gather the symbols from the LUT and reshape to stack symbols for each interferer column-wise
-    inter_symbols_lut = tf.gather(upchirp, masked_symbols, axis=0)
-    shaped_symbols = tf.reshape(inter_symbols_lut, (batch_size, 256))
+    inter_symbols_lut = tf.gather(upchirp_lut, masked_symbols, axis=0)
+    shaped_symbols = tf.reshape(
+        inter_symbols_lut, (batch_size, 2 * max_interferers * M)
+    )
 
     # Shift the symbols with a random arrival time
     rand_arrival = tf.random.uniform((batch_size,), minval=0, maxval=M, dtype=tf.int32)
-    shifted_inter = tf.roll(shaped_symbols, shift=-rand_arrival, axis=1)
-
-    # Slice to a singular symbol per interferer
-    num_cols = range(max_interferers * M)
-    # sorted_slice = tf.sort(tf.concat([num_cols[0::M], num_cols[1::M]], axis=0))
-    sliced_inter = tf.gather(shifted_inter, [num_cols], axis=1)
+    shifted_inter = tf.roll(
+        shaped_symbols,
+        shift=-rand_arrival,
+        axis=tf.ones((batch_size,), tf.int32),
+    )
 
     # Slice to a singular symbol per interferer in multiples of 128
     indices = tf.concat(
-        [tf.range(i * 2 * M, i * 2 * M + M) for i in range(2 * max_interferers)], axis=0
+        [tf.range(start, start + M) for start in range(0, M * max_interferers, M * 2)],
+        axis=0,
     )
-    sliced_inter = tf.gather(shifted_inter, indices, axis=1)
+    sliced_inter = tf.squeeze(tf.gather(shifted_inter, [indices], axis=1))
 
     # Map the interfering users to a distance (annulus between 200 and 1000 m)
     random_radii = tf.sqrt(
         tf.random.uniform(
-            (n_interferers, max_interferers), minval=200, maxval=1000, dtype=tf.float32
+            (n_interferers.shape[0], max_interferers),
+            minval=200,
+            maxval=1000,
+            dtype=tf.float32,
         )
     )
-    # Mask the radii to zero if the number of interferers is less than the max
-    masked_radii = tf.boolean_mask(random_radii, tf.cast(mask, tf.bool))
+    # Repeat the radii for symbols for element-wise multiplication
+    radii_repeated = tf.repeat(random_radii, repeats=M, axis=1)
 
-    return sliced_inter, masked_radii
+    return sliced_inter, radii_repeated

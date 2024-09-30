@@ -24,11 +24,12 @@ if __name__ == "__main__":
         SF = 7  # Spreading factor
         BW = 250e3  # Bandwidth [Hz] (EU863-870 DR0 channel)
         M = int(2**SF)  # Number of symbols per chirp
+        freq_eu = int(868e3)
 
         # Create the basic chirp - Formula based on "Efficient Design of Chirp Spread Spectrum Modulation for Low-Power Wide-Area Networks" by Nguyen et al.
         basic_chirp = lora.create_basechirp(M, device)
         # Once the basic chirp is created, we can create the upchirp LUT, as it is faster than calculating it on the fly
-        upchirp = tf.concat(
+        upchirp_lut = tf.concat(
             [
                 lora.upchirp_lut(M, basic_chirp, device),
                 tf.zeros((1, M), dtype=tf.complex64),
@@ -39,43 +40,46 @@ if __name__ == "__main__":
         # A dechirp is simply the conjugate of the upchirp - predefined to make the dechirping operation faster
         basic_dechirp = tf.math.conj(basic_chirp)
 
-        # Simulation parameters
-        N = int(
-            1e7
-        )  # Number of symbols to simulate is greater than 1e-5 SER for better accuracy
-        batch_size = int(1e6)  # Number of symbols per batch
+        # Simulation parameters, the number of symbol for 5% tolerance
+        N = int(2e6)
+        batch_size = int(1e4)  # Number of symbols per batch
         nr_of_batches = int(N / batch_size)  # NB: N must be divisible by batch_size
 
         snr_values = tf.linspace(-16, -4, 13)  # SNR values to test
         snr_values = tf.reverse(snr_values, axis=[0])
-        result_list = [0] * len(snr_values)
 
-        inner_radius = 200  # Inner radius of the circular uniform distribution with no interfering users
-        outer_radius = 1000  # Outer radius of the circular uniform distribution
         rate_params = [0.25, 0.5, 0.7, 1]  # Poisson rate parameters
         k_b = tf.constant(1.380649e-23, dtype=tf.float64)  # Boltzmann constant
         noise_power = tf.constant((k_b * 298.16 * BW), dtype=tf.float64)  # dB
+        result_list = tf.zeros(len(snr_values), len(rate_params), dtype=tf.int32)
+
+        start_time = time.time()
 
         @tf.function
         def process_batch(snr, rate_param):
             # Generate the interfering users users symbols and their distances
             interfering_users_tx, distance = lora.generate_interferer_symbols(
-                batch_size, rate_param, M, upchirp, device
+                batch_size, rate_param, M, upchirp_lut
             )
 
             # Calculate the power of the user from the specified SNR
-            user_power = 1 / tf.pow(10, snr / 10.0) * noise_power
+            user_power = 1 / tf.pow(10, snr / 10.0) * noise_power  # W
 
             # Generate the user message and look up the upchirp
             msg_tx = tf.random.uniform(
                 (batch_size,), minval=0, maxval=M, dtype=tf.int32
             )
-            user_chirp_tx = tf.squeeze(tf.gather(upchirp, msg_tx, axis=0))
+            user_chirp_tx = tf.squeeze(tf.gather(upchirp_lut, msg_tx, axis=0))
 
             # Generate complex AWGN channel
             complex_noise = tf.sqrt(noise_power / 2.0) * tf.complex(
                 tf.random.normal((batch_size, M), dtype=tf.float64),
                 tf.random.normal((batch_size, M), dtype=tf.float64),
+            )
+
+            # Compute the FSPL from the distannce of the interfering users
+            fspl = (
+                20 * tf.math.log(distance, 10) + 20 * tf.math.log(freq_eu, 10) - 147.55
             )
 
             # Combine the channel and interfering users
@@ -98,20 +102,18 @@ if __name__ == "__main__":
 
             return batch_result
 
-        for i, snr in enumerate(snr_values):
-            for batch in range(nr_of_batches):
-                beginning_time = time.time()
+        for i, rate_params in enumerate(rate_params):
+            for j, snr in enumerate(snr_values):
+                for batch in range(nr_of_batches):
+                    print(
+                        f"\tSNR {snr}: Batch {batch+1}/{nr_of_batches}. Total:{(nr_of_batches*i+(batch+1))}/{nr_of_batches*len(snr_values)} batches"
+                    )
+                    tf_snr = tf.constant(snr)
+                    result_list[i, j] += process_batch(tf_snr, rate_params[i])
+                    # Setup - Start the timer - mostly for fun
                 print(
-                    f"\tSNR {snr}: Batch {batch+1}/{nr_of_batches}. Total:{(nr_of_batches*i+(batch+1))}/{nr_of_batches*len(snr_values)} batches"
+                    f"SNR: {snr}dB, error count: {result_list[i, j]}, SER: {result_list[i, j]/N:E}"
                 )
-                tf_snr = tf.constant(snr)
-                result_list[i] += process_batch(tf_snr, rate_params[i])
-                # Setup - Start the timer - mostly for fun
-                end_time = time.time()
-                print(f"\t\tBatch time: {end_time - beginning_time}")
-            print(
-                f"SNR: {snr}dB, error count: {result_list[i]}, SER: {result_list[i]/N:E}"
-            )
         print(f"Time taken: {time.time() - start_time}")
 
         # Stacks and casts the results to a tensor for saving
