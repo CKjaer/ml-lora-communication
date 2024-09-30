@@ -18,6 +18,8 @@ def log_and_print(log:logging, message:str):
 def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_dir:str, lamb:float, verbose:bool=True):
     # Check if GPU is available - if it is, tensor flow runs on the GPU
     log.name = "LoRa Phy gen"
+    log_and_print(log,"Starting the csv generation")
+    log_and_print(log,f"Available physical devices: {tf.config.list_physical_devices('GPU')}")
 
     gpus = tf.config.list_physical_devices('GPU')
     if gpus:
