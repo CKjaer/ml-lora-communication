@@ -27,9 +27,9 @@ if __name__ == '__main__':
         M = int(2**SF) # Number of symbols per chirp
         
         # Create the basic chirp - Formula based on "Efficient Design of Chirp Spread Spectrum Modulation for Low-Power Wide-Area Networks" by Nguyen et al.
-        basis_chirp = lora.create_basechirp(M,device)
+        basis_chirp = lora.create_basechirp(M)
         # Once the basic chirp is created, we can create the upchirp LUT, as it is faster than calculating it on the fly
-        upchirp = lora.upchirp_lut(M,basis_chirp,device)
+        upchirp = lora.upchirp_lut(M,basis_chirp)
         # A dechirp is simply the conjugate of the upchirp - predefined to make the dechirping operation faster
         basic_dechirp = tf.math.conj(basis_chirp)
 
@@ -58,13 +58,13 @@ if __name__ == '__main__':
             #Chirp by selecting the message indexes from the lut, adding awgn and then dechirping
             #Gather indexes the list from the LUT. Squeeze removes an unnecessary dimension
             uptable = tf.squeeze(tf.gather(upchirp, msg_tx, axis=0))
-            awgn = lora.channel_model(snr, batch_size, M, device)
+            awgn = lora.channel_model(snr, batch_size, M)
             upchirp_tx = tf.add(uptable, awgn)
             #Dechirp by multiplying the upchirp with the basic dechirp
             dechirp_rx = tf.multiply(upchirp_tx, basic_dechirp)
             fft_result = tf.abs(tf.signal.fft(dechirp_rx))
             #Use model to recognize the message
-            msg_rx = model.detect(fft_result,device)
+            msg_rx = model.detect(fft_result)
             #Calculate the number of errors
             msg_tx = tf.squeeze(msg_tx)
             batch_result = tf.math.count_nonzero(msg_tx != msg_rx)

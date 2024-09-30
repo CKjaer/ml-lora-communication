@@ -37,8 +37,8 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
         snr_values = tf.constant(snr_values, dtype=tf.int32)
         
         # Precompute chirps
-        basis_chirp = lora.create_basechirp(M,device)
-        upchirp = lora.upchirp_lut(M,basis_chirp,device)
+        basis_chirp = lora.create_basechirp(M)
+        upchirp = lora.upchirp_lut(M,basis_chirp)
         basic_dechirp = tf.math.conj(basis_chirp)
 
         # Start the timer
@@ -50,7 +50,7 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
             #Chirp by selecting the message indexes from the lut, adding awgn and then dechirping
             #Gather indexes the list from the LUT. Squeeze removes an unnecessary dimension
             upchirps = tf.squeeze(tf.transpose(tf.gather(upchirp, tf.repeat(symbol,N_samp), axis=1)))
-            awgn = lora.channel_model(snr, N_samp, M, device)
+            awgn = lora.channel_model(snr, N_samp, M)
             upchirps_with_noise = tf.add(upchirps, awgn)
             #Dechirp by multiplying the upchirp with the basic dechirp
             dechirp_rx = tf.multiply(upchirps_with_noise, basic_dechirp)
