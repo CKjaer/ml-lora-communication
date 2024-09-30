@@ -1,9 +1,7 @@
-import numpy as np
 import os
-import pandas as pd
-import logging
 import time
 from tqdm import tqdm
+import pandas as pd
 
 def load_data(directory, logger):
     '''   
