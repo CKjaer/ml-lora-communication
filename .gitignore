@@ -1,3 +1,11 @@
+test_data_*
+test*
+.vscode
+
+snr_estimate_output/
+.venv/
+__pycache__/
+*.py[cod]
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -126,3 +134,5 @@ cython_debug/
 # data folder
 data/
 test_data_fft*
+test_data_for_plots
+plots/
