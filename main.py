@@ -26,22 +26,26 @@ if __name__ == "__main__":
     logging.basicConfig(filename=log_path, encoding='utf-8', level=logging.DEBUG)
     logger.info("Starting the program")
 
-    # generate data
+    ################# data simulation #################
     try:
         create_data_csvs(logger, config["number_of_samples"], config["snr_values"], config["spreading_factor"], csv_dir, config["lambda"])
     except Exception as e:
         logger.error(f"Error generating data: {e}")
         
-        # plot data
+        
+    ################# plot data #################
     try:
         plot_data = load_data(csv_dir, logger)
     except Exception as e:
         logger.error(f"Error loading data: {e}")
-        # generate plots
-    try:
+        try:
         generate_plots(plot_data, logger, config["spreading_factor"], config["number_of_samples"], os.path.join(output_dir, test_id))
     except Exception as e:
         logger.error(f"Error generating plots: {e}")
+    
+    
+    ################# train model #################
+    # function calls to train the model go here
     
     # save config
     config["test_id"] = test_id
