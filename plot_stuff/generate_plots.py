@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-from PIL import Image
 from tqdm import tqdm
 import logging
 import time
