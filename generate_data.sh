@@ -9,7 +9,7 @@
 #SBATCH --mem=1G
 
 singularity shell ./tensorflow_24.07.sif << 'EOF'
-BASE_DIR = $PWD
+BASE_DIR = "$(pwd)"
 
 # 2. Create virtual environment (if it doesn't already exist)
 VENV_DIR="$BASE_DIR/virtualenv"
