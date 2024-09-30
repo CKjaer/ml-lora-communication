@@ -1,7 +1,14 @@
 #!/bin/bash
+#SBATCH --job-name=726_Symbol_Generator
+#SBATCH --output=result_%j.out
+#SBATCH --error=error_%j.err
+#SBATCH --time=00:10:00
+#SBATCH --ntasks=1
+#SBATCH --gres=gpu:0
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=1G
 
-# 1. Start Singularity container with srun
-srun --gres=gpu:1 --pty singularity exec --nv /ceph/container/pytorch_24.03-py3.sif bash << 'EOF'
+singularity --ptyy shell ./tensorflow_24.07.sif << 'EOF'
 
 # 2. Create virtual environment (if it doesn't already exist)
 VENV_DIR="$HOME/virtualenv"
