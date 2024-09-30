@@ -1,8 +1,6 @@
-import numpy as np
 import os
-import pandas as pd
-import logging
 import time
+import pandas as pd
 
 def load_data(directory, logger):
     '''   
