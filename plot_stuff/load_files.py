@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import logging
 import time
+from tqdm import tqdm
 
 def load_data(directory, logger):
     '''   
@@ -15,7 +16,7 @@ def load_data(directory, logger):
     start_time = time.time()
     # Iterate through all files in the given directory
     try:
-        for filename in os.listdir(directory):
+        for filename in tqdm(os.listdir(directory), desc="Loading data"):
             if filename.endswith(".csv"):
                 try:
                     parts = filename.split('_')
