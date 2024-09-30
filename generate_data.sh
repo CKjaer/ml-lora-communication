@@ -8,7 +8,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=1G
 
-singularity --ptyy shell ./tensorflow_24.07.sif << 'EOF'
+singularity shell ./tensorflow_24.07.sif << 'EOF'
 
 # 2. Create virtual environment (if it doesn't already exist)
 VENV_DIR="$HOME/virtualenv"
