@@ -9,10 +9,10 @@
 #SBATCH --mem=1G
 
 singularity shell ./tensorflow_24.07.sif << 'EOF'
-PROJECT_DIR = "/ceph/project/LoRa_Symbol_Detection/"
+BASE_DIR = $PWD
 
 # 2. Create virtual environment (if it doesn't already exist)
-VENV_DIR="$PROJECT_DIR/virtualenv"
+VENV_DIR="$BASE_DIR/virtualenv"
 if [ ! -d "$VENV_DIR" ]; then
     python3 -m venv "$VENV_DIR"
 fi
@@ -21,7 +21,7 @@ fi
 source "$VENV_DIR/bin/activate"
 
 # 4. Install requirements via pip
-REQUIREMENTS_FILE="$PROJECT_DIR/requirements.txt"
+REQUIREMENTS_FILE="$BASE_DIR/requirements.txt"
 if [ -f "$REQUIREMENTS_FILE" ]; then
     pip install -r "$REQUIREMENTS_FILE" || { echo "Failed to install requirements"; exit 1; }
 else
@@ -30,7 +30,7 @@ else
 fi
 
 # 5. Run Python file (main.py)
-python "$PROJECT_DIR/main.py" || { echo "Python script failed"; exit 1; }
+python "$BASE_DIR/main.py" || { echo "Python script failed"; exit 1; }
 
 # Deactivate the virtual environment
 deactivate
