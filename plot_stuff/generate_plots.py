@@ -44,7 +44,12 @@ def generate_plots(data, logger, spreading_factor: int, num_samples: int, direct
 
 if __name__ == "__main__":
     from load_files import load_data
-    data = load_data("test") # change directory when running test
-    generate_plots(data)
+    logfilename = "test_log.log"
+    logger = logging.getLogger(__name__)
+    logging.basicConfig(filename=logfilename, encoding='utf-8', level=logging.DEBUG)
+    logger.info("Starting the program")
+    
+    data = load_data("/home/clyholm/ml-lora-communication/test_data_for_plots", logger=logger) # change directory when running test
+    generate_plots(data, logger=logger, spreading_factor=7, num_samples=1000, directory="/home/clyholm/ml-lora-communication/plot_stuff") # change directory when running test
     
     

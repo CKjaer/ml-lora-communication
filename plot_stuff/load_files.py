@@ -42,7 +42,7 @@ def load_data(directory, logger):
     combined_data = pd.concat(data_list, ignore_index=True)
     combined_data.rename(columns={0: "freqs"}, inplace=True)
     print("HERE")
-    combined_data = split_freqs_column(combined_data)
+    combined_data['freqs'] = combined_data['freqs'].apply(lambda x: list(map(float, x.split(';'))))
     print("Done")
     
     # Sort the data by SNR and Symbol
@@ -54,17 +54,17 @@ def load_data(directory, logger):
     logger.info(f"Loaded {len(combined_data)} samples from {len(data_list)} files in {time.time() - start_time:.4f} seconds")
     return combined_data
 
-def split_freqs_column(df):
-    # Initialize an empty list to store the split frequency lists
-    split_freqs = []
+# def split_freqs_column(df):
+#     # Initialize an empty list to store the split frequency lists
+#     split_freqs = []
 
-    # Iterate over the 'freqs' column and split the strings
-    for freqs in df['freqs']:
-        split_freqs.append(list(map(float, freqs.split(';'))))
+#     # Iterate over the 'freqs' column and split the strings
+#     for freqs in df['freqs']:
+#         split_freqs.append(list(map(float, freqs.split(';'))))
 
-    # Convert the list of lists to a numpy array for better memory management
-    df['freqs'] = np.array(split_freqs, dtype=object)
-    return df
+#     # Convert the list of lists to a numpy array for better memory management
+#     df['freqs'] = np.array(split_freqs, dtype=object)
+#     return df
 
 def find_max(df, logger):
     flattened_freqs = [(value, row_idx, col_idx) 
