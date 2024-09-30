@@ -31,6 +31,7 @@ def generate_plots(data, logger, spreading_factor: int, num_samples: int, direct
         ax = fig.add_subplot(111)
         plt.axis('off')
         fig.set_facecolor('black')
+        ax.set_ylim(0, 130)
         plt.plot(freqs_idx, freqs, color = 'white', linewidth=0.5)
         plt.close(fig)
         
