@@ -40,6 +40,13 @@ def load_data(directory, logger):
     # Concatenate all dataframes into one large dataframe
     combined_data = pd.concat(data_list, ignore_index=True)
     combined_data.rename(columns={0: "freqs"}, inplace=True)
+        
+    # Sort the data by SNR and Symbol
+    combined_data.sort_values(by=['snr','symbol'], ascending=True, inplace=True)
+    
+    # Reset index after sorting
+    combined_data = combined_data.reset_index(drop=True)
+
     
     logger.info(f"Loaded {len(combined_data)} samples from {len(data_list)} files in {time.time() - start_time:.4f} seconds")
     return combined_data
