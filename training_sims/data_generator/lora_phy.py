@@ -82,7 +82,7 @@ def generate_inteference_lut(lut, M, n_users, device):
 
 
 @tf.function
-def generate_interferer_symbols(batch_size, rate_param, M, upchirp, device):
+def generate_interferer_symbols(batch_size, rate_param, M, upchirp):
     """
     Generate symbols for interferers based on a Poisson distribution.
 
@@ -96,7 +96,8 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp, device):
         upchirp (tf.Tensor): A tensor representing the look-up table (LUT) for symbols.
 
     Returns:
-        tf.Tensor: A tensor containing the shifted complex symbols for each batch.
+        tf.complex64: A tensor containing the shifted complex symbols for each batch.
+        tf.float32: A tensor containing the distances for each interferer.
     """
     # Draw the number of interferers from a Poisson distribution
     n_interferers = tf.random.poisson((batch_size,), rate_param, dtype=tf.int32)
@@ -104,7 +105,7 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp, device):
     # Create 2 random symbols for each interferer
     max_interferers = tf.reduce_max(n_interferers).numpy()
     rand_inter_symbols = tf.random.uniform(
-        (batch_size, max_interferers), minval=0, maxval=M, dtype=tf.int32
+        (batch_size, 2 * max_interferers), minval=0, maxval=M, dtype=tf.int32
     )
 
     # Create a mask to zero out the symbols that are not used if the number of interferers is less than the max
@@ -128,4 +129,19 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp, device):
     # sorted_slice = tf.sort(tf.concat([num_cols[0::M], num_cols[1::M]], axis=0))
     sliced_inter = tf.gather(shifted_inter, [num_cols], axis=1)
 
-    return sliced_inter
+    # Slice to a singular symbol per interferer in multiples of 128
+    indices = tf.concat(
+        [tf.range(i * 2 * M, i * 2 * M + M) for i in range(2 * max_interferers)], axis=0
+    )
+    sliced_inter = tf.gather(shifted_inter, indices, axis=1)
+
+    # Map the interfering users to a distance (annulus between 200 and 1000 m)
+    random_radii = tf.sqrt(
+        tf.random.uniform(
+            (n_interferers, max_interferers), minval=200, maxval=1000, dtype=tf.float32
+        )
+    )
+    # Mask the radii to zero if the number of interferers is less than the max
+    masked_radii = tf.boolean_mask(random_radii, tf.cast(mask, tf.bool))
+
+    return sliced_inter, masked_radii
