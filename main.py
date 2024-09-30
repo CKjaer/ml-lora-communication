@@ -32,13 +32,12 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"Error generating data: {e}")
         
-        
     ################# plot data #################
     try:
         plot_data = load_data(csv_dir, logger)
     except Exception as e:
         logger.error(f"Error loading data: {e}")
-        try:
+    try:
         generate_plots(plot_data, logger, config["spreading_factor"], config["number_of_samples"], os.path.join(output_dir, test_id))
     except Exception as e:
         logger.error(f"Error generating plots: {e}")

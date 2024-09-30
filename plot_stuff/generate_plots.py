@@ -24,7 +24,18 @@ def plot_fft(freqs_idx, freqs, num_symbols, sample_idx, plots_dir, snr, symbol):
     return fig
 
 def generate_plots(data, logger, spreading_factor: int, num_samples: int, directory: str):
-    
+    logger.name = "LoRa Phy gen"
+    logger.debug("Starting the plot generation")
+    logger.debug(f"Available physical devices: {tf.config.list_physical_devices('GPU')}")
+
+    gpus = tf.config.list_physical_devices('GPU')
+    if gpus:
+        logger.debug('Found GPU, using that')
+        device = tf.device('/device:GPU:0')
+    else:
+        logger.debug('GPU device not found, using CPU')
+        device = tf.device('/device:CPU:0')
+
     sample_idx = 0
     start_time = time.time()
 
@@ -34,7 +45,7 @@ def generate_plots(data, logger, spreading_factor: int, num_samples: int, direct
     num_symbols = 2**spreading_factor
     num_samples = tf.constant(num_samples,dtype=tf.int32)
     
-    with tf.device('/cpu:0'):
+    with device:
         for i in tqdm(range(len(data)), desc="Generating plots"):
             freqs_idx = tf.range(0, num_symbols, 1, dtype=tf.int32)
             freqs = tf.convert_to_tensor(data['freqs'][i], dtype=tf.float32)
@@ -47,8 +58,8 @@ def generate_plots(data, logger, spreading_factor: int, num_samples: int, direct
 
             plot_fft(freqs_idx, freqs, num_symbols, sample_idx, plots_dir, snr,symbol)
         
-          if (i + 1) % 5000 == 0:
-              logger.info(f"Generated {i + 1} plots in {time.time() - start_time:.4f} seconds") 
+        if (i + 1) % 5000 == 0:
+            logger.info(f"Generated {i + 1} plots in {time.time() - start_time:.4f} seconds") 
 
         logger.info(f"Finished generating {len(data)} plots in {time.time() - start_time:.4f} seconds")
 
@@ -59,7 +70,9 @@ if __name__ == "__main__":
     logfilename = "test_log.log"
     log_path = os.path.join(os.getcwd(),logfilename)
     logger = logging.getLogger(__name__)
-    direc = "test"
+    direc = "output\\5a4a7784-8552-49d3-a105-cc248da13d71\\csv"
+    direc = os.path.join(os.getcwd(),direc)
+    print(direc)
     data = load_data(direc,logger)
     SF = 7
     N_samps = 10
