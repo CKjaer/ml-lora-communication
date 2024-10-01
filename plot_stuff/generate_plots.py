@@ -7,31 +7,31 @@ import time
 import tfplot
 import tensorflow as tf
 
-@tfplot.autowrap
-def plot_fft(freqs_idx, freqs, num_symbols, sample_idx, plots_dir, snr, symbol):
-    fig, ax = tfplot.subplots(figsize=(1,1), dpi=num_symbols)
-    ax = fig.add_subplot(111)
-    ax.axis('off')
-    ax.set_facecolor('black')
-    fig.set_facecolor('black')
-    ax.plot(freqs_idx, freqs, color = 'white', linewidth=0.5)
-    #save images to folder
-    try:
-        fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
-        fig.savefig(os.path.join(plots_dir, f"snr_{snr}_symbol_{symbol}_{sample_idx}.png"), dpi=num_symbols, facecolor='black', transparent=True)
-    except Exception as e:
-        logger.error(f"Error generating plot for sample {sample_idx} in file snr_{snr}_symbol_{symbol}. Error: {e}")
-    return fig
-
 def generate_plots(data, logger, spreading_factor: int, num_samples: int, directory: str):
-    logger.name = "LoRa Phy gen"
+    @tfplot.autowrap
+    def plot_fft(freqs_idx, freqs, num_symbols, sample_idx, plots_dir, snr, symbol):
+        fig, ax = tfplot.subplots(figsize=(1,1), dpi=num_symbols)
+        ax = fig.add_subplot(111)
+        ax.axis('off')
+        ax.set_facecolor('black')
+        fig.set_facecolor('black')
+        ax.plot(freqs_idx, freqs, color = 'white', linewidth=0.5)
+        #save images to folder
+        try:
+            fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
+            fig.savefig(os.path.join(plots_dir, f"snr_{snr}_symbol_{symbol}_{sample_idx}.png"), dpi=num_symbols, facecolor='black', transparent=True)
+        except Exception as e:
+            logger.error(f"Error generating plot for sample {sample_idx} in file snr_{snr}_symbol_{symbol}. Error: {e}")
+        return fig
+    
+    logger.name = "Plot generator"
     logger.debug("Starting the plot generation")
     logger.debug(f"Available physical devices: {tf.config.list_physical_devices('GPU')}")
 
     gpus = tf.config.list_physical_devices('GPU')
     if gpus:
         logger.debug('Found GPU, using that')
-        device = tf.device('/device:GPU:0')
+        device = tf.device('/physical_device:GPU:0')
     else:
         logger.debug('GPU device not found, using CPU')
         device = tf.device('/device:CPU:0')
