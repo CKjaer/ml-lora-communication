@@ -7,6 +7,7 @@ from training_sims.data_generator.generate_training_data import create_data_csvs
 import training_sims.data_generator.lora_phy #Must be imported for create_data_csvs to work
 import logging
 import shutil
+import time
 
 if __name__ == "__main__":
     # generate a unique
@@ -24,7 +25,12 @@ if __name__ == "__main__":
     logger = logging.getLogger(__name__)
     print("Logpath: ",log_path)
     logging.basicConfig(filename=log_path, encoding='utf-8', level=logging.DEBUG)
-    logger.info("Starting the program")
+    print("starting the program")
+    logger.debug("Starting the program")
+    print("Test ID: ",test_id)
+    logger.debug(f"Test ID: {test_id}")
+    print("Timestamp: ",time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()))
+    logger.debug(f"Timestamp: " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()))
 
     ################# data simulation #################
     try:
