@@ -24,7 +24,7 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
     gpus = tf.config.list_physical_devices('GPU')
     if gpus:
         if verbose: log_and_print(log,'Found GPU, using that')
-        device = tf.device('/device:GPU:0')
+        device = tf.device('/physical_device:GPU:0')
     else:
         if verbose: log_and_print(log,'GPU device not found, using CPU')
         device = tf.device('/device:CPU:0')
