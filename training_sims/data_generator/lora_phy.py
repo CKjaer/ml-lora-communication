@@ -78,7 +78,7 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut):
 
     Returns:
         tf.complex64: A tensor containing the shifted complex symbols for each batch.
-        tf.float32: A tensor containing the distances for each interferer.
+        tf.complex64: A tensor containing the radii for each interferer casted to complex64.
     """
 
     # Draw the number of interferers from a Poisson distribution
@@ -112,11 +112,12 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut):
         axis=tf.ones((batch_size,), tf.int32),
     )
 
-    # Slice to a singular symbol per interferer in multiples of 128
-    indices = tf.concat(
-        [tf.range(start, start + M) for start in range(0, M * max_interferers, M * 2)],
-        axis=0,
+    start_indices = tf.range(0, M * max_interferers, M * 2)
+    tiled_indices = tf.tile(
+        tf.expand_dims(tf.range(M), 0), [tf.shape(start_indices)[0], 1]
     )
+    indices = tf.reshape(tiled_indices + tf.expand_dims(start_indices, 1), [-1])
+
     sliced_inter = tf.squeeze(tf.gather(shifted_inter, [indices], axis=1))
 
     # Map the interfering users to a distance (annulus between 200 and 1000 m)
@@ -130,5 +131,5 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut):
     )
     # Repeat the radii for symbols for element-wise multiplication
     radii_repeated = tf.repeat(random_radii, repeats=M, axis=1)
-
-    return sliced_inter, radii_repeated
+    print(radii_repeated.shape)
+    return sliced_inter, tf.cast(radii_repeated, dtype=tf.complex64), max_interferers
