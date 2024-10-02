@@ -42,24 +42,31 @@ def generate_plots(data, logger, spreading_factor: int, num_samples: int, direct
  # create plots folder in given directory
     plots_dir = os.path.join(directory, "plots")
     os.makedirs(plots_dir, exist_ok=True)
-    num_symbols = 2**spreading_factor
+    num_symbols = tf.constant(2**spreading_factor,dtype=tf.int32)
     num_samples = tf.constant(num_samples,dtype=tf.int32)
-    
+    data_len = tf.constant(len(data),dtype=tf.int32)
+    snr_list = tf.convert_to_tensor(data['snr'],dtype=tf.int32)
+    symbol_list = tf.convert_to_tensor(data['symbol'],dtype=tf.int32)
+    freqs_list = np.array(data['freqs'])
+    freqs_data = np.zeros((data_len,num_symbols))
+    for i in range(data_len):
+        freqs_data[i] = freqs_list[i]
+    freqs_list = tf.convert_to_tensor(freqs_data,dtype=tf.float32)
+
     with device:
-        for i in tqdm(range(len(data)), desc="Generating plots"):
+        for i in tf.range(data_len):
             freqs_idx = tf.range(0, num_symbols, 1, dtype=tf.int32)
-            freqs = tf.convert_to_tensor(data['freqs'][i], dtype=tf.float32)
-            snr = data['snr'][i]
-            symbol = data['symbol'][i]
+            freqs = tf.gather(freqs_list,i,axis=0)
+            snr = tf.slice(snr_list,[i],[1])
+            symbol = tf.slice(symbol_list,[i],[1])
             # this counter is used to create a unique name for each plot
-            sample_idx += 1
-            if sample_idx > num_samples: # hard coded as we have 1000 representations
-                sample_idx = 1
+            sample_idx = tf.math.floormod(i,num_samples)
 
             plot_fft(freqs_idx, freqs, num_symbols, sample_idx, plots_dir, snr,symbol)
         
-        if (i + 1) % 5000 == 0:
-            logger.info(f"Generated {i + 1} plots in {time.time() - start_time:.4f} seconds") 
+            if tf.math.floormod(i+1, 5000) == 0:
+                print(f"Current time: {time.time() - start_time}, current i:{i}")
+                logger.info(f"Generated {i + 1} plots in {time.time() - start_time:.4f} seconds") 
 
         logger.info(f"Finished generating {len(data)} plots in {time.time() - start_time:.4f} seconds")
 
