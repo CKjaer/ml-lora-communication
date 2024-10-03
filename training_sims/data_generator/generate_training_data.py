@@ -11,18 +11,20 @@ import json
 import logging
 
 def log_and_print(log:logging, message:str):
-    log.debug(message)
+    log.info(message)
     print(message)
 
 
 def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_dir:str, lamb:float, verbose:bool=True):
     # Check if GPU is available - if it is, tensor flow runs on the GPU
     log.name = "LoRa Phy gen"
+    log_and_print(log,"Starting the csv generation")
+    log_and_print(log,f"Available logical devices: {tf.config.list_logical_devices('GPU')}")
 
-    gpus = tf.config.list_physical_devices('GPU')
+    gpus = tf.config.list_logical_devices('GPU')
     if gpus:
         if verbose: log_and_print(log,'Found GPU, using that')
-        device = tf.device('/device:GPU:0')
+        device = tf.device(gpus[0].name)
     else:
         if verbose: log_and_print(log,'GPU device not found, using CPU')
         device = tf.device('/device:CPU:0')
@@ -35,8 +37,8 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
         snr_values = tf.constant(snr_values, dtype=tf.int32)
         
         # Precompute chirps
-        basis_chirp = lora.create_basechirp(M,device)
-        upchirp = lora.upchirp_lut(M,basis_chirp,device)
+        basis_chirp = lora.create_basechirp(M)
+        upchirp = lora.upchirp_lut(M,basis_chirp)
         basic_dechirp = tf.math.conj(basis_chirp)
 
         # Start the timer
@@ -48,7 +50,7 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
             #Chirp by selecting the message indexes from the lut, adding awgn and then dechirping
             #Gather indexes the list from the LUT. Squeeze removes an unnecessary dimension
             upchirps = tf.squeeze(tf.transpose(tf.gather(upchirp, tf.repeat(symbol,N_samp), axis=1)))
-            awgn = lora.channel_model(snr, N_samp, M, device)
+            awgn = lora.channel_model(snr, N_samp, M)
             upchirps_with_noise = tf.add(upchirps, awgn)
             #Dechirp by multiplying the upchirp with the basic dechirp
             dechirp_rx = tf.multiply(upchirps_with_noise, basic_dechirp)
@@ -61,7 +63,6 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
 
             for j in tf.range(M):
                 # Setup - Start the timer - mostly for fun
-                beginning_time = time.time()
 
                 tf_symbol = tf.constant(j, dtype=tf.int32)
                 fft_result = process_batch(tf_snr,tf_symbol)
@@ -69,7 +70,6 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
                 file_name = output_dir+"/"+f"snr_{snr}_symbol_{j}.csv"
                 savetxt(file_name, fft_result, delimiter=';')
 
-                end_time = time.time()
                 #log_and_print(log,f"\tProcessed symbol {j}/{M} for SNR {snr} in {end_time - beginning_time:.4f} seconds - Total: {j+i*M}/{M*len(snr_values)}")
         log_and_print(log,f"Total CSV creation time: {time.time() - start_time}")
 
@@ -96,12 +96,12 @@ if __name__ == '__main__':
     file_path = os.path.dirname(os.path.realpath(__file__))
     log_path = os.path.abspath(os.path.join(file_path,logfilename))
     logger = logging.getLogger("LoRa Phy gen")
-    logging.basicConfig(filename=log_path, encoding='utf-8', level=logging.DEBUG)
-    logger.debug("Starting the program")
+    logging.basicConfig(filename=log_path, encoding='utf-8', level=logging.INFO)
+    logger.info("Starting the program")
     # Load the setup file
     try:
         setup_path = os.path.abspath(os.path.join(os.getcwd(), config_file))
-        logger.debug(setup_path)
+        logger.info(setup_path)
         setup_json = json.load(open(setup_path))
     except FileNotFoundError:
         logger.error(logger,f"File {config_file} not found. Check the path and try again.")
