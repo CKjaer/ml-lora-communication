@@ -177,7 +177,7 @@ def evaluate_and_calculate_ser(model, test_loader, criterion):
 
 
 # Define the directory to save the final plot
-img_dir = "./first_data_set/plots/"  # Update this path accordingly
+img_dir = "/ceph/project/LoRa_Symbol_Detection/output/a0050df5-1805-4c7f-be1a-722eca85ad70/plots/"  # Update this path accordingly
 output_folder = './ser_plots_folder/'
 
 # Create the directory if it doesn't exist
