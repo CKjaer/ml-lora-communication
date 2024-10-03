@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
             #Chirp by selecting the message indexes from the lut, adding awgn and then dechirping
             #Gather indexes the list from the LUT. Squeeze removes an unnecessary dimension
-            uptable = tf.squeeze(tf.transpose(tf.gather(upchirp, msg_tx, axis=1)))
+            uptable = tf.squeeze(tf.gather(upchirp, msg_tx, axis=0))
             awgn = lora.channel_model(snr, batch_size, M, device)
             upchirp_tx = tf.add(uptable, awgn)
             #Dechirp by multiplying the upchirp with the basic dechirp
