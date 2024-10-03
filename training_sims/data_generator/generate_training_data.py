@@ -11,7 +11,7 @@ import json
 import logging
 
 def log_and_print(log:logging, message:str):
-    log.debug(message)
+    log.info(message)
     print(message)
 
 
@@ -24,7 +24,7 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
     gpus = tf.config.list_physical_devices('GPU')
     if gpus:
         if verbose: log_and_print(log,'Found GPU, using that')
-        device = tf.device('/physical_device:GPU:0')
+        device = tf.device(gpus[0].name)
     else:
         if verbose: log_and_print(log,'GPU device not found, using CPU')
         device = tf.device('/device:CPU:0')
