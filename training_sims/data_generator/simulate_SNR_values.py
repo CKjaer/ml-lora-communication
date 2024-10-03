@@ -56,11 +56,11 @@ if __name__ == "__main__":
 
         start_time = time.time()
 
-        @tf.function
+        # @tf.function
         def process_batch(rate_param, snr):
             # Generate the interfering users users symbols and their distances
-            interfering_users_tx, distance, max_interferers = (
-                lora.generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut)
+            inter_symbols, distance = lora.generate_interferer_symbols2(
+                batch_size, rate_params, M, upchirp_lut
             )
 
             # Generate the user message and look up the upchirp
@@ -77,35 +77,26 @@ if __name__ == "__main__":
                 tf.random.normal((batch_size, M), dtype=tf.float32),
             )
 
-            print(distance.shape)
             # Channel coefficients
             user_power = 10 ** (snr / 10) * noise_power  # W
             interferer_power = 1 / (distance**2)  # W
 
             # Scale the interfering users by their power and reshape to match the user symbols
-            interfering_users_tx = interferer_power * interfering_users_tx
-            reshaped_interferers = tf.reduce_sum(
-                tf.reshape(interfering_users_tx, (batch_size, max_interferers, M)),
-                axis=1,
-            )
-            print(
-                reshaped_interferers.shape,
-                user_chirp_tx.shape,
-                interfering_users_tx.shape,
+            inter_symbols_scaled = tf.reduce_sum(
+                interferer_power * inter_symbols, axis=1
             )
 
-            # Combine the channel and interfering users
             upchirp_tx = (
-                tf.cast(user_power, dtype=tf.complex64) * user_chirp_tx
-                + reshaped_interferers
-                + complex_noise
+                user_power * user_chirp_tx + inter_symbols_scaled + complex_noise
             )
+
             # Old model
             # awgn = lora.channel_model(snr, batch_size, M, device)
             # upchirp_tx = tf.add(user_chirp_tx, awgn)
 
             # Dechirp by multiplying the upchirp with the basic dechirp and run the FFT to get frequency components
             dechirp_rx = tf.multiply(upchirp_tx, basic_dechirp)
+
             fft_result = tf.abs(tf.signal.fft(dechirp_rx))
 
             # Decode the message using argmax, NB. should be replaced with CNN
