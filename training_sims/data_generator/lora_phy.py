@@ -67,88 +67,6 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut):
     """
     Generate symbols for interferers based on a Poisson distribution.
 
-    This function draws a number of interferers from a Poisson distribution, generates random symbols for
-    each interferer, and shifts them with a random arrival time.
-
-    Args:
-        batch_size (int): The number of batches to process.
-        rate_param (float): The rate parameter for the Poisson distribution.
-        M (int): The maximum value for random symbols and a reference for masking.
-        upchirp (tf.Tensor): A tensor representing the look-up table (LUT) for symbols.
-
-    Returns:
-        tf.complex64: A tensor containing the shifted complex symbols for each batch.
-        tf.complex64: A tensor containing the radii for each interferer casted to complex64.
-    """
-
-    # Draw the number of interferers from a Poisson distribution
-    n_interferers = tf.random.poisson((batch_size,), rate_param, dtype=tf.int32)
-
-    # Create 2 random symbols for each interferer
-    max_interferers = tf.reduce_max(n_interferers)
-    rand_inter_symbols = tf.random.uniform(
-        (batch_size, 2 * max_interferers), minval=0, maxval=M, dtype=tf.int32
-    )
-
-    # Create a mask to zero out the symbols that are not used if the number of interferers is less than the max
-    mask = tf.sequence_mask(n_interferers, 2 * max_interferers, dtype=tf.int32)
-
-    # Fill the masked symbols with 128 pointing to a zero symbol in the LUT
-    masked_symbols = tf.where(
-        (rand_inter_symbols * mask) == 0, M, (rand_inter_symbols * mask)
-    )
-
-    # Gather the symbols from the LUT and reshape to stack symbols for each interferer column-wise
-    inter_symbols_lut = tf.gather(upchirp_lut, masked_symbols, axis=0)
-    shaped_symbols = tf.reshape(
-        inter_symbols_lut, (batch_size, 2 * max_interferers * M)
-    )
-
-    # Shift the symbols with a random arrival time
-    rand_arrival = tf.random.uniform((batch_size,), minval=0, maxval=M, dtype=tf.int32)
-    shifted_inter = tf.roll(
-        shaped_symbols,
-        shift=-rand_arrival,
-        axis=tf.ones((batch_size,), tf.int32),
-    )
-
-    # Shift the symbols with a random arrival time
-    rand_arrival = tf.random.uniform((batch_size,), minval=0, maxval=M, dtype=tf.int32)
-    shifted_inter = tf.roll(
-        shaped_symbols,
-        shift=-rand_arrival,
-        axis=tf.ones((batch_size,), tf.int32),
-    )
-
-    # Slice the shifted symbols to get the symbols for each interferer
-    start_indices = tf.range(0, M * max_interferers, M * 2)
-    tiled_indices = tf.tile(
-        tf.expand_dims(tf.range(M), 0), [tf.shape(start_indices)[0], 1]
-    )
-    indices = tf.reshape(tiled_indices + tf.expand_dims(start_indices, 1), [-1])
-
-    sliced_inter = tf.squeeze(tf.gather(shifted_inter, [indices], axis=1))
-
-    # Map the interfering users to a distance (annulus between 200 and 1000 m)
-    random_radii = tf.sqrt(
-        tf.random.uniform(
-            (n_interferers.shape[0], max_interferers),
-            minval=200,
-            maxval=1000,
-            dtype=tf.float32,
-        )
-    )
-    # Repeat the radii for symbols for element-wise multiplication
-    radii_repeated = tf.repeat(random_radii, repeats=M, axis=1)
-
-    return sliced_inter, tf.cast(radii_repeated, dtype=tf.complex64), max_interferers
-
-
-@tf.function
-def generate_interferer_symbols2(batch_size, rate_param, M, upchirp_lut):
-    """
-    Generate symbols for interferers based on a Poisson distribution.
-
     Args:
         batch_size (int): Number of batches to process.
         rate_param (float): Rate parameter for the Poisson distribution.
@@ -179,14 +97,18 @@ def generate_interferer_symbols2(batch_size, rate_param, M, upchirp_lut):
         axis=2 * tf.ones([batch_size], dtype=tf.int32),
     )
 
-    half_shifted_inter = shifted_inter[:, : shifted_inter.shape[1] // 2]
+    # half_shifted_inter = shifted_inter[:, : shifted_inter.shape[1] // 2]
+    half_shifted_inter = shifted_inter[:, : tf.shape(shifted_inter)[1] // 2]
 
     # Generate radii for interferers (distance in the annulus)
-    radii = tf.random.uniform(
-        [batch_size, max_interferers], minval=200, maxval=1000, dtype=tf.float32
+    radii = tf.sqrt(
+        tf.random.uniform(
+            tf.shape(half_shifted_inter), minval=200, maxval=1000, dtype=tf.float32
+        )
     )
+    # radii_repeated = tf.repeat(radii, repeats=M, axis=1)
 
-    # # Print the data to a text file
+    # Print the data to a text file
     # with open("interferer_symbols.txt", "w") as f:
     #     # Convert tensors to numpy and write them to the file
     #     f.write("Masked Symbols:\n")
@@ -197,9 +119,7 @@ def generate_interferer_symbols2(batch_size, rate_param, M, upchirp_lut):
     #     f.write(str(shifted_inter.numpy()) + "\n\n")
     #     f.write("X rolled\n")
     #     f.write(str(half_shifted_inter.numpy()) + "\n\n")
-    #     f.write("Summed Symbols:\n")
-    #     f.write(str(summed_symbols.numpy()) + "\n\n")
     #     f.write("Radii:\n")
     #     f.write(str(tf.cast(tf.sqrt(radii), dtype=tf.complex64).numpy()) + "\n")
 
-    return half_shifted_inter, tf.cast(tf.sqrt(radii), dtype=tf.complex64)
+    return half_shifted_inter, tf.cast(radii, dtype=tf.complex64)

@@ -8,8 +8,7 @@ import os
 import tensorflow as tf
 
 if __name__ == "__main__":
-    # Check if GPU is available - if it is, tensor flow runs on the GPU
-    # Otherwise, run it on a CPU :)
+    # Check if GPU is available otherwise use CPU
     device = tf.device("")
     gpus = tf.config.list_physical_devices("GPU")
     if gpus:
@@ -26,9 +25,10 @@ if __name__ == "__main__":
         M = int(2**SF)  # Number of symbols per chirp
         freq_eu = int(868e3)
 
-        # Create the basic chirp - Formula based on "Efficient Design of Chirp Spread Spectrum Modulation for Low-Power Wide-Area Networks" by Nguyen et al.
+        # Create the basic chirp
         basic_chirp = lora.create_basechirp(M, device)
-        # Once the basic chirp is created, we can create the upchirp LUT, as it is faster than calculating it on the fly
+
+        # Create a LUT for the upchirps for faster processing
         upchirp_lut = tf.concat(
             [
                 lora.upchirp_lut(M, basic_chirp, device),
@@ -37,16 +37,17 @@ if __name__ == "__main__":
             axis=0,
         )
 
-        # A dechirp is simply the conjugate of the upchirp - predefined to make the dechirping operation faster
+        # Conjugate the basic chirp for basic dechirp
         basic_dechirp = tf.math.conj(basic_chirp)
 
-        # Simulation parameters, the number of symbol for 5% tolerance
-        N = int(1e3)  # int(2e6)
-        batch_size = int(1e2)  # int(1e4)  # Number of symbols per batch
+        # Simulation parameters, the number of symbols simulated results in a 5% tolerance for SER of 1e-5
+        N = int(1e5)  # int(2e6)
+        batch_size = int(1e4)  # Number of symbols per batch
         nr_of_batches = int(N / batch_size)  # NB: N must be divisible by batch_size
 
         snr_values = tf.cast(tf.linspace(-4, -16, 13), dtype=tf.float64)
-        rate_params = tf.constant([0.25, 0.5, 0.7, 1], dtype=tf.float64)
+        # rate_params = tf.constant([0.25, 0.5, 0.7, 1], dtype=tf.float64)
+        rate_params = tf.constant([0.25], dtype=tf.float64)
         result_list = tf.zeros(
             (snr_values.shape[0], rate_params.shape[0]), dtype=tf.float64
         )
@@ -58,48 +59,57 @@ if __name__ == "__main__":
 
         # @tf.function
         def process_batch(rate_param, snr):
-            # Generate the interfering users users symbols and their distances
-            inter_symbols, distance = lora.generate_interferer_symbols2(
+            # Generate the interfering users symbols and their distances
+            inter_symbols, distance = lora.generate_interferer_symbols(
                 batch_size, rate_params, M, upchirp_lut
             )
 
-            # Generate the user message and look up the upchirp
+            # Generate the user message and look up the upchirps
             msg_tx = tf.random.uniform(
                 (batch_size,), minval=0, maxval=M, dtype=tf.int32
             )
             user_chirp_tx = tf.gather(upchirp_lut, msg_tx, axis=0)
 
             # Generate complex AWGN channel
-            complex_noise = tf.cast(
-                tf.sqrt(noise_power / 2.0), dtype=tf.complex64
-            ) * tf.complex(
-                tf.random.normal((batch_size, M), dtype=tf.float32),
-                tf.random.normal((batch_size, M), dtype=tf.float32),
+            noise_stddev = tf.cast(tf.sqrt(noise_power / 2.0), dtype=tf.float32)
+
+            # Generate complex AWGN channel
+            noise_real = tf.random.normal(
+                shape=tf.shape(user_chirp_tx),
+                mean=0.0,
+                stddev=noise_stddev,
+                dtype=tf.float32,
             )
+            noise_imag = tf.random.normal(
+                shape=tf.shape(user_chirp_tx),
+                mean=0.0,
+                stddev=noise_stddev,
+                dtype=tf.float32,
+            )
+            complex_noise = tf.complex(noise_real, noise_imag)
 
             # Channel coefficients
-            user_power = 10 ** (snr / 10) * noise_power  # W
-            interferer_power = 1 / (distance**2)  # W
+            snr_linear = tf.pow(10.0, snr / 10.0)
+            user_power = tf.sqrt(snr_linear * noise_power)  # W
+            interferer_power = tf.sqrt(1 / (distance**2))  # W
 
-            # Scale the interfering users by their power and reshape to match the user symbols
+            # Scale the interfering users by their power and sum to match
             inter_symbols_scaled = tf.reduce_sum(
                 interferer_power * inter_symbols, axis=1
             )
 
+            # Combine the signals and add noise
             upchirp_tx = (
-                user_power * user_chirp_tx + inter_symbols_scaled + complex_noise
+                tf.cast(user_power, dtype=tf.complex64) * user_chirp_tx
+                + inter_symbols_scaled
+                + complex_noise
             )
 
-            # Old model
-            # awgn = lora.channel_model(snr, batch_size, M, device)
-            # upchirp_tx = tf.add(user_chirp_tx, awgn)
-
-            # Dechirp by multiplying the upchirp with the basic dechirp and run the FFT to get frequency components
+            # Dechirp by multiplying the upchirp with the basic dechirp and run the FFT to demodulate
             dechirp_rx = tf.multiply(upchirp_tx, basic_dechirp)
-
             fft_result = tf.abs(tf.signal.fft(dechirp_rx))
 
-            # Decode the message using argmax, NB. should be replaced with CNN
+            # Decode the message using argmax
             msg_rx = tf.argmax(fft_result, axis=1, output_type=tf.int32)
 
             # Calculate the number of errors in batch
@@ -160,7 +170,6 @@ if __name__ == "__main__":
             axs[i].set_ylabel("SER")
             axs[i].grid(True)
             axs[i].legend([f"SF{SF}, λ={rate_param.numpy():.1f}"])
-            # axs[i].set_title(f"SER vs SNR for λ {rate_param.numpy()}")
 
         plt.tight_layout()
         plt.savefig(f"{output_path}/{time_str}_SER_simulations_results_SF{SF}.png")
