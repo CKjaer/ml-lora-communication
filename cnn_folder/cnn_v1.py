@@ -233,7 +233,7 @@ for value in specific_values:
     # Check dataset and DataLoader
     logger.info(f"Number of images in dataset: {len(dataset)}")
     image, label = dataset[0]
-    model = LoRaCNN(M)
+    model = LoRaCNN(M).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
