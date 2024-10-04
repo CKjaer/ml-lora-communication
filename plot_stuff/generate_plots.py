@@ -26,12 +26,12 @@ def generate_plots(data, logger, spreading_factor: int, num_samples: int, direct
     
     logger.name = "Plot generator"
     logger.debug("Starting the plot generation")
-    logger.debug(f"Available physical devices: {tf.config.list_physical_devices('GPU')}")
+    logger.debug(f"Available logical devices: {tf.config.list_logical_devices('GPU')}")
 
-    gpus = tf.config.list_physical_devices('GPU')
+    gpus = tf.config.list_logical_devices('GPU')
     if gpus:
         logger.debug('Found GPU, using that')
-        device = tf.device('/physical_device:GPU:0')
+        device = tf.device(gpus[0].name)
     else:
         logger.debug('GPU device not found, using CPU')
         device = tf.device('/device:CPU:0')
