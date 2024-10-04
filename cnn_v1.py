@@ -4,11 +4,19 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import pandas as pd
+import PIL
 from PIL import Image
 from torchvision import transforms
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.data import random_split
 import matplotlib.pyplot as plt
+import logging
+
+# Configure logger
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+
 
 
 # Define the CNN architecture
@@ -29,21 +37,19 @@ class LoRaCNN(nn.Module):
         self.fc3 = nn.Linear(2 * M, M)
         
     def forward(self, x):
-        # Input shape is (batch_size, 1, M, M)
-        
         # Convolutional layers
-        x = F.relu(self.conv1(x))  # Apply ReLU to conv1
-        x = self.pool(x)           # Apply average pooling
-        x = F.relu(self.conv2(x))  # Apply ReLU to conv2
-        x = self.pool(x)           # Apply average pooling
+        x = F.relu(self.conv1(x))  
+        x = self.pool(x)           
+        x = F.relu(self.conv2(x))  
+        x = self.pool(x)           
         
         # Flatten the output from conv layers
         x = x.view(-1, self.num_flat_features(x))
         
         # Fully connected layers
-        x = F.relu(self.fc1(x))    # First fully connected layer
-        x = F.relu(self.fc2(x))    # Second fully connected layer
-        x = self.fc3(x)            # Output layer with no activation (softmax in loss)
+        x = F.relu(self.fc1(x))    
+        x = F.relu(self.fc2(x))    
+        x = self.fc3(x)            
         
         return x
     
@@ -54,23 +60,27 @@ class LoRaCNN(nn.Module):
             num_features *= s
         return num_features
 
-# Example parameters
-M = 128  # Number of possible values per symbol (2^SF for SF=7)
 
-# Create the CNN model
-model = LoRaCNN(M)
+# Check for GPU availability
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+logger.info(f"Using device: {device}")
 
-# Example loss function and optimizer
+# Example model
+M = 128
+model = LoRaCNN(M).to(device)
+
+# Loss function and optimizer
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-# Example training loop
+# Example training loop with GPU support
 def train(model, train_loader, num_epochs):
     model.train()
     for epoch in range(num_epochs):
         running_loss = 0.0
         for i, data in enumerate(train_loader, 0):
             inputs, labels = data
+            inputs, labels = inputs.to(device), labels.to(device)  # Move data to GPU if available
             
             # Zero the parameter gradients
             optimizer.zero_grad()
@@ -86,44 +96,45 @@ def train(model, train_loader, num_epochs):
             # Print statistics
             running_loss += loss.item()
             if i % 100 == 99:  # Print every 100 mini-batches
-                print(f'Epoch [{epoch+1}], Step [{i+1}], Loss: {running_loss / 100:.4f}')
+                logger.info(f'Epoch [{epoch+1}], Step [{i+1}], Loss: {running_loss / 100:.4f}')
                 running_loss = 0.0
 
-# Define a custom dataset
+
+# Dataset class with error handling for images
 class CustomImageDataset(Dataset):
     def __init__(self, img_dir, specific_label=None, transform=None):
         self.img_dir = img_dir
         self.img_list = os.listdir(img_dir)
         self.transform = transform
-        self.specific_label = specific_label 
+        self.specific_label = specific_label
 
         if specific_label is not None:
             self.img_list = [img for img in self.img_list if float(img.split('_')[1]) == specific_label]
-
 
     def __len__(self):
         return len(self.img_list)
 
     def __getitem__(self, idx):
-        # Get the image filename
         img_name = self.img_list[idx]
         img_path = os.path.join(self.img_dir, img_name)
 
-        # Extract the label from the filename (assuming filenames are like 'class_0_image1.png')
-        # Adjust this line if your filename format is different
-        label = int(img_name.split('_')[3])  # Extract label assuming the label is after 'class_'
+        try:
+            # Load image and extract label from filename
+            image = Image.open(img_path).convert("L")  # Convert to grayscale if necessary
+            label = int(img_name.split('_')[3])  # Assuming label is after 'class_'
 
-        # Load the image
-        image = Image.open(img_path).convert("L")  # Convert to grayscale if necessary
+            # Apply transformations
+            if self.transform:
+                image = self.transform(image)
 
-        # Apply transformations if provided
-        if self.transform:
-            image = self.transform(image)
+            label = torch.tensor(label, dtype=torch.long)
 
-        # Convert the label to a tensor
-        label = torch.tensor(label, dtype=torch.long)
+            return image, label
 
-        return image, label
+        except (PIL.UnidentifiedImageError, IndexError, FileNotFoundError) as e:
+            logger.error(f"Error loading image {img_name}: {e}")
+            # If an error occurs, we can either return None or handle it as appropriate.
+            return None, None
 
 # Define transformations for the images
 transform = transforms.Compose([
@@ -134,10 +145,7 @@ transform = transforms.Compose([
 
 
 
-
-
-
-
+# Example evaluation function with GPU support
 def evaluate_and_calculate_ser(model, test_loader, criterion):
     model.eval()  # Set model to evaluation mode
     correct_predictions = 0
@@ -148,6 +156,7 @@ def evaluate_and_calculate_ser(model, test_loader, criterion):
     with torch.no_grad():  # Disable gradient calculation for evaluation
         for data in test_loader:
             inputs, labels = data
+            inputs, labels = inputs.to(device), labels.to(device)  # Move data to GPU if available
             outputs = model(inputs)
             loss = criterion(outputs, labels)
             total_loss += loss.item()
@@ -169,15 +178,19 @@ def evaluate_and_calculate_ser(model, test_loader, criterion):
     # Calculate average loss
     average_loss = total_loss / len(test_loader)
 
-    print(f'Validation/Test Loss: {average_loss:.4f}')
-    print(f'Validation/Test Accuracy: {accuracy:.2f}%')
-    print(f'Symbol Error Rate (SER): {ser:.6f}')
+    logger.info(f'Validation/Test Loss: {average_loss:.4f}')
+    logger.info(f'Validation/Test Accuracy: {accuracy:.2f}%')
+    logger.info(f'Symbol Error Rate (SER): {ser:.6f}')
     return ser
+
+
+# The rest of the code for loading datasets, training, evaluating, and plotting remains the same.
+
 
 
 
 # Define the directory to save the final plot
-img_dir = "/ceph/project/LoRa_Symbol_Detection/output/a0050df5-1805-4c7f-be1a-722eca85ad70/plots/"  # Update this path accordingly
+img_dir = "./first_data_set/plots"  # Update this path accordingly
 output_folder = './ser_plots_folder/'
 
 # Create the directory if it doesn't exist
@@ -193,7 +206,7 @@ symbol_error_rates = []
 
 # Loop over each specific value
 for value in specific_values:
-    print(f"Calculating SER for specific value: {value}")
+    logger.info(f"Calculating SER for specific value: {value}")
     # Set path to the folder containing the images
 
 
@@ -216,9 +229,8 @@ for value in specific_values:
     
 
     # Check dataset and DataLoader
-    print(f"Number of images in dataset: {len(dataset)}")
+    logger.info(f"Number of images in dataset: {len(dataset)}")
     image, label = dataset[0]
-    print(f"Example image shape: {image.shape}, Label: {label}")
     model = LoRaCNN(M)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
@@ -232,7 +244,7 @@ for value in specific_values:
     # Store the calculated SER for later plotting
     symbol_error_rates.append(ser)
 
-print("All SER values have been calculated.")
+logger.info("All SER values have been calculated.")
 
 # Create the final plot of all SER values against specific values (e.g., SNR levels)
 plt.figure(figsize=(10, 6))
