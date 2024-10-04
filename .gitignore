@@ -139,3 +139,4 @@ plots/
 plots/
 *.pyc
 csv/
+job_results/
