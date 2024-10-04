@@ -23,9 +23,7 @@ def generate_plots(data, logger, spreading_factor: int, num_samples: int, direct
         plt.plot(freqs_idx, data['freqs'][i], color = 'white', linewidth=0.5)
         plt.close(fig)
         
-        sample_idx += 1
-        if sample_idx > num_samples:
-            sample_idx = 1
+        sample_idx = i % num_samples
         
         plots_dir = os.path.join(directory, "plots")
         os.makedirs(plots_dir, exist_ok=True)
