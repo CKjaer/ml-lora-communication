@@ -141,3 +141,5 @@ plots/
 csv/
 job_results/
 output/
+*.pth
+data/

@@ -1,0 +1,8 @@
+*.pth
+data/
+*.gz
+first_data_set/
+ser_plots_folder/
+cnn_v1.ipynb
+cnn_v2
+.
