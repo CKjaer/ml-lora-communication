@@ -140,3 +140,4 @@ plots/
 *.pyc
 csv/
 job_results/
+output/

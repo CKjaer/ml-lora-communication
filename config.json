@@ -1,7 +1,7 @@
 {
     "test_id": "",
     "spreading_factor": 7,
-    "number_of_samples": 10,
-    "snr_values": [-10,-4],
+    "number_of_samples": 1000,
+    "snr_values": [-16,-14,-12,-10,-8,-6,-4],
     "lambda": 0
 }
