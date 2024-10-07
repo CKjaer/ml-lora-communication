@@ -11,6 +11,7 @@ from torch.utils.data import Dataset, DataLoader
 from torch.utils.data import random_split
 import matplotlib.pyplot as plt
 import logging
+import time
 
 # Configure logger
 logfilename = "cnn.log"
@@ -18,7 +19,11 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',datefmt='%Y-%m-%d %H:%M:%S', filename=logfilename, encoding='utf-8', level=logging.INFO)
 logger.info("Starting the program")
 
+# Measure time
+start_time = time.time()
 
+#Counter for corrupted images
+corrupt_imag_count = 0
 
 
 # Define the CNN architecture
@@ -39,21 +44,24 @@ class LoRaCNN(nn.Module):
         self.fc3 = nn.Linear(2 * M, M)
         
     def forward(self, x):
-        # Convolutional layers
-        x = F.relu(self.conv1(x))  
-        x = self.pool(x)           
-        x = F.relu(self.conv2(x))  
-        x = self.pool(x)           
-        
-        # Flatten the output from conv layers
-        x = x.view(-1, self.num_flat_features(x))
-        
-        # Fully connected layers
-        x = F.relu(self.fc1(x))    
-        x = F.relu(self.fc2(x))    
-        x = self.fc3(x)            
-        
-        return x
+        try:
+            # Convolutional layers
+            x = F.relu(self.conv1(x))  
+            x = self.pool(x)           
+            x = F.relu(self.conv2(x))  
+            x = self.pool(x)           
+            
+            # Flatten the output from conv layers
+            x = x.view(-1, self.num_flat_features(x))
+            
+            # Fully connected layers
+            x = F.relu(self.fc1(x))    
+            x = F.relu(self.fc2(x))    
+            x = self.fc3(x)            
+            
+            return x
+        except Exception as e:
+            logger.error(f"Error in forward pass:{e}")
     
     def num_flat_features(self, x):
         size = x.size()[1:]  # All dimensions except the batch dimension
@@ -80,20 +88,25 @@ def train(model, train_loader, num_epochs):
     model.train()
     for epoch in range(num_epochs):
         running_loss = 0.0
+        logger.info(f"Starting epoch {epoch + 1}/{num_epochs}")
         for i, data in enumerate(train_loader, 0):
-            inputs, labels = data
-            inputs, labels = inputs.to(device), labels.to(device)  # Move data to GPU if available
-            
-            # Zero the parameter gradients
-            optimizer.zero_grad()
-            
-            # Forward pass
-            outputs = model(inputs)
-            loss = criterion(outputs, labels)
-            
-            # Backward pass and optimize
-            loss.backward()
-            optimizer.step()
+            try:
+
+                inputs, labels = data
+                inputs, labels = inputs.to(device), labels.to(device)  # Move data to GPU if available
+                
+                # Zero the parameter gradients
+                optimizer.zero_grad()
+                
+                # Forward pass
+                outputs = model(inputs)
+                loss = criterion(outputs, labels)
+                
+                # Backward pass and optimize
+                loss.backward()
+                optimizer.step()
+            except Exception as e:
+                logger.info(f"Error during training at epoch {epoch + 1}, batch {i + 1}: {e}")
             
             # Print statistics
             running_loss += loss.item()
@@ -117,6 +130,7 @@ class CustomImageDataset(Dataset):
         return len(self.img_list)
 
     def __getitem__(self, idx):
+        global corrupt_imag_count
         img_name = self.img_list[idx]
         img_path = os.path.join(self.img_dir, img_name)
 
@@ -134,8 +148,10 @@ class CustomImageDataset(Dataset):
             return image, label
 
         except (PIL.UnidentifiedImageError, IndexError, FileNotFoundError) as e:
-            logger.error(f"Error loading image {img_name}: {e}")
+            logger.error(f"Error loading image {img_name}: at index {idx} {e}")
             # If an error occurs, we can either return None or handle it as appropriate.
+            # Corrupt image counter +1
+            corrupt_imag_count += 1 
             return None, None
 
 # Define transformations for the images
@@ -157,11 +173,15 @@ def evaluate_and_calculate_ser(model, test_loader, criterion):
 
     with torch.no_grad():  # Disable gradient calculation for evaluation
         for data in test_loader:
-            inputs, labels = data
-            inputs, labels = inputs.to(device), labels.to(device)  # Move data to GPU if available
-            outputs = model(inputs)
-            loss = criterion(outputs, labels)
-            total_loss += loss.item()
+            try:
+
+                inputs, labels = data
+                inputs, labels = inputs.to(device), labels.to(device)  # Move data to GPU if available
+                outputs = model(inputs)
+                loss = criterion(outputs, labels)
+                total_loss += loss.item()
+            except Exception as e:
+                logger.error(f"Error during evaluation: {e}")
             
             # Get predicted labels
             _, predicted = torch.max(outputs.data, 1)
@@ -246,6 +266,9 @@ for value in specific_values:
     # Store the calculated SER for later plotting
     symbol_error_rates.append(ser)
 
+# Log the number of corrupted images
+logger.info(f"Number of corrupted images: {corrupt_imag_count}")
+
 logger.info("All SER values have been calculated.")
 
 # Create the final plot of all SER values against specific values (e.g., SNR levels)
@@ -267,5 +290,12 @@ plt.show()
 
 # Close the plot to free memory
 plt.close()
+
+# Measure of the end time
+end_time = time.time()
+
+# Obtain the execution time
+execution_time = end_time - start_time
+logger.info(f"Execution time: {execution_time} seconds")
 
 print(f"Final plot has been saved to {final_plot_filename}.")
