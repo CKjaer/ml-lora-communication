@@ -39,6 +39,30 @@ def generate_plots(data, logger, spreading_factor: int, num_samples: int, direct
 
     logger.info(f"Finished generating {len(data)} plots in {time.time() - start_time:.4f} seconds")
 
+def find_max(df, logger):
+    snr_values = df['snr'].unique()
+
+    #find max value in each snr
+    max_vals = []
+    for snr in snr_values:
+        # create subset of data for current snr
+        snr_df = df[df['snr'] == snr]
+        
+        # find maximum frequency in every sample and then find the maximum of those
+        max_value = snr_df['freqs'].apply(lambda x: np.max(x)).max()
+        
+        # find the maximum within each sample, and then find the row with the highest value
+        max_row_idx = snr_df['freqs'].apply(lambda x: np.argmax(x)).idxmax()
+        
+        # find index within the sample with the highest value
+        max_col_idx = np.argmax(snr_df['freqs'][max_row_idx])
+        
+        max_vals.append((max_value, max_row_idx, max_col_idx))
+        logger.info(f"Maximum value: {max_value} found at row {max_row_idx}, column {max_col_idx}, in symbol {df['symbol'][max_row_idx]}, in snr {df['snr'][max_row_idx]}")
+
+    # logger.info(f"Maximum value: {max_value} found at row {max_row_idx}, column {max_col_idx}, in symbol {df['symbol'][max_row_idx]}, snr {df['snr'][max_row_idx]}")
+    return max_vals
+
 
 if __name__ == "__main__":
     from load_files import load_data
@@ -48,6 +72,9 @@ if __name__ == "__main__":
     logger.info("Starting the program")
     
     data = load_data("/home/clyholm/ml-lora-communication/test_data_for_plots", logger=logger) # change directory when running test
+    max_vals = find_max(data, logger=logger)
+    print(max_vals)
+    
     generate_plots(data, logger=logger, spreading_factor=7, num_samples=1000, directory="/home/clyholm/ml-lora-communication/plot_stuff") # change directory when running test
     
     
