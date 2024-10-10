@@ -26,12 +26,12 @@ if __name__ == "__main__":
         freq_eu = int(868e3)
 
         # Create the basic chirp
-        basic_chirp = lora.create_basechirp(M, device)
+        basic_chirp = lora.create_basechirp(M)
 
-        # Create a LUT for the upchirps for faster processing
+        # Create a LUT for the upchirps for faster processing - A final 0 row is created for intererers to look up
         upchirp_lut = tf.concat(
             [
-                lora.upchirp_lut(M, basic_chirp, device),
+                lora.upchirp_lut(M, basic_chirp),
                 tf.zeros((1, M), dtype=tf.complex64),
             ],
             axis=0,
@@ -41,89 +41,53 @@ if __name__ == "__main__":
         basic_dechirp = tf.math.conj(basic_chirp)
 
         # Simulation parameters, the number of symbols simulated results in a 5% tolerance for SER of 1e-5
-        N = int(1e5)  # int(2e6)
-        batch_size = int(1e4)  # Number of symbols per batch
+        N = int(2e6)  # int(2e6)
+        batch_size = int(100e3)  # Number of symbols per batch
         nr_of_batches = int(N / batch_size)  # NB: N must be divisible by batch_size
 
-        snr_values = tf.cast(tf.linspace(-4, -16, 13), dtype=tf.float64)
-        # rate_params = tf.constant([0.25, 0.5, 0.7, 1], dtype=tf.float64)
+        snr_values = tf.cast(tf.linspace(-4, -16, 7), dtype=tf.float64)
+        #rate_params = tf.constant([0.25], dtype=tf.float64)
         rate_params = tf.constant([0.25], dtype=tf.float64)
-        result_list = tf.zeros(
-            (snr_values.shape[0], rate_params.shape[0]), dtype=tf.float64
-        )
+        result_list = tf.zeros((snr_values.shape[0], rate_params.shape[0]), dtype=tf.float64)
 
+        #Noise formula based on thermal noise N0=k*T*B
         k_b = tf.constant(1.380649e-23, dtype=tf.float64)  # Boltzmann constant
         noise_power = tf.constant((k_b * 298.16 * BW), dtype=tf.float64)  # dB
 
         start_time = time.time()
 
-        # @tf.function
-        def process_batch(rate_param, snr):
-            # Generate the interfering users symbols and their distances
-            inter_symbols, distance = lora.generate_interferer_symbols(
-                batch_size, rate_params, M, upchirp_lut
-            )
-
-            # Generate the user message and look up the upchirps
-            msg_tx = tf.random.uniform(
-                (batch_size,), minval=0, maxval=M, dtype=tf.int32
-            )
-            user_chirp_tx = tf.gather(upchirp_lut, msg_tx, axis=0)
-
-            # Generate complex AWGN channel
-            noise_stddev = tf.cast(tf.sqrt(noise_power / 2.0), dtype=tf.float32)
-
-            # Generate complex AWGN channel
-            noise_real = tf.random.normal(
-                shape=tf.shape(user_chirp_tx),
-                mean=0.0,
-                stddev=noise_stddev,
-                dtype=tf.float32,
-            )
-            noise_imag = tf.random.normal(
-                shape=tf.shape(user_chirp_tx),
-                mean=0.0,
-                stddev=noise_stddev,
-                dtype=tf.float32,
-            )
-            complex_noise = tf.complex(noise_real, noise_imag)
-
-            # Channel coefficients
-            snr_linear = tf.pow(10.0, snr / 10.0)
-            user_power = tf.sqrt(snr_linear * noise_power)  # W
-            interferer_power = tf.sqrt(1 / (distance**2))  # W
-
-            # Scale the interfering users by their power and sum to match
-            inter_symbols_scaled = tf.reduce_sum(
-                interferer_power * inter_symbols, axis=1
-            )
-
-            # Combine the signals and add noise
-            upchirp_tx = (
-                tf.cast(user_power, dtype=tf.complex64) * user_chirp_tx
-                + inter_symbols_scaled
-                + complex_noise
-            )
-
-            # Dechirp by multiplying the upchirp with the basic dechirp and run the FFT to demodulate
-            dechirp_rx = tf.multiply(upchirp_tx, basic_dechirp)
-            fft_result = tf.abs(tf.signal.fft(dechirp_rx))
-
-            # Decode the message using argmax
-            msg_rx = tf.argmax(fft_result, axis=1, output_type=tf.int32)
-
-            # Calculate the number of errors in batch
-            msg_tx = tf.squeeze(msg_tx)
-            batch_result = tf.math.count_nonzero(msg_tx != msg_rx)
-
-            return batch_result
-
         for i in tf.range(len(rate_params)):
             for j in tf.range(len(snr_values)):
                 error_count = 0
                 for batch in tf.range(nr_of_batches):
-                    error_count += process_batch(rate_params[i], snr_values[j])
+                    # Generate the user message and look up the upchirps
+                    msg_tx = tf.random.uniform(
+                        (batch_size,), minval=0, maxval=M, dtype=tf.int32
+                    )
+                    #print(f"Proccessing using rate params: {rate_params[i]}, snr: {snr_values[j]}, nr msg.:{msg_tx.shape}")
+                    chirped_rx = lora.process_batch(
+                        upchirp_lut,
+                        rate_params[i],
+                        snr_values[j],
+                        msg_tx,
+                        batch_size,
+                        M,
+                        noise_power)
+                    #Dechirp by multiplying the upchirp with the basic dechirp
+                    dechirped_rx = lora.dechirp(chirped_rx,basic_dechirp)
 
+                    # Run the FFT to demodulate
+                    fft_result = tf.abs(tf.signal.fft(dechirped_rx))
+
+                    # Decode the message using argmax
+                    msg_rx = model.detect(fft_result)
+
+                    # Calculate the number of errors in batch
+                    msg_tx = tf.squeeze(msg_tx)
+                    batch_result = tf.math.count_nonzero(msg_tx != msg_rx)
+
+                    error_count += batch_result
+                    
                 # Update the result list
                 result_list = tf.tensor_scatter_nd_add(
                     result_list,
@@ -142,8 +106,8 @@ if __name__ == "__main__":
 
         # Save the results to a .txt file for every rate parameter and create a plot
         fig, axs = plt.subplots(2, 2, figsize=(10, 10))
-        axs = axs.flatten()
         for i, rate_param in enumerate(rate_params):
+            plt.subplot(2,2,i+1)
             ser_list = tf.divide(result_list[:, i], N)
             output = tf.stack(
                 [SF_list, snr_values, result_list[:, i], N_list, ser_list], axis=0
@@ -162,14 +126,15 @@ if __name__ == "__main__":
             savetxt(file_name, output.numpy().T, delimiter=",", header=head)
 
             # Plot the results
-            axs[i].plot(
+            plt.plot(
                 snr_values, result_list[:, i] / N, marker="^", linestyle="dashed"
             )
-            axs[i].set_yscale("log")
-            axs[i].set_xlabel("SNR [dB]")
-            axs[i].set_ylabel("SER")
-            axs[i].grid(True)
-            axs[i].legend([f"SF{SF}, λ={rate_param.numpy():.1f}"])
+            plt.yscale("log")
+            plt.xlabel("SNR [dB]")
+            plt.ylabel("SER")
+            plt.grid(True)
+            plt.legend([f"SF{SF}, λ={rate_param.numpy():.1f}"])
+            plt.ylim(1e-5, 1)
 
         plt.tight_layout()
         plt.savefig(f"{output_path}/{time_str}_SER_simulations_results_SF{SF}.png")

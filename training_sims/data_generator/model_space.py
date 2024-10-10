@@ -14,6 +14,5 @@ def detect(fft_input):
     Returns:
         tf.int32: Returns the most likely symbol
     """
-    output = tf.argmax(fft_input, axis=1)
-    output = tf.cast(output, tf.int32)
+    output = tf.argmax(fft_input, axis=1, output_type=tf.int32)
     return output
