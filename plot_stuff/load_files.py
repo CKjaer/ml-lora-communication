@@ -41,9 +41,9 @@ def load_data(directory, logger):
     # Concatenate all dataframes into one large dataframe
     combined_data = pd.concat(data_list, ignore_index=True)
     combined_data.rename(columns={0: "freqs"}, inplace=True)
-    print("HERE")
+    #print("HERE")
     combined_data['freqs'] = combined_data['freqs'].apply(lambda x: list(map(float, x.split(';'))))
-    print("Done")
+    #print("Done")
     
     # Sort the data by SNR and Symbol
     combined_data.sort_values(by=['snr','symbol'], ascending=True, inplace=True)
@@ -66,16 +66,13 @@ def load_data(directory, logger):
 #     df['freqs'] = np.array(split_freqs, dtype=object)
 #     return df
 
-def find_max(df, logger):
-    flattened_freqs = [(value, row_idx, col_idx) 
-                   for row_idx, sublist in enumerate(df['freqs']) 
-                   for col_idx, value in enumerate(sublist)]
 
-    # Find the maximum value and its location
-    max_value, max_row_idx, max_col_idx = max(flattened_freqs, key=lambda x: x[0])
-
-
-    logger.info(f"Maximum value: {max_value} found at row {max_row_idx}, column {max_col_idx}, in symbol {df['symbol'][max_row_idx]}, snr {df['snr'][max_row_idx]}")
 
 if __name__ == "__main__":
-    ...
+    logfilename = "load_data.log"
+    logger = logging.getLogger(__name__)
+    logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',datefmt='%Y-%m-%d %H:%M:%S', filename=logfilename, encoding='utf-8', level=logging.INFO)
+    logger.info("Starting the program")
+    
+    data = load_data("plot_stuff/test_data_fft", logger=logger)
+    
