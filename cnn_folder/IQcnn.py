@@ -12,11 +12,15 @@ from torch.utils.data import random_split
 import matplotlib.pyplot as plt
 import logging
 
+"""
+This uses the paper "LoRa Signal Demodulation Using Deep Learning, a Time-Domain Approach" 
+Where instead of an M X M image it uses 2 X M vector consisting of IQ values
+"""
+
+
 # Configure logger
-logfilename = "cnn.log"
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',datefmt='%Y-%m-%d %H:%M:%S', filename=logfilename, encoding='utf-8', level=logging.INFO)
-logger.info("Starting the program")
 
 
 
@@ -27,12 +31,18 @@ class LoRaCNN(nn.Module):
         super(LoRaCNN, self).__init__()
         
         # Convolutional layers
-        self.conv1 = nn.Conv2d(in_channels=1, out_channels=M//4, kernel_size=4, stride=1, padding=2)
-        self.conv2 = nn.Conv2d(in_channels=M//4, out_channels=M//2, kernel_size=4, stride=1, padding=2)
+        self.conv1 = nn.Conv2d(in_channels=1, out_channels=M//2, kernel_size=(1,7), stride=1, padding=(1,3))
+        self.conv2 = nn.Conv2d(in_channels=1, out_channels=M, kernel_size=(1,7), stride=1, padding=(1,3))
+        self.conv3 = nn.Conv2d(in_channels=1, out_channels=M*2, kernel_size=(1,7), stride=1, padding=(1,3))
         
         # Pooling layer
-        self.pool = nn.AvgPool2d(kernel_size=2, stride=2)
+        self.pool = nn.MaxPool1d(kernel_size=(1,2), stride=2)
         
+        # Dropout layer
+        self.drop=nn.Dropout(0.1)
+
+        self.batchNorm=nn.BatchNorm2d()
+
         # Fully connected layers
         self.fc1 = nn.Linear(M//2 * (M//4) * (M//4), 4 * M)  
         self.fc2 = nn.Linear(4 * M, 2 * M)
@@ -40,18 +50,20 @@ class LoRaCNN(nn.Module):
         
     def forward(self, x):
         # Convolutional layers
-        x = F.relu(self.conv1(x))  
-        x = self.pool(x)           
-        x = F.relu(self.conv2(x))  
-        x = self.pool(x)           
+        x = F.relu(self.conv1(x))
+        x = self.pool(x)
+        x = F.relu(self.conv2(x))
+        x = self.pool(x)
+        x = F.relu(self.conv3(x))
+        x = self.pool(x)
         
         # Flatten the output from conv layers
         x = x.view(-1, self.num_flat_features(x))
         
         # Fully connected layers
-        x = F.relu(self.fc1(x))    
-        x = F.relu(self.fc2(x))    
-        x = self.fc3(x)            
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
         
         return x
     
@@ -193,12 +205,11 @@ def evaluate_and_calculate_ser(model, test_loader, criterion):
 
 # Define the directory to save the final plot
 img_dir = "./first_data_set/plots"  # Update this path accordingly
-output_folder = './cnn_output/'
+output_folder = './ser_plots_folder/'
 
 # Create the directory if it doesn't exist
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
-
 
 # List of specific values for which SER will be calculated
 specific_values = [i for i in range(-16, -2, 2)]
@@ -234,14 +245,11 @@ for value in specific_values:
     # Check dataset and DataLoader
     logger.info(f"Number of images in dataset: {len(dataset)}")
     image, label = dataset[0]
-    model = LoRaCNN(M).to(device)
+    model = LoRaCNN(M)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
     train(model, train_loader, 3)
-    
-    torch.save(model.state_dict(), os.path.join(output_folder, f'model_{value}_snr.pth'))  # Save the model for future use
-    torch.save(optimizer.state_dict(), os.path.join(output_folder,f'optimizer_{value}_snr.pth'))  # Save the optimizer for future use
 
     # Evaluate the model and calculate SER for the current specific value
     # Assuming that the specific value affects how the model is evaluated (e.g., different SNR levels)
