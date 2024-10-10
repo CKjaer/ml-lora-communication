@@ -170,14 +170,6 @@ def evaluate_and_calculate_ser(model, test_loader, criterion):
 
 
 if __name__ == "__main__":
-    # Configure logger
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S', filename=os.path.join())
-    logger = logging.getLogger(__name__)
-    
-    # Check for GPU availability
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Using device: {device}")
-    
     # Define the directory to save the final plot
     img_dir = "./first_data_set/plots"  # Update this path accordingly
     output_folder = './cnn_output/'
@@ -186,14 +178,20 @@ if __name__ == "__main__":
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
-
+    # Configure logger
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S', filename=os.path.join(output_folder, 'cnn_log.log'))
+    logger = logging.getLogger(__name__)
+    
     # List of specific values for which SER will be calculated
     specific_values = [i for i in range(-16, -2, 2)]
 
     # Placeholder to store symbol error rates for each specific value
     symbol_error_rates = []
 
-
+    # Check for GPU availability
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    logger.info(f"Using device: {device}")
+    
     # Loop over each specific value
     for value in specific_values:
         logger.info(f"Calculating SER for specific value: {value}")
