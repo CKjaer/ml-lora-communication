@@ -16,14 +16,14 @@ def create_basechirp(M):
     n = tf.cast(n, tf.complex64)
     M_complex = tf.cast(M, tf.complex64)
 
-        # We've split the calculation into two parts - mult1 handling 2*pi*1j and mult2 handling the rest of the formula
-        mult1 = tf.constant(2 * pi * 1j, tf.complex64)
+    # We've split the calculation into two parts - mult1 handling 2*pi*1j and mult2 handling the rest of the formula
+    mult1 = tf.constant(2 * pi * 1j, tf.complex64)
 
-        # Mult 2 is calculated as (n^2/(2*M)) - (n/2)
-        frac1 = tf.divide(tf.pow(n, 2), (2 * M_complex))
-        frac2 = tf.divide(n, 2)
-        mult2 = tf.subtract(frac1, frac2)
-        return tf.exp(tf.multiply(mult1, mult2))
+    # Mult 2 is calculated as (n^2/(2*M)) - (n/2)
+    frac1 = tf.divide(tf.pow(n, 2), (2 * M_complex))
+    frac2 = tf.divide(n, 2)
+    mult2 = tf.subtract(frac1, frac2)
+    return tf.exp(tf.multiply(mult1, mult2))
 
 
 @tf.function
