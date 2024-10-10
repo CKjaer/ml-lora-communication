@@ -236,6 +236,8 @@ for value in specific_values:
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
     train(model, train_loader, 3)
+    torch.save(model.state_dict(), f'./model_{value}_snr.pth')  # Save the model for future use
+    torch.save(optimizer.state_dict(), f'./optimizer_{value}_snr.pth')  # Save the optimizer for future use
 
     # Evaluate the model and calculate SER for the current specific value
     # Assuming that the specific value affects how the model is evaluated (e.g., different SNR levels)
