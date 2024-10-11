@@ -24,7 +24,7 @@ if __name__ == "__main__":
         BW = 250e3  # Bandwidth [Hz] (EU863-870 DR0 channel)
         M = int(2**SF)  # Number of symbols per chirp
         #SIR_tuple: (min value, max value, Random?)
-        SIR_tuple = (0,10,True) 
+        SIR_tuple = (1,10,True) 
         #Set to min=max for constant SIR
 
         # Create the basic chirp
