@@ -81,6 +81,6 @@ if __name__ == "__main__":
     
     data = load_data("plot_stuff/test_data_fft", logger=logger) # change directory when running test
     max_vals = find_max(data, logger=logger)
-    # generate_plots(data, logger=logger, spreading_factor=7, num_samples=1000, directory="/home/clyholm/ml-lora-communication/plot_stuff") # change directory when running test
+    # generate_plots(data, logger=logger, spreading_factor=7, num_samples=1000, directory="/home/clyholm/ml-lora-communication/plot_stuff", max_vals=max_vals) # change directory when running test
     
     
