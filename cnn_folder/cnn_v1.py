@@ -11,7 +11,14 @@ from torch.utils.data import Dataset, DataLoader
 from torch.utils.data import random_split
 import matplotlib.pyplot as plt
 import logging
+import time
 
+
+# Measure time
+start_time = time.time()
+
+#Counter for corrupted images
+corrupt_imag_count = 0
 
 # Define the CNN architecture
 class LoRaCNN(nn.Module):
@@ -251,6 +258,9 @@ if __name__ == "__main__":
         # Store the calculated SER for later plotting
         symbol_error_rates.append(ser)
 
+    #Log the number of corrupted images
+    logger.info(f"Number of corrupted images: {corrupt_imag_count}")
+    
     logger.info("All SER values have been calculated.")
 
     # Create the final plot of all SER values against specific values (e.g., SNR levels)
@@ -272,5 +282,12 @@ if __name__ == "__main__":
 
     # Close the plot to free memory
     plt.close()
+
+    # Measure of the end time
+    end_time = tiem.time()
+
+    # Obtain the execution time
+    execution_time = end_time - start_time
+    logger.info(f"Execution time: {execution_time} seconds")
 
     print(f"Final plot has been saved to {final_plot_filename}.")
