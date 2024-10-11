@@ -23,7 +23,6 @@ if __name__ == "__main__":
         SF = 7  # Spreading factor
         BW = 250e3  # Bandwidth [Hz] (EU863-870 DR0 channel)
         M = int(2**SF)  # Number of symbols per chirp
-        freq_eu = int(868e3)
 
         # Create the basic chirp
         basic_chirp = lora.create_basechirp(M)
@@ -41,13 +40,12 @@ if __name__ == "__main__":
         basic_dechirp = tf.math.conj(basic_chirp)
 
         # Simulation parameters, the number of symbols simulated results in a 5% tolerance for SER of 1e-5
-        N = int(2e6)  # int(2e6)
+        N = int(500e3)  # int(2e6)
         batch_size = int(100e3)  # Number of symbols per batch
         nr_of_batches = int(N / batch_size)  # NB: N must be divisible by batch_size
 
         snr_values = tf.cast(tf.linspace(-4, -16, 7), dtype=tf.float64)
-        #rate_params = tf.constant([0.25], dtype=tf.float64)
-        rate_params = tf.constant([0.25], dtype=tf.float64)
+        rate_params = tf.constant([0,0.25,0.5,1], dtype=tf.float64)
         result_list = tf.zeros((snr_values.shape[0], rate_params.shape[0]), dtype=tf.float64)
 
         #Noise formula based on thermal noise N0=k*T*B
@@ -132,8 +130,8 @@ if __name__ == "__main__":
             plt.yscale("log")
             plt.xlabel("SNR [dB]")
             plt.ylabel("SER")
-            plt.grid(True)
-            plt.legend([f"SF{SF}, λ={rate_param.numpy():.1f}"])
+            plt.grid(True,which='both')
+            plt.legend([f"SF{SF}, λ={rate_param.numpy():.2f}"])
             plt.ylim(1e-5, 1)
 
         plt.tight_layout()
