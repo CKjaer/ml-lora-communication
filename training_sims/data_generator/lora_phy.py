@@ -61,8 +61,8 @@ def channel_model(SNR, signal_length, M):
     return noise
 
 
-@tf.function
-def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut, user_amp):
+#@tf.function
+def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut, user_amp, SIR_tuple):
     """
     Generate symbols for interferers based on a Poisson distribution.
 
@@ -76,57 +76,66 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut, user_amp
         tf.complex64: Tensor of shifted complex symbols for each batch.
         tf.complex64: Tensor of radii for each interferer.
     """
+    (SIR_min_dB, SIR_max_dB, random) = SIR_tuple
     # Draw interferers from Poisson distribution
-    n_interferers = tf.random.poisson([batch_size], rate_param, dtype=tf.int32)
+    if random:
+        n_interferers = tf.random.poisson([batch_size], rate_param, dtype=tf.int32)
+    else:
+        n_interferers = tf.fill([batch_size],1)
+        n_interferers = tf.cast(n_interferers,dtype=tf.int32)
     max_interferers = tf.reduce_max(n_interferers)
 
     # Generate random symbols and apply mask
     rand_symbols = tf.random.uniform(
         [batch_size, 2 * max_interferers], minval=0, maxval=M, dtype=tf.int32
     )
+
     
-    # Sequence mask creates an array of true and false depending on how many u
+    # Sequence mask creates an array of true and false depending on how many the poisson pulled
+    # Eg: [[1 0 0], [0 0 0], [1 1 0]]
     mask = tf.sequence_mask(2 * n_interferers, 2 * max_interferers, dtype=tf.bool)
 
-    #Note: Setting the symbols to M makes the LUT return all zeros
+    #Setting the symbols to M makes the LUT return all zeros
     masked_symbols = tf.where(mask, rand_symbols, M)
 
     # Gather symbols from LUT and shift with random arrival times
     inter_symbols = tf.gather(upchirp_lut, masked_symbols, axis=0)
     rand_arrival = tf.random.uniform([batch_size], minval=0, maxval=M, dtype=tf.int32)
 
+    # Shifts the 2 symbols connected, s.t. the timing is randomized
     shifted_inter = tf.roll(
         inter_symbols,
         shift=-rand_arrival,
         axis= 2 * tf.ones([batch_size], dtype=tf.int32),
     )
+    #Selects the first half of each symbol combi to give one symbol out
     half_shifted_inter = shifted_inter[:, : tf.shape(shifted_inter)[1] // 2]
 
-    # 0 or 1?
-    SIR_min_dB = 1
-    SIR_max_dB = 10
-    delta_SIR = SIR_max_dB - SIR_min_dB
-    SIR_dB = tf.random.uniform((batch_size,max_interferers),0,1)*delta_SIR + SIR_min_dB
-
+    #A random SIR value between min and max is picked uniformly
+    SIR_dB = tf.random.uniform((batch_size,max_interferers),SIR_min_dB,SIR_max_dB)
     SIR_dB = tf.cast(SIR_dB,dtype=tf.complex64)
+    
+    #SIR_dB is transformed into linear
     SIR_lin = tf.pow(tf.cast(10.0,dtype=SIR_dB.dtype),SIR_dB/10.0)
 
+    # int_amplitude = user_amplitude / SIR_linear
     interferer_amp = tf.cast(user_amp, dtype=tf.complex64) / tf.sqrt(SIR_lin)
+    # repeated interferer amplitude for every symbol
     interferer_amp = tf.repeat(interferer_amp, M)
     interferer_amp = tf.reshape(interferer_amp, (batch_size, max_interferers, M))
     interferer_amp = tf.cast(interferer_amp, dtype=tf.complex64)
-    user_amp = tf.cast(user_amp, dtype=tf.complex64)
-
+    
+    #Scale each symbol for the users, and combine them into a single M-vector for each symbol in the batch
     inter_symbols_scaled = tf.reduce_sum(
         interferer_amp * half_shifted_inter, axis=1
     )
     return inter_symbols_scaled
 
-@tf.function
-def process_batch(upchirp_lut,  rate_params, snr, msg_tx, batch_size, M, noise_power):
+#@tf.function
+def process_batch(upchirp_lut,  rate_params, snr, msg_tx, batch_size, M, noise_power, SIR_tuple):
+    
+    # Pick the contents of each symbol from the look up table
     user_chirp_tx = tf.gather(upchirp_lut, msg_tx, axis=0)
-
-    # Generate complex AWGN channel
     noise_stddev = tf.cast(tf.sqrt(noise_power / 2.0), dtype=tf.float32)
 
     # Generate complex AWGN channel
@@ -152,9 +161,8 @@ def process_batch(upchirp_lut,  rate_params, snr, msg_tx, batch_size, M, noise_p
     user_amp = tf.sqrt(snr_linear * noise_power)
         # Generate the interfering users symbols and their distances
     inter_symbols_scaled = generate_interferer_symbols(
-        batch_size, rate_params, M, upchirp_lut, user_amp
+        batch_size, rate_params, M, upchirp_lut, user_amp, SIR_tuple
     )
-    #print(f"Inter_symbols_scaled: {inter_symbols_scaled}")
 
     # Combine the signals and add noise
     upchirp_tx = (
@@ -168,9 +176,3 @@ def process_batch(upchirp_lut,  rate_params, snr, msg_tx, batch_size, M, noise_p
 def dechirp(upchirp_tx, basic_dechirp):
     dechirp_rx = tf.multiply(upchirp_tx, basic_dechirp)
     return dechirp_rx
-
-@tf.function
-def log10(x):
-    num = tf.math.log(x)
-    denom = tf.math.log(tf.constant(10,dtype=num.dtype))
-    return num / denom
