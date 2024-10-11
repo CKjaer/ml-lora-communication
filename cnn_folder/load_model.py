@@ -102,16 +102,16 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S', filename="load_model.log")
     logger = logging.getLogger(__name__)
     
-    desc = "This program loads a trained CNN model.\nIt requires the path to the model file and path to the test images."
+    desc = "This program loads a trained CNN model.\nIt requires the path to the folder containing the model file and path to the folder containing test images."
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument("-i", "--img_dir", help="Path to the directory containing test images", type=str, required=True)
-    parser.add_argument("-m", "--model_path", help="Path to the trained model file. This should only point to the folder where the models are contained, and not the actual model file", type=str, required=True)
+    parser.add_argument("-m", "--model_path", help="Path to the trained model file. This should only point to the folder where the models are contained, and not the actual model file. Defaults to cnn_output folder created by the cnn_v1.py script", type=str, required=True, default="./cnn_output/")
+    parser.add_argument("-c", "--config", help="Path to the config file", type=str, required=True)
     args = parser.parse_args()
     
-    # This could maybe be used to automatically change the model depending on the snr value
-    
     # load snr values from config.json
-    with open('config.json') as f:
+    configfile = args.config
+    with open('configfile') as f:
         config = json.load(f)
     snr_values = config["snr_values"]
     
@@ -129,8 +129,9 @@ if __name__ == "__main__":
     
     for snr in snr_values:
         logger.info(f"Calculating SER for snr condition: {snr}")
-        # load model
-        model = load_model(model_path, M=128) # TODO could change to include M in config.json
+        
+        # load model for the corresponding snr value
+        model = load_model(os.path.join(model_path,f"model_{snr}_snr"), M=128) # TODO could change to include M in config.json
         model.to(device)
         
         dataset = CustomImageDataset(img_dir=img_dir, specific_label=snr, transform=transform) # format dataset
@@ -155,11 +156,11 @@ if __name__ == "__main__":
     plt.grid(True)
 
     # Save the final plot to the folder
-    final_plot_filename = os.path.join(output_folder, 'snr_vs_ser_final_plot.png') # TODO create output folder and change here
+    final_plot_filename = os.path.join(model_path, 'snr_vs_ser_final_plot.png') # TODO create output folder and change here
     plt.savefig(final_plot_filename)  # Save the final plot
 
     # Optional: Display the plot (if needed)
-    plt.show()
+    #plt.show()
 
     # Close the plot to free memory
     plt.close()
