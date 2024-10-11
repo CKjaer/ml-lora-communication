@@ -23,6 +23,9 @@ if __name__ == "__main__":
         SF = 7  # Spreading factor
         BW = 250e3  # Bandwidth [Hz] (EU863-870 DR0 channel)
         M = int(2**SF)  # Number of symbols per chirp
+        #SIR_tuple: (min value, max value, Random?)
+        SIR_tuple = (0,10,True) 
+        #Set to min=max for constant SIR
 
         # Create the basic chirp
         basic_chirp = lora.create_basechirp(M)
@@ -62,7 +65,7 @@ if __name__ == "__main__":
                     msg_tx = tf.random.uniform(
                         (batch_size,), minval=0, maxval=M, dtype=tf.int32
                     )
-                    #print(f"Proccessing using rate params: {rate_params[i]}, snr: {snr_values[j]}, nr msg.:{msg_tx.shape}")
+
                     chirped_rx = lora.process_batch(
                         upchirp_lut,
                         rate_params[i],
@@ -70,7 +73,9 @@ if __name__ == "__main__":
                         msg_tx,
                         batch_size,
                         M,
-                        noise_power)
+                        noise_power,
+                        SIR_tuple)
+                    
                     #Dechirp by multiplying the upchirp with the basic dechirp
                     dechirped_rx = lora.dechirp(chirped_rx,basic_dechirp)
 
