@@ -107,7 +107,7 @@ if __name__ == "__main__":
         snr_list = tf.cast(snr_values, tf.float64)
 
         # Save the results to a .txt file for every rate parameter and create a plot
-        fig, axs = plt.subplots(2, 2, figsize=(15, 10))
+        # fig, axs = plt.subplots(2, 2, figsize=(15, 10))
         for i, rate_param in enumerate(rate_params):
             # plt.subplot(2,2,i+1)
             ser_list = tf.divide(result_list[:, i], N)
@@ -129,10 +129,11 @@ if __name__ == "__main__":
             
             # Plot SER curves as function of SNR
             if i > 0:
-                axs = axs.flatten()
-                ax = axs[i-1]
+                fig, ax = plt.subplots(1, 1, figsize=(10, 5))
+                # axs = axs.flatten()
+                # ax = axs[i-1]
                 ax.plot(snr_values, result_list[:, 0] / N, marker="o", linestyle="dashed", label=f"SF{SF}, λ=0.00", color='black') # Classical decoder with λ=0
-                ax.plot(snr_values, result_list[:, i] / N, marker="^", linestyle="dashed", label=f"SF{SF}, λ={rate_param.numpy():.2f}", linefmt='k-', color='black') # Poisson decoder with λ=rate_param
+                ax.plot(snr_values, result_list[:, i] / N, marker="^", linestyle="dashed", label=f"SF{SF}, λ={rate_param.numpy():.2f}", color='black') # Poisson decoder with λ=rate_param
                 ax.set_yscale("log")
                 ax.set_xlabel("SNR [dB]")
                 ax.set_ylabel("SER")
@@ -140,8 +141,8 @@ if __name__ == "__main__":
                 # ax.legend()
                 ax.set_ylim(1e-5, 1)
                 
-                # Create an inset with the Poisson PMF
-                inset_ax = inset_axes(ax, width="40%", height="30%", loc='lower left', bbox_to_anchor=(0.1, 0.1, 1, 1), bbox_transform=ax.transAxes)
+                # Create an inset with the Poisson PMF stem plot
+                inset_ax = inset_axes(ax, width="40%", height="45%", loc='lower left', bbox_to_anchor=(0.1, 0.1, 1, 1), bbox_transform=ax.transAxes)
                 poisson_dist = tf.random.poisson([batch_size], rate_param, dtype=tf.int32)
                 poisson_values, idx, poisson_counts = tf.unique_with_counts(poisson_dist)
                 poisson_count = poisson_counts / batch_size
@@ -151,10 +152,10 @@ if __name__ == "__main__":
                 inset_ax.set_ylim([0, 0.8])
 
                 stem_inset = inset_ax.stem(poisson_values.numpy(), poisson_count.numpy(), basefmt=' ', linefmt='k-')
+                # Allow clipping of the stem plot
                 for artist in stem_inset.get_children():
                     artist.set_clip_on(False)     
+                
+                plt.tight_layout()
+                plt.savefig(f"{output_path}/{time_str}_SER_simulations_results_SF{SF}.png")
 
-
-
-        plt.tight_layout()
-        plt.savefig(f"{output_path}/{time_str}_SER_simulations_results_SF{SF}.png")
