@@ -2,6 +2,7 @@ import os
 import lora_phy as lora
 import model_space as model
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import time
 from numpy import savetxt
 import os
@@ -23,9 +24,7 @@ if __name__ == "__main__":
         SF = 7  # Spreading factor
         BW = 250e3  # Bandwidth [Hz] (EU863-870 DR0 channel)
         M = int(2**SF)  # Number of symbols per chirp
-        #SIR_tuple: (min value, max value, Random?)
-        SIR_tuple = (1,10,True) 
-        #Set to min=max for constant SIR
+        SIR_tuple = (1, 10, True) # Set to min=max for constant SIR
 
         # Create the basic chirp
         basic_chirp = lora.create_basechirp(M)
@@ -43,12 +42,12 @@ if __name__ == "__main__":
         basic_dechirp = tf.math.conj(basic_chirp)
 
         # Simulation parameters, the number of symbols simulated results in a 5% tolerance for SER of 1e-5
-        N = int(500e3)  # int(2e6)
-        batch_size = int(100e3)  # Number of symbols per batch
+        N = int(1e2)  # int(2e6)
+        batch_size = int(10)  # Number of symbols per batch
         nr_of_batches = int(N / batch_size)  # NB: N must be divisible by batch_size
 
         snr_values = tf.cast(tf.linspace(-4, -16, 7), dtype=tf.float64)
-        rate_params = tf.constant([0,0.25,0.5,1], dtype=tf.float64)
+        rate_params = tf.constant([0, 0.25, 0.5, 0.7 ,1], dtype=tf.float64)
         result_list = tf.zeros((snr_values.shape[0], rate_params.shape[0]), dtype=tf.float64)
 
         #Noise formula based on thermal noise N0=k*T*B
@@ -108,9 +107,9 @@ if __name__ == "__main__":
         snr_list = tf.cast(snr_values, tf.float64)
 
         # Save the results to a .txt file for every rate parameter and create a plot
-        fig, axs = plt.subplots(2, 2, figsize=(10, 10))
+        fig, axs = plt.subplots(2, 2, figsize=(15, 10))
         for i, rate_param in enumerate(rate_params):
-            plt.subplot(2,2,i+1)
+            # plt.subplot(2,2,i+1)
             ser_list = tf.divide(result_list[:, i], N)
             output = tf.stack(
                 [SF_list, snr_values, result_list[:, i], N_list, ser_list], axis=0
@@ -127,17 +126,35 @@ if __name__ == "__main__":
                 f"SF, SNR, error count, simulated symbols, SER"
             )
             savetxt(file_name, output.numpy().T, delimiter=",", header=head)
+            
+            # Plot SER curves as function of SNR
+            if i > 0:
+                axs = axs.flatten()
+                ax = axs[i-1]
+                ax.plot(snr_values, result_list[:, 0] / N, marker="o", linestyle="dashed", label=f"SF{SF}, λ=0.00", color='black') # Classical decoder with λ=0
+                ax.plot(snr_values, result_list[:, i] / N, marker="^", linestyle="dashed", label=f"SF{SF}, λ={rate_param.numpy():.2f}", linefmt='k-', color='black') # Poisson decoder with λ=rate_param
+                ax.set_yscale("log")
+                ax.set_xlabel("SNR [dB]")
+                ax.set_ylabel("SER")
+                ax.grid(True, which='both', alpha=0.5)
+                # ax.legend()
+                ax.set_ylim(1e-5, 1)
+                
+                # Create an inset with the Poisson PMF
+                inset_ax = inset_axes(ax, width="40%", height="30%", loc='lower left', bbox_to_anchor=(0.1, 0.1, 1, 1), bbox_transform=ax.transAxes)
+                poisson_dist = tf.random.poisson([batch_size], rate_param, dtype=tf.int32)
+                poisson_values, idx, poisson_counts = tf.unique_with_counts(poisson_dist)
+                poisson_count = poisson_counts / batch_size
+                inset_ax.set_title(f"PMF, λ={rate_param.numpy():.2f}")
+                inset_ax.set_xlabel(r'$N_i$', labelpad=-4)
+                inset_ax.set_xlim([0, 10])
+                inset_ax.set_ylim([0, 0.8])
 
-            # Plot the results
-            plt.plot(
-                snr_values, result_list[:, i] / N, marker="^", linestyle="dashed"
-            )
-            plt.yscale("log")
-            plt.xlabel("SNR [dB]")
-            plt.ylabel("SER")
-            plt.grid(True,which='both')
-            plt.legend([f"SF{SF}, λ={rate_param.numpy():.2f}"])
-            plt.ylim(1e-5, 1)
+                stem_inset = inset_ax.stem(poisson_values.numpy(), poisson_count.numpy(), basefmt=' ', linefmt='k-')
+                for artist in stem_inset.get_children():
+                    artist.set_clip_on(False)     
+
+
 
         plt.tight_layout()
         plt.savefig(f"{output_path}/{time_str}_SER_simulations_results_SF{SF}.png")
