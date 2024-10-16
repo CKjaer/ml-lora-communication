@@ -79,7 +79,7 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # Dataset class with error handling for images
 class CustomImageDataset(Dataset):
-    def __init__(self, img_dir, specific_label=None, transform=None, samples_per_label=100):
+    def __init__(self, img_dir, specific_label=None, transform=None, samples_per_label=250):
         self.img_dir = img_dir
         self.img_list = os.listdir(img_dir)
         self.transform = transform
@@ -189,7 +189,7 @@ def evaluate_and_calculate_ser(model, test_loader, criterion):
 
 
 # Directory paths
-img_dir = "./first_data_set/plots"
+img_dir = "./output/full_set_20241003-214909/plots/"
 output_folder = './cnn_output/'
 
 # Create the directory if it doesn't exist
@@ -207,7 +207,7 @@ for value in specific_values:
     logger.info(f"Calculating SER for specific value: {value}")
 
     dataset = CustomImageDataset(img_dir=img_dir, specific_label=float(value), transform=transform, samples_per_label=100)
-    
+    logger.info(f"Number of images in dataset: {len(dataset)}")
     # Dataset size check
     if len(dataset) == 0:
         logger.warning(f"No images found for specific value: {value}. Skipping.")
