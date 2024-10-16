@@ -83,7 +83,7 @@ if __name__ == "__main__":
                     fft_result = tf.abs(tf.signal.fft(dechirped_rx))
 
                     # Decode the message using argmax
-                    msg_rx = model.detect(fft_result)
+                    msg_rx = model.detect(fft_result, snr_values[j], M, noise_power)
 
                     # Calculate the number of errors in batch
                     msg_tx = tf.squeeze(msg_tx)
