@@ -8,7 +8,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=16G
 
-singularity shell --nv "$(pwd)/tensorflow_24.07.sif" << 'EOF'
+singularity shell --nv "$(pwd)/tensorflow_24.09.sif" << 'EOF'
 
 
 # Run Python file (main.py)
