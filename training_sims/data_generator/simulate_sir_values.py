@@ -86,7 +86,7 @@ if __name__ == "__main__":
                 fft_result = tf.abs(tf.signal.fft(dechirped_rx))
 
                 # Decode the message using argmax
-                msg_rx = model.detect(fft_result)
+                msg_rx = model.detect(fft_result, snr_val, M, noise_power)
 
                 # Calculate the number of errors in batch
                 msg_tx = tf.squeeze(msg_tx)
@@ -99,7 +99,7 @@ if __name__ == "__main__":
             print(
                 f"SIR: {sir_vals[i]} dB, error count: {result_list[i]} SER: {result_list[i]/n_symbols:E}"
             )
-        print(f"Simulation duration: {time.time() - start_time}")
+        print(f"Simulation duration: {time.time() - start_time:.2f} s")
 
         # Stack and cast the results to float64
         SF_list = tf.fill([len(sir_vals)], tf.cast(SF, tf.float64))
