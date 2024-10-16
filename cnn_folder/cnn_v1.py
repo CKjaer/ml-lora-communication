@@ -14,11 +14,7 @@ import logging
 import time
 
 
-# Measure time
-start_time = time.time()
 
-#Counter for corrupted images
-corrupt_imag_count = 0
 
 # Define the CNN architecture
 class LoRaCNN(nn.Module):
@@ -192,6 +188,12 @@ def evaluate_and_calculate_ser(model, test_loader, criterion):
 
 
 if __name__ == "__main__":
+    # Measure time
+    start_time = time.time()
+
+    #Counter for corrupted images
+    corrupt_imag_count = 0
+    
     # Define the directory to save the final plot
     img_dir = "./first_data_set/plots"  # Update this path accordingly
     output_folder = './cnn_output/'
