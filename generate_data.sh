@@ -12,7 +12,7 @@ singularity shell --nv "$(pwd)/tensorflow_24.09.sif" << 'EOF'
 
 
 # Run Python file (main.py)
-python "$BASE_DIR/main.py" || { echo "Python script failed"; exit 1; }
+python "$(pwd)/main.py" || { echo "Python script failed"; exit 1; }
 
 # Exit the container shell
 
