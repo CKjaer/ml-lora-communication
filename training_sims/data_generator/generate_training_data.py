@@ -15,7 +15,7 @@ def log_and_print(log:logging, message:str):
     print(message)
 
 
-def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_dir:str, lamb:float, verbose:bool=True):
+def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_dir:str, lamb:float, SIR_Random, SIR_setup, verbose:bool=True):
     # Check if GPU is available - if it is, tensor flow runs on the GPU
     log.name = "LoRa Phy gen"
     log_and_print(log,"Starting the csv generation")
@@ -37,35 +37,45 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
         snr_values = tf.constant(snr_values, dtype=tf.int32)
         
         # Precompute chirps
-        basis_chirp = lora.create_basechirp(M)
-        upchirp = lora.upchirp_lut(M,basis_chirp)
-        basic_dechirp = tf.math.conj(basis_chirp)
+        basic_chirp = lora.create_basechirp(M)
+        upchirp_lut = tf.concat(
+            [
+                lora.upchirp_lut(M, basic_chirp),
+                tf.zeros((1, M), dtype=tf.complex64),
+            ],
+            axis=0,
+        )
 
+        basic_dechirp = tf.math.conj(basic_chirp)
+        rate_params = tf.constant(lamb,dtype=tf.float32)
+        
+        
+        # SIR tuple: (SIR_min, SIR_max, SIR_random)
+        SIR_tuple = (SIR_setup[0], SIR_setup[1], SIR_Random)
+        # Hardcoded for now, will change
+        
+        BW = 250e3
+        k_b = tf.constant(1.380649e-23, dtype=tf.float64)  # Boltzmann constant
+        noise_power = tf.constant((k_b * 298.16 * BW), dtype=tf.float64)  # dB
         # Start the timer
         start_time = time.time()
-
-        @tf.function
-        def process_batch(snr, symbol):
-            """Processing function for a batch of LoRa symbols. Creates a batch of upchirps, adds AWGN and dechirps the signal."""
-            #Chirp by selecting the message indexes from the lut, adding awgn and then dechirping
-            #Gather indexes the list from the LUT. Squeeze removes an unnecessary dimension
-            upchirps = tf.squeeze(tf.transpose(tf.gather(upchirp, tf.repeat(symbol,N_samp), axis=1)))
-            awgn = lora.channel_model(snr, N_samp, M)
-            upchirps_with_noise = tf.add(upchirps, awgn)
-            #Dechirp by multiplying the upchirp with the basic dechirp
-            dechirp_rx = tf.multiply(upchirps_with_noise, basic_dechirp)
-            fft_result = tf.abs(tf.signal.fft(dechirp_rx))
-            return fft_result
-        
         for i, snr in enumerate(snr_values):
             tf_snr = tf.constant(snr, dtype=tf.int32)
             log_and_print(log,f"Processing SNR {snr} ({i + 1}/{len(snr_values)})")
 
             for j in tf.range(M):
                 # Setup - Start the timer - mostly for fun
-
                 tf_symbol = tf.constant(j, dtype=tf.int32)
-                fft_result = process_batch(tf_snr,tf_symbol)
+
+                msg_tx = tf.fill((N_samp,),tf_symbol)
+
+                chirped_rx = lora.process_batch(upchirp_lut, rate_params, tf_snr, msg_tx, N_samp, M, noise_power, SIR_tuple)
+
+                #Dechirp by multiplying the upchirp with the basic dechirp
+                dechirped_rx = lora.dechirp(chirped_rx, basic_dechirp)
+
+                # Run the FFT to demodulate
+                fft_result = tf.abs(tf.signal.fft(dechirped_rx))
                 
                 file_name = output_dir+"/"+f"snr_{snr}_symbol_{j}.csv"
                 savetxt(file_name, fft_result, delimiter=';')
