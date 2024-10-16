@@ -21,9 +21,10 @@ def load_data(directory, logger):
                 try:
                     parts = filename.split('_')
                     snr_value = float(parts[1])
-                    symbol_value = int(parts[3].split('.')[0])
+                    symbol_value = int(parts[3])
+                    rate = float(parts[5].removesuffix(".csv"))#.split('.')[0])
                 except ValueError:
-                    logger.error(f"Invalid filename {filename}. Expected format: snr_{snr_value}_symbol_{symbol_value}.csv")
+                    logger.error(f"Invalid filename {filename}. Expected format: snr_{snr_value}_symbol_{symbol_value}_rate{rate}.csv")
                     continue
 
                 # Read the CSV file into a pandas DataFrame
@@ -31,6 +32,7 @@ def load_data(directory, logger):
                 data = pd.read_csv(file_path, header=None)
 
                 # create a new column for SNR and Symbol as labels
+                data['rate'] = rate
                 data['snr'] = snr_value
                 data['symbol'] = symbol_value
                 data_list.append(data)
@@ -46,7 +48,7 @@ def load_data(directory, logger):
     #print("Done")
     
     # Sort the data by SNR and Symbol
-    combined_data.sort_values(by=['snr','symbol'], ascending=True, inplace=True)
+    combined_data.sort_values(by=['rate','snr','symbol'], ascending=True, inplace=True)
 
     # Reset index after sorting
     combined_data = combined_data.reset_index(drop=True)
@@ -74,5 +76,5 @@ if __name__ == "__main__":
     logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',datefmt='%Y-%m-%d %H:%M:%S', filename=logfilename, encoding='utf-8', level=logging.INFO)
     logger.info("Starting the program")
     
-    data = load_data("plot_stuff/test_data_fft", logger=logger)
+    data = load_data("C:/Users/rdybs/Desktop/gitnstuff/ml-lora-communication/output/20241016-140726/csv", logger=logger)
     

@@ -38,7 +38,7 @@ def generate_plots(data, logger, spreading_factor: int, num_samples: int, direct
         #save images to folder
         try:
             fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
-            fig.savefig(os.path.join(plots_dir, f"snr_{data['snr'][i]}_symbol_{data['symbol'][i]}_{sample_idx}.png"), dpi=num_symbols)
+            fig.savefig(os.path.join(plots_dir, f"snr_{data['snr'][i]}_symbol_{data['symbol'][i]}_rate_{data['rate'][i]}_{sample_idx}.png"), dpi=num_symbols)
         except Exception as e:
             logger.error(f"Error generating plot for sample {sample_idx} in file snr_{data['snr'][i]}_symbol_{data['symbol'][i]}. Error: {e}")
         
