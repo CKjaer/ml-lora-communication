@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     ################# data simulation #################
     try:
-        create_data_csvs(logger, config["number_of_samples"], config["snr_values"], config["spreading_factor"], csv_dir, config["lambda"], config["SIR_random"], config["SIR_span_and_stepsize"])
+        create_data_csvs(logger, config["number_of_samples"], config["snr_values"], config["spreading_factor"], csv_dir, config["rate"], config["SIR_random"], config["SIR_span_and_steps"])
     except Exception as e:
         logger.error(f"Error creating data: {e}")
         print(f"Error creating data: {e}")
