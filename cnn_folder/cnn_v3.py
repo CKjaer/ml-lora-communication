@@ -77,7 +77,6 @@ model = LoRaCNN(M).to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-# Dataset class with error handling for images
 class CustomImageDataset(Dataset):
     def __init__(self, img_dir, specific_label=None, transform=None, samples_per_label=250):
         self.img_dir = img_dir
@@ -90,6 +89,8 @@ class CustomImageDataset(Dataset):
         if specific_label is not None:
             self.img_list = [img for img in self.img_list if float(img.split('_')[1]) == specific_label]
 
+        logger.info(f"Total images after filtering by specific label {specific_label}: {len(self.img_list)}")
+
         # Group images by label
         label_image_dict = {}
         for img in self.img_list:
@@ -98,10 +99,16 @@ class CustomImageDataset(Dataset):
                 label_image_dict[label] = []
             label_image_dict[label].append(img)
 
-        # Randomly sample 100 images for each label
+        # Log the number of images for each label
+        for label, images in label_image_dict.items():
+            logger.info(f"Label: {label}, Number of images before sampling: {len(images)}")
+
+        # Randomly sample images for each label
         self.img_list = []
         for label, images in label_image_dict.items():
-            self.img_list.extend(random.sample(images, min(self.samples_per_label, len(images))))
+            sampled_images = random.sample(images, min(self.samples_per_label, len(images)))
+            self.img_list.extend(sampled_images)
+            logger.info(f"Label: {label}, Number of images after sampling: {len(sampled_images)}")
 
     def __len__(self):
         return len(self.img_list)
@@ -126,6 +133,7 @@ class CustomImageDataset(Dataset):
         except (PIL.UnidentifiedImageError, IndexError, FileNotFoundError) as e:
             logger.error(f"Error loading image {img_name}: {e}")
             return None, None
+
  
 
 # Define transformations for the images
@@ -206,7 +214,7 @@ symbol_error_rates = []
 for value in specific_values:
     logger.info(f"Calculating SER for specific value: {value}")
 
-    dataset = CustomImageDataset(img_dir=img_dir, specific_label=float(value), transform=transform, samples_per_label=100)
+    dataset = CustomImageDataset(img_dir=img_dir, specific_label=float(value), transform=transform, samples_per_label=250)
     logger.info(f"Number of images in dataset: {len(dataset)}")
     # Dataset size check
     if len(dataset) == 0:
