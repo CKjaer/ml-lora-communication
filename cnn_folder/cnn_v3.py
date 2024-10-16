@@ -11,8 +11,6 @@ from torch.utils.data import Dataset, DataLoader
 from torch.utils.data import random_split
 import matplotlib.pyplot as plt
 import logging
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, accuracy_score
 import numpy as np
 import random
 
