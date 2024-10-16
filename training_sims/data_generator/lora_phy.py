@@ -61,7 +61,7 @@ def channel_model(SNR, signal_length, M):
     return noise
 
 
-#@tf.function
+@tf.function
 def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut, user_amp, SIR_tuple):
     """
     Generate symbols for interferers based on a Poisson distribution.
@@ -131,7 +131,7 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut, user_amp
     )
     return inter_symbols_scaled
 
-#@tf.function
+@tf.function
 def process_batch(upchirp_lut,  rate_params, snr, msg_tx, batch_size, M, noise_power, SIR_tuple):
     
     # Pick the contents of each symbol from the look up table
