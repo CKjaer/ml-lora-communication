@@ -214,7 +214,7 @@ symbol_error_rates = []
 for value in specific_values:
     logger.info(f"Calculating SER for specific value: {value}")
 
-    dataset = CustomImageDataset(img_dir=img_dir, specific_label=float(value), transform=transform, samples_per_label=100)
+    dataset = CustomImageDataset(img_dir=img_dir, specific_label=float(value), transform=transform, samples_per_label=250)
     logger.info(f"Number of images in dataset: {len(dataset)}")
     # Dataset size check
     if len(dataset) == 0:
