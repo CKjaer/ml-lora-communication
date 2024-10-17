@@ -113,7 +113,7 @@ if __name__ == "__main__":
             ser_list = tf.divide(result_list[:, i], N)
             output = tf.stack(
                 [SF_list, snr_values, result_list[:, i], N_list, ser_list], axis=0
-            )
+            )g
 
             file_path = os.path.dirname(os.path.abspath(__file__))
             output_path = os.path.abspath(os.path.join(file_path, "output"))

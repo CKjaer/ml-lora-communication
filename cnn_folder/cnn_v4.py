@@ -42,17 +42,25 @@ class LoRaCNN(nn.Module):
         
     def forward(self, x):
         # Convolutional layers
-        x = F.relu(self.batchNorm1(self.conv1(x)))
+        x = self.conv1(x)
+        x = self.batchNorm1(x)
+        x = F.relu(x)
         x = self.pool(x)
-        x = F.relu(self.batchNorm2(self.conv2(x)))
+        x = self.conv2(x)
+        x = self.batchNorm2(x)
+        x = F.relu(x)
         x = self.pool(x)
         
         # Flatten the output from conv layers
         x = x.view(-1, self.num_flat_features(x))
         
         # Fully connected layers
-        x = F.relu(self.batchNorm3(self.fc1(x)))
-        x = F.relu(self.batchNorm4(self.fc2(x)))
+        x = self.fc1(x)
+        x = self.batchNorm3(x)
+        x = F.relu(x)
+        x = self.fc2(x)
+        x = self.batchNorm4(x)
+        x = F.relu(x)
         x = self.fc3(x)
         
         return x
@@ -246,12 +254,9 @@ for value in specific_values:
 
 logger.info("All SER values have been calculated.")
 
-ser_values_dashed_circle = np.array([1.0, 0.16, 0.13, 0.02, 0.003, 3.16e-5, 0])
-
 # Plotting SNR vs SER
 plt.figure(figsize=(10, 6))
 plt.plot(specific_values, symbol_error_rates, marker='o', linestyle='-', color='b')
-plt.plot(specific_values, ser_values_dashed_circle, marker='o', linestyle='--', color='black', label='CNN output in paper')
 plt.xlabel('SNR')
 plt.ylabel('Symbol Error Rate (SER)')
 plt.yscale('log')
