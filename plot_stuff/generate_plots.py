@@ -117,7 +117,6 @@ if __name__ == "__main__":
     csv_dir = "C:/Users/rdybs/Desktop/gitnstuff/ml-lora-communication/output/20241017-103648/csv"
     data = load_data(csv_dir, logger=logger) # change directory when running test
     max_vals = find_max(data, logger=logger)
-    print("YYEEEHAW")
 
     import uuid
     rand = uuid.uuid1()
@@ -125,6 +124,4 @@ if __name__ == "__main__":
     outdir = "C:/Users/rdybs/Desktop/gitnstuff/ml-lora-communication/output/example"
     outerdir = os.path.join(outdir,str(rand))
     os.makedirs(outerdir,exist_ok=True)
-    print("YYEEEHAW")
     generate_plots(data, logger=logger, spreading_factor=7, num_samples=1000, directory=outerdir, max_vals=max_vals) # change directory when running test
-    print("YYEEEHAW")
