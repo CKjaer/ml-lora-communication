@@ -10,35 +10,48 @@ def generate_plots(data, logger, spreading_factor: int, num_samples: int, direct
     sample_idx = 0
     start_time = time.time()
     num_symbols = 2**spreading_factor
+    
+    # create a lin space for the frequency values
+    freqs_idx = np.arange(0, num_symbols, 1)
+    
     plt.switch_backend('agg')
+    fig = plt.figure(figsize=(1,1), dpi=num_symbols)
+    ax = fig.add_subplot(111)
+    fig.set_facecolor('white')
+    plt.axis('off')
+    plots_dir = os.path.join(directory, "plots")
+    os.makedirs(plots_dir, exist_ok=True)
     
     for i in tqdm(range(len(data)), desc="Generating plots"):
-        # create a lin space for the frequency values
-        freqs_idx = np.arange(0, num_symbols, 1)
-        
-        fig = plt.figure(figsize=(1,1), dpi=num_symbols)
-        ax = fig.add_subplot(111)
+        ax.clear()
         
         # find the upper limit for current snr condition
         upper_y_lim = max_vals[data['snr'][i]]
         ax.set_ylim(0, upper_y_lim)
+        ax.set_xlim(0,num_symbols-1)
         
         # make the plot binary
-        plt.axis('off')
-        fig.set_facecolor('black')
-        plt.plot(freqs_idx, data['freqs'][i], color = 'white', linewidth=0.5)
-        plt.close(fig)
+        ax.set_facecolor('black')
+        #plt.plot(freqs_idx, data['freqs'][i], color = 'white', linewidth=0.5)
+        
+        data_freqs_i = data['freqs'][i]  # your y-axis data for the i-th index
+        plt.stem(freqs_idx,
+                 data_freqs_i,
+                 linefmt='white',
+                 markerfmt='None',
+                 basefmt=" "
+                 )
         
         # find the index of the current sample
         sample_idx = i % num_samples
         
-        plots_dir = os.path.join(directory, "plots")
-        os.makedirs(plots_dir, exist_ok=True)
-        
         #save images to folder
         try:
             fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
-            fig.savefig(os.path.join(plots_dir, f"snr_{data['snr'][i]}_symbol_{data['symbol'][i]}_rate_{data['rate'][i]}_{sample_idx}.png"), dpi=num_symbols)
+            fig.savefig(os.path.join(plots_dir,
+                        f"snr_{data['snr'][i]}_symbol_{data['symbol'][i]}_rate_{data['rate'][i]}_{sample_idx}.png"),
+                        dpi=num_symbols
+                        )
         except Exception as e:
             logger.error(f"Error generating plot for sample {sample_idx} in file snr_{data['snr'][i]}_symbol_{data['symbol'][i]}. Error: {e}")
         
@@ -79,8 +92,19 @@ if __name__ == "__main__":
     logging.basicConfig(filename=logfilename, encoding='utf-8', level=logging.INFO)
     logger.info("Starting the program")
     
-    data = load_data("plot_stuff/test_data_fft", logger=logger) # change directory when running test
+    csv_dir = "C:/Users/rdybs/Desktop/gitnstuff/ml-lora-communication/output/20241017-093154/csv"
+    data = load_data(csv_dir, logger=logger) # change directory when running test
     max_vals = find_max(data, logger=logger)
-    # generate_plots(data, logger=logger, spreading_factor=7, num_samples=1000, directory="/home/clyholm/ml-lora-communication/plot_stuff", max_vals=max_vals) # change directory when running test
-    
+    print("YYEEEHAW")
+
+    import uuid
+    rand = uuid.uuid1()
+    print(rand)
+    outdir = "C:/Users/rdybs/Desktop/gitnstuff/ml-lora-communication/output/example"
+    outerdir = os.path.join(outdir,str(rand))
+    os.makedirs(outerdir,exist_ok=True)
+    print("YYEEEHAW")
+    generate_plots(data, logger=logger, spreading_factor=7, num_samples=1000, directory=outerdir, max_vals=max_vals) # change directory when running test
+    print("YYEEEHAW")
+
     
