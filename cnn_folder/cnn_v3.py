@@ -246,9 +246,12 @@ for value in specific_values:
 
 logger.info("All SER values have been calculated.")
 
+ser_values_dashed_circle = np.array([1.0, 0.16, 0.13, 0.02, 0.003, 3.16e-5, 0])
+
 # Plotting SNR vs SER
 plt.figure(figsize=(10, 6))
 plt.plot(specific_values, symbol_error_rates, marker='o', linestyle='-', color='b')
+plt.plot(specific_values, ser_values_dashed_circle, marker='o', linestyle='--', color='black', label='CNN output in paper')
 plt.xlabel('SNR')
 plt.ylabel('Symbol Error Rate (SER)')
 plt.yscale('log')
