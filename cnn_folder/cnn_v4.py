@@ -42,19 +42,26 @@ class LoRaCNN(nn.Module):
         
     def forward(self, x):
         # Convolutional layers
-        x = F.relu(self.batchNorm1(self.conv1(x)))
+        x = self.conv1(x)
+        x = F.relu(x)
+        x = self.batchNorm1(x)
         x = self.pool(x)
-        x = F.relu(self.batchNorm2(self.conv2(x)))
+        x = self.conv2(x)
+        x = F.relu(x)
+        x = self.batchNorm2(x)
         x = self.pool(x)
         
         # Flatten the output from conv layers
         x = x.view(-1, self.num_flat_features(x))
         
         # Fully connected layers
-        x = F.relu(self.batchNorm3(self.fc1(x)))
-        x = F.relu(self.batchNorm4(self.fc2(x)))
+        x = self.fc1(x)
+        x = F.relu(x)
+        x = self.batchNorm3(x)
+        x = self.fc2(x)
+        x = F.relu(x)
+        x = self.batchNorm4(x)
         x = self.fc3(x)
-        
         return x
     
     def num_flat_features(self, x):
@@ -266,3 +273,4 @@ plt.show()
 plt.close()
 
 print(f"Final plot has been saved to {final_plot_filename}.")
+
