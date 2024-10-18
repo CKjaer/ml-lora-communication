@@ -4,8 +4,8 @@ import model_space as model
 import matplotlib.pyplot as plt
 import time
 from numpy import savetxt
-import os
 import tensorflow as tf
+import numpy as np
 
 if __name__ == "__main__":
     # Check if GPU is available otherwise use CPU
@@ -40,19 +40,22 @@ if __name__ == "__main__":
         basic_dechirp = tf.math.conj(basic_chirp)
 
         # Simulation parameters, the number of symbols simulated results in a 5% tolerance for max. SER
-        relative_error = 0.05
+        relative_error = 0.01
         max_ser = 1e-5
         n_symbols = int(tf.math.ceil(1 / (relative_error * max_ser)))
         batch_size = int(100e3)  # Number of symbols per batch
         nr_of_batches = int(n_symbols // batch_size)
-        snr_val = tf.constant(-6, dtype=tf.float64)  # dB
+        snr_val = tf.constant(-6.6, dtype=tf.float64)  # dB
         rate_param = tf.constant(0.25, dtype=tf.float64)  #
         sir_vals = tf.cast(tf.linspace(-10, 10, 11), dtype=tf.float64)  # dB
         result_list = tf.zeros(sir_vals.shape, dtype=tf.float64)
 
         # Noise formula based on thermal noise N0=k*T*B
         k_b = tf.constant(1.380649e-23, dtype=tf.float64)  # Boltzmann constant
-        noise_power = tf.constant((k_b * 298.16 * BW), dtype=tf.float64)  # dB
+        # BW = int(125e3)
+        noise_power = tf.constant((k_b * 298.15 * BW), dtype=tf.float64)  # dB
+
+        # noise_power = tf.constant((k_b * 150 * BW), dtype=tf.float64)  # dB
 
         print(f"Running SIR simulation for a total {n_symbols} symbols")
 
@@ -83,7 +86,19 @@ if __name__ == "__main__":
                 dechirped_rx = lora.dechirp(chirped_rx, basic_dechirp)
 
                 # Run the FFT to demodulate
+                # Compute the periodogram
+                # print("UE symbol", msg_tx[0].numpy())
                 fft_result = tf.abs(tf.signal.fft(dechirped_rx))
+                # periodogram = tf.abs(fft_result[0, :]) ** 2
+                # periodogram_dB = 10 * np.log10(periodogram.numpy())
+                # plt.plot(np.abs(fft_result[0, :]))
+                # plt.title(
+                #     f"FFT Result for SIR: {sir_vals[i].numpy()} dB, Batch: {batch.numpy()}"
+                # )
+                # plt.xlabel("Frequency Bin")
+                # plt.ylabel("Magnitude")
+                # plt.grid(True)
+                # plt.show()
 
                 # Decode the message using argmax
                 msg_rx = model.detect(fft_result, snr_val, M, noise_power)
