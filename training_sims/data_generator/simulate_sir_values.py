@@ -1,6 +1,6 @@
 import os
 import lora_phy as lora
-import model_space as model
+import model_space2 as model
 import matplotlib.pyplot as plt
 import time
 from numpy import savetxt
@@ -36,7 +36,7 @@ if __name__ == "__main__":
             axis=0,
         )
 
-        # Conjugate the basic chirp for basic dechirp
+        # Conjugate the basic chirp for baic dechirp
         basic_dechirp = tf.math.conj(basic_chirp)
 
         # Simulation parameters, the number of symbols simulated results in a 5% tolerance for max. SER
@@ -47,6 +47,7 @@ if __name__ == "__main__":
         nr_of_batches = int(n_symbols // batch_size)
         snr_val = tf.constant(-6, dtype=tf.float64)  # dB
         rate_param = tf.constant(0.25, dtype=tf.float64)  #
+        #sir_vals = tf.cast(tf.linspace(0, 0, 1), dtype=tf.float64)  # dB
         sir_vals = tf.cast(tf.linspace(-10, 10, 11), dtype=tf.float64)  # dB
         result_list = tf.zeros(sir_vals.shape, dtype=tf.float64)
 
