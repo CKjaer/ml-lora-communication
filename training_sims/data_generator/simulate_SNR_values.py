@@ -29,7 +29,8 @@ if __name__ == "__main__":
         # Create the basic chirp
         basic_chirp = lora.create_basechirp(M)
 
-        # Create a LUT for the upchirps for faster processing - A final 0 row is created for intererers to look up
+        # Create a LUT for the upchirps for faster processing -
+        # A zero row is created for the interferers to look up
         upchirp_lut = tf.concat(
             [
                 lora.upchirp_lut(M, basic_chirp),
@@ -41,9 +42,9 @@ if __name__ == "__main__":
         # Conjugate the basic chirp for basic dechirp
         basic_dechirp = tf.math.conj(basic_chirp)
 
-        # Simulation parameters, the number of symbols simulated results in a 5% tolerance for SER of 1e-5
-        n_symbols = int(1e2)  # int(2e6)
-        batch_size = int(10)  # Number of symbols per batch
+        # Simulation parameters
+        n_symbols = int(1e7)
+        batch_size = int(100e3)  # Number of symbols per batch
         nr_of_batches = int(
             n_symbols / batch_size
         )  # NB: n_symbols must be divisible by batch_size
@@ -58,7 +59,7 @@ if __name__ == "__main__":
         k_b = tf.constant(1.380649e-23, dtype=tf.float64)  # Boltzmann constant
         noise_power = tf.constant((k_b * 298.16 * BW), dtype=tf.float64)  # dB
 
-        print(f"Running SIR sim for a total of {n_symbols} symbols per SIR")
+        print(f"Running sim for a total of {n_symbols} symbols per SNR")
         start_time = time.time()
 
         for i in tf.range(len(rate_params)):
