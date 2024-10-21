@@ -4,7 +4,7 @@ import tensorflow as tf
 #Currently defined as a function, though not nessessary,
 #however it might easy swapping it out for a more complex model in the future
 @tf.function
-def detect(fft_input):
+def detect(fft_input, snr, M, noise_power):
     """Detects the symbol from the FFT output.
 
     Args:

@@ -1,46 +1,80 @@
 import numpy as np
+import matplotlib
+matplotlib.use('agg')
 import matplotlib.pyplot as plt
 import os
 from tqdm import tqdm
 import logging
 import time
 
-def generate_plots(data, logger, spreading_factor: int, num_samples: int, directory: str, max_vals: dict = None):
+def generate_plots(data, logger, spreading_factor: int, num_samples: int, directory: str, max_vals: dict = None, line_plot: bool = True):
     
     sample_idx = 0
     start_time = time.time()
     num_symbols = 2**spreading_factor
-    plt.switch_backend('agg')
+    
+    # create a lin space for the frequency values
+    #freqs_idx = np.arange(0, num_symbols, 1)
+    
+    #plt.switch_backend('agg')
+    #fig = plt.figure(figsize=(1,1), dpi=num_symbols)
+    plots_dir = os.path.join(directory, "plots")
+    os.makedirs(plots_dir, exist_ok=True)
+    plt.figure(figsize=(1, 1), dpi=num_symbols)  # Create a figure with 128x128 pixels
+    plt.gcf().patch.set_facecolor('black')  # Set the figure background to black
+    plt.axis('off')
+    plt.xlim(0,num_symbols-1)
+    plt.gca().set_facecolor('black')  # Set background color to black
     
     for i in tqdm(range(len(data)), desc="Generating plots"):
-        # create a lin space for the frequency values
-        freqs_idx = np.arange(0, num_symbols, 1)
-        
-        fig = plt.figure(figsize=(1,1), dpi=num_symbols)
-        ax = fig.add_subplot(111)
-        
         # find the upper limit for current snr condition
         upper_y_lim = max_vals[data['snr'][i]]
-        ax.set_ylim(0, upper_y_lim)
+        plt.ylim(0, upper_y_lim)
+
+        # find the data that should be used for this plot
+        data_freqs_i = data['freqs'][i]
         
-        # make the plot binary
-        plt.axis('off')
-        fig.set_facecolor('black')
-        plt.plot(freqs_idx, data['freqs'][i], color = 'white', linewidth=0.5)
-        plt.close(fig)
+        # set to true to plot line_plot
+        if line_plot:
+            # 0.75 seems like a fine size :)
+            line_width = 0.75
+            linp = plt.plot(data_freqs_i,
+                    color = 'white',
+                    linewidth=line_width,
+                    )
+        else:
+            line_width = 0.5
+            stems = plt.stem(data_freqs_i,
+                            linefmt='w-',
+                            markerfmt=' ',
+                            basefmt=' ')
+            
+            # Set the line width for each stem
+            for stem in stems:
+                stem.set_linewidth(line_width)  # Set line width to 3 pixels (adjust as needed)
+                stem.set_aa(False)  # Disable anti-aliasing
         
         # find the index of the current sample
         sample_idx = i % num_samples
         
-        plots_dir = os.path.join(directory, "plots")
-        os.makedirs(plots_dir, exist_ok=True)
-        
         #save images to folder
         try:
-            fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
-            fig.savefig(os.path.join(plots_dir, f"snr_{data['snr'][i]}_symbol_{data['symbol'][i]}_{sample_idx}.png"), dpi=num_symbols)
+            # removes padding
+            plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
+            plt.savefig(os.path.join(
+                            plots_dir,
+                            f"snr_{data['snr'][i]}_symbol_{data['symbol'][i]}_rate_{data['rate'][i]}_{sample_idx}.png"
+                        ),
+                        pad_inches=0, # Probably not nessecary
+                        dpi=num_symbols # Also probably not nessecary
+                        )
         except Exception as e:
             logger.error(f"Error generating plot for sample {sample_idx} in file snr_{data['snr'][i]}_symbol_{data['symbol'][i]}. Error: {e}")
+        
+        if line_plot:
+            linp.pop().remove()
+        else:
+            stems.remove()
         
         if (i + 1) % 5000 == 0:
             logger.info(f"Generated {i + 1} plots in {time.time() - start_time:.4f} seconds") 
@@ -79,8 +113,14 @@ if __name__ == "__main__":
     logging.basicConfig(filename=logfilename, encoding='utf-8', level=logging.INFO)
     logger.info("Starting the program")
     
-    data = load_data("plot_stuff/test_data_fft", logger=logger) # change directory when running test
+    csv_dir = "C:/Users/rdybs/Desktop/gitnstuff/ml-lora-communication/output/20241018-142131/csv"
+    data = load_data(csv_dir, logger=logger) # change directory when running test
     max_vals = find_max(data, logger=logger)
-    # generate_plots(data, logger=logger, spreading_factor=7, num_samples=1000, directory="/home/clyholm/ml-lora-communication/plot_stuff", max_vals=max_vals) # change directory when running test
-    
-    
+
+    import uuid
+    rand = uuid.uuid1()
+    print(rand)
+    outdir = "C:/Users/rdybs/Desktop/gitnstuff/ml-lora-communication/output/example"
+    outerdir = os.path.join(outdir,str(rand))
+    os.makedirs(outerdir,exist_ok=True)
+    generate_plots(data, logger=logger, spreading_factor=7, num_samples=1000, directory=outerdir, max_vals=max_vals, line_plot=True) # change directory when running test

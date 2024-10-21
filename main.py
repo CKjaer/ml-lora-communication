@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     ################# data simulation #################
     try:
-        create_data_csvs(logger, config["number_of_samples"], config["snr_values"], config["spreading_factor"], csv_dir, config["lambda"], config["SIR_random"], config["SIR_span_and_stepsize"])
+        create_data_csvs(logger, config["number_of_samples"], config["snr_values"], config["spreading_factor"], csv_dir, config["rate"], config["SIR_random"], config["SIR_span_and_steps"])
     except Exception as e:
         logger.error(f"Error creating data: {e}")
         print(f"Error creating data: {e}")
@@ -42,11 +42,10 @@ if __name__ == "__main__":
     # Debugging to check for max value in FFT magnitude
     try:
         max_vals = find_max(plot_data, logger)
-        generate_plots(data = plot_data, logger = logger, spreading_factor=config["spreading_factor"], num_samples=config["number_of_samples"], directory = os.path.join(output_dir, test_id), max_vals=max_vals)
+        generate_plots(data = plot_data, logger = logger, spreading_factor=config["spreading_factor"], num_samples=config["number_of_samples"], directory = os.path.join(output_dir, test_id), max_vals=max_vals, line_plot=config["line_plot"])
     except Exception as e:
         logger.error(f"Error generating plots: {e}")
         print(f"Error generating plots: {e}")
-    
     
     ################# train model #################
     # function calls to train the model go here

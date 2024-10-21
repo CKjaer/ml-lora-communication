@@ -14,8 +14,7 @@ def log_and_print(log:logging, message:str):
     log.info(message)
     print(message)
 
-
-def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_dir:str, lamb:float, SIR_Random, SIR_setup, verbose:bool=True):
+def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_dir:str, rate, SIR_Random, SIR_setup, verbose:bool=True):
     # Check if GPU is available - if it is, tensor flow runs on the GPU
     log.name = "LoRa Phy gen"
     log_and_print(log,"Starting the csv generation")
@@ -46,9 +45,8 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
             axis=0,
         )
 
+        rate_params = tf.convert_to_tensor(rate,dtype=tf.float32)
         basic_dechirp = tf.math.conj(basic_chirp)
-        rate_params = tf.constant(lamb,dtype=tf.float32)
-        
         
         # SIR tuple: (SIR_min, SIR_max, SIR_random)
         SIR_tuple = (SIR_setup[0], SIR_setup[1], SIR_Random)
@@ -59,29 +57,30 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
         noise_power = tf.constant((k_b * 298.16 * BW), dtype=tf.float64)  # dB
         # Start the timer
         start_time = time.time()
-        for i, snr in enumerate(snr_values):
-            tf_snr = tf.constant(snr, dtype=tf.int32)
-            log_and_print(log,f"Processing SNR {snr} ({i + 1}/{len(snr_values)})")
+        for _, current_rate in enumerate(rate_params):
+            log_and_print(log,f"Current Rate Param: {current_rate}")
+            for i, snr in enumerate(snr_values):
+                tf_snr = tf.constant(snr, dtype=tf.int32)
+                log_and_print(log,f"Processing SNR {snr} ({i + 1}/{len(snr_values)})")
+                for j in tf.range(M):
+                    # Setup - Start the timer - mostly for fun
+                    tf_symbol = tf.constant(j, dtype=tf.int32)
 
-            for j in tf.range(M):
-                # Setup - Start the timer - mostly for fun
-                tf_symbol = tf.constant(j, dtype=tf.int32)
+                    msg_tx = tf.fill((N_samp,),tf_symbol)
 
-                msg_tx = tf.fill((N_samp,),tf_symbol)
+                    chirped_rx = lora.process_batch(upchirp_lut, current_rate, tf_snr, msg_tx, N_samp, M, noise_power, SIR_tuple)
 
-                chirped_rx = lora.process_batch(upchirp_lut, rate_params, tf_snr, msg_tx, N_samp, M, noise_power, SIR_tuple)
+                    #Dechirp by multiplying the upchirp with the basic dechirp
+                    dechirped_rx = lora.dechirp(chirped_rx, basic_dechirp)
 
-                #Dechirp by multiplying the upchirp with the basic dechirp
-                dechirped_rx = lora.dechirp(chirped_rx, basic_dechirp)
+                    # Run the FFT to demodulate
+                    fft_result = tf.abs(tf.signal.fft(dechirped_rx))
+                    
+                    file_name = output_dir+"/"+f"snr_{snr}_symbol_{j}_rate_{current_rate:.2}.csv"
+                    savetxt(file_name, fft_result, delimiter=';')
 
-                # Run the FFT to demodulate
-                fft_result = tf.abs(tf.signal.fft(dechirped_rx))
-                
-                file_name = output_dir+"/"+f"snr_{snr}_symbol_{j}.csv"
-                savetxt(file_name, fft_result, delimiter=';')
-
-                #log_and_print(log,f"\tProcessed symbol {j}/{M} for SNR {snr} in {end_time - beginning_time:.4f} seconds - Total: {j+i*M}/{M*len(snr_values)}")
-        log_and_print(log,f"Total CSV creation time: {time.time() - start_time}")
+                    #log_and_print(log,f"\tProcessed symbol {j}/{M} for SNR {snr} in {end_time - beginning_time:.4f} seconds - Total: {j+i*M}/{M*len(snr_values)}")
+            log_and_print(log,f"Total CSV creation time: {time.time() - start_time}")
 
 if __name__ == '__main__':
     for i in range(10): print("\n")
