@@ -29,7 +29,8 @@ if __name__ == "__main__":
         # Create the basic chirp
         basic_chirp = lora.create_basechirp(M)
 
-        # Create a LUT for the upchirps for faster processing - A final 0 row is created for intererers to look up
+        # Create a LUT for the upchirps for faster processing -
+        # A zero row is created for the interferers to look up
         upchirp_lut = tf.concat(
             [
                 lora.upchirp_lut(M, basic_chirp),
@@ -41,10 +42,12 @@ if __name__ == "__main__":
         # Conjugate the basic chirp for basic dechirp
         basic_dechirp = tf.math.conj(basic_chirp)
 
-        # Simulation parameters, the number of symbols simulated results in a 5% tolerance for SER of 1e-5
-        N = int(100e4)  # int(2e6)
-        batch_size = int(100e3)  # Number of symbols per batch
-        nr_of_batches = int(N / batch_size)  # NB: N must be divisible by batch_size
+        # Simulation parameters
+        n_symbols = int(1e6)
+        batch_size = int(1e5)  # Number of symbols per batch
+        nr_of_batches = int(
+            n_symbols // batch_size
+        )  # NB: n_symbols must be divisible by batch_size
 
         snr_values = tf.cast(tf.linspace(-4, -16, 7), dtype=tf.float64)
         rate_params = tf.constant([0, 0.25, 0.5, 0.7, 1], dtype=tf.float64)
@@ -57,6 +60,7 @@ if __name__ == "__main__":
         k_b = tf.constant(1.380649e-23, dtype=tf.float64)  # Boltzmann constant
         noise_power = tf.constant((k_b * 298.16 * BW), dtype=tf.float64)  # dB
 
+        print(f"Running sim for a total of {n_symbols} symbols per SNR")
         start_time = time.time()
 
         for i in tf.range(len(rate_params)):
@@ -101,20 +105,18 @@ if __name__ == "__main__":
                     updates=[error_count],
                 )
                 print(
-                    f"SNR: {snr_values[j]} dB, error count: {tf.gather_nd(result_list, [[j, i]])} SER: {result_list[j, i]/N:E}"
+                    f"SNR: {snr_values[j]} dB, error count: {tf.gather_nd(result_list, [[j, i]])} SER: {result_list[j, i]/n_symbols:E}"
                 )
         print(f"Simulation duration: {time.time() - start_time}")
 
         # Stack and cast the results to float64
         SF_list = tf.fill([len(snr_values)], tf.cast(SF, tf.float64))
-        N_list = tf.fill([len(snr_values)], tf.cast(N, tf.float64))
+        N_list = tf.fill([len(snr_values)], tf.cast(n_symbols, tf.float64))
         snr_list = tf.cast(snr_values, tf.float64)
 
         # Save the results to a .txt file for every rate parameter and create a plot
-        # fig, axs = plt.subplots(2, 2, figsize=(15, 10))
         for i, rate_param in enumerate(rate_params):
-            # plt.subplot(2,2,i+1)
-            ser_list = tf.divide(result_list[:, i], N)
+            ser_list = tf.divide(result_list[:, i], n_symbols)
             output = tf.stack(
                 [SF_list, snr_values, result_list[:, i], N_list, ser_list], axis=0
             )
@@ -125,7 +127,7 @@ if __name__ == "__main__":
             )
             os.makedirs(output_path, exist_ok=True)
             time_str = time.strftime("%Y_%m_%d_%H_%M_%S")
-            file_name = f"{output_path}/{time_str}_snr_simulations_results_SF{SF}_lam{rate_param.numpy()}.txt"
+            file_name = f"{output_path}/{time_str}_SNR_simulations_results_SF{SF}_lam{rate_param.numpy()}.txt"
             head = (
                 f"Test done: {time_str} - "
                 f"time taken: {time.time() - start_time} \n"
@@ -136,19 +138,20 @@ if __name__ == "__main__":
             # Plot SER curves as function of SNR
             if i > -1:
                 fig, ax = plt.subplots(1, 1, figsize=(10, 5))
-                # axs = axs.flatten()
-                # ax = axs[i-1]
+
+                # Classic decoder without interfering users
                 ax.plot(
                     snr_values,
-                    result_list[:, 0] / N,
+                    result_list[:, 0] / n_symbols,
                     marker="o",
-                    linestyle="dashed",
                     label=f"SF{SF}, λ=0.00",
                     color="black",
-                )  # Classical decoder with λ=0
+                )
+
+                # Classical with Poisson distributed interferers
                 ax.plot(
                     snr_values,
-                    result_list[:, i] / N,
+                    result_list[:, i] / n_symbols,
                     marker="^",
                     linestyle="dashed",
                     label=f"SF{SF}, λ={rate_param.numpy():.2f}",
@@ -158,7 +161,6 @@ if __name__ == "__main__":
                 ax.set_xlabel("SNR [dB]")
                 ax.set_ylabel("SER")
                 ax.grid(True, which="both", alpha=0.5)
-                # ax.legend()
                 ax.set_ylim(1e-6, 1)
                 ax.set_xlim(-16, -4)
 

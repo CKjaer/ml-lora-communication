@@ -61,7 +61,7 @@ def channel_model(SNR, signal_length, M):
     return noise
 
 
-@tf.function
+# @tf.function
 def generate_interferer_symbols(
     batch_size, rate_param, M, upchirp_lut, user_amp, SIR_tuple
 ):
@@ -127,11 +127,10 @@ def generate_interferer_symbols(
 
     # Selects the first half of each symbol combi to give one symbol out
     half_shifted_inter = tf.zeros((batch_size, M), dtype=tf.complex64)
+
     for i in tf.range(max_interferers):
-        half_shifted_inter += (
-            tf.expand_dims(interferer_amp[:, i], axis=-1)
-            * shifted_inter[:, i * M : (i + 1) * M]
-        )
+        a = tf.expand_dims(interferer_amp[:, i], axis=-1)
+        half_shifted_inter += a * shifted_inter[:, i * M : (i + 1) * M]
 
     # half_shifted_inter = shifted_inter[:, : M * max_interferers]
 
@@ -147,7 +146,7 @@ def generate_interferer_symbols(
     # return interferer_amp * tf.reshape(inter_symbols[:, 0, :], [batch_size, M])
 
 
-@tf.function
+# @tf.function
 def process_batch(
     upchirp_lut, rate_param, snr, msg_tx, batch_size, M, noise_power, SIR_tuple
 ):
