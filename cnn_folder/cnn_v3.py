@@ -257,6 +257,7 @@ plt.ylabel('Symbol Error Rate (SER)')
 plt.yscale('log')
 plt.ylim(1e-5, 1e0)
 plt.title('SNR vs Symbol Error Rate')
+plt.legend(['CNN Output', 'CNN Output in Paper'])
 plt.grid(True)
 
 # Save and show plot
