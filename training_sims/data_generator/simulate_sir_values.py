@@ -39,13 +39,13 @@ if __name__ == "__main__":
         # Conjugate the basic chirp for basic dechirp
         basic_dechirp = tf.math.conj(basic_chirp)
 
-        # Simulation parameters, the number of symbols simulated results in a 5% tolerance for max. SER
-        relative_error = 0.05
+        # Simulation parameters
+        relative_error = 0.01
         max_ser = 1e-5
         n_symbols = int(tf.math.ceil(1 / (relative_error * max_ser)))
-        batch_size = int(100e3)  # Number of symbols per batch
+        batch_size = int(200e3)  # Number of symbols per batch
         nr_of_batches = int(n_symbols // batch_size)
-        snr_val = tf.constant(-6, dtype=tf.float64)  # dB
+        snr_val = tf.constant(-6.6, dtype=tf.float64)  # dB
         rate_param = tf.constant(0.25, dtype=tf.float64)  #
         sir_vals = tf.cast(tf.linspace(-10, 10, 11), dtype=tf.float64)  # dB
         result_list = tf.zeros(sir_vals.shape, dtype=tf.float64)
@@ -54,7 +54,7 @@ if __name__ == "__main__":
         k_b = tf.constant(1.380649e-23, dtype=tf.float64)  # Boltzmann constant
         noise_power = tf.constant((k_b * 298.16 * BW), dtype=tf.float64)  # dB
 
-        print(f"Running SIR simulation for a total {n_symbols} symbols")
+        print(f"Running sim for a total of {n_symbols} symbols per SIR")
 
         start_time = time.time()
 
@@ -142,4 +142,6 @@ if __name__ == "__main__":
         plt.xticks(tf.range(-10, 12, 2))
         plt.legend()
         plt.tight_layout()
-        plt.savefig(f"{output_path}/{time_str}_SER_simulations_results_SF{SF}.png")
+        plt.savefig(
+            f"{output_path}/{time_str}_SIR_simulations_results_SF{SF}_rate{rate_param.numpy()}.png"
+        )
