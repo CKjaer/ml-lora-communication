@@ -1,6 +1,6 @@
 import os
 import lora_phy as lora
-import model_space2 as model
+import model_space as model
 import matplotlib.pyplot as plt
 import time
 from numpy import savetxt
@@ -40,14 +40,14 @@ if __name__ == "__main__":
         basic_dechirp = tf.math.conj(basic_chirp)
 
         # Simulation parameters, the number of symbols simulated results in a 5% tolerance for max. SER
-        relative_error = 0.05
+        relative_error = 0.01
         max_ser = 1e-5
         n_symbols = int(tf.math.ceil(1 / (relative_error * max_ser)))
-        batch_size = int(100e3)  # Number of symbols per batch
+        batch_size = int(250e3)  # Number of symbols per batch
         nr_of_batches = int(n_symbols // batch_size)
         snr_val = tf.constant(-6, dtype=tf.float64)  # dB
         rate_param = tf.constant(0.25, dtype=tf.float64)  #
-        #sir_vals = tf.cast(tf.linspace(0, 0, 1), dtype=tf.float64)  # dB
+        #sir_vals = tf.cast(tf.linspace(6, 6, 1), dtype=tf.float64)  # dB
         sir_vals = tf.cast(tf.linspace(-10, 10, 11), dtype=tf.float64)  # dB
         result_list = tf.zeros(sir_vals.shape, dtype=tf.float64)
 
@@ -61,6 +61,7 @@ if __name__ == "__main__":
 
         for i in tf.range(len(sir_vals)):
             for batch in tf.range(nr_of_batches):
+                print(f"SIR: {sir_vals[i]}, batch : {batch} of {nr_of_batches}")
                 # Generate the user message and look up the upchirps
                 msg_tx = tf.random.uniform(
                     (batch_size,), minval=0, maxval=M, dtype=tf.int32
@@ -84,10 +85,30 @@ if __name__ == "__main__":
                 dechirped_rx = lora.dechirp(chirped_rx, basic_dechirp)
 
                 # Run the FFT to demodulate
-                fft_result = tf.abs(tf.signal.fft(dechirped_rx))
+                #fft_result = tf.abs(tf.signal.fft(dechirped_rx))
+                s = tf.exp(tf.complex(0.0,0.0))
+                s = tf.fill(dechirped_rx.shape,s)
+                fft_result = tf.signal.fft(dechirped_rx)
+                real_fft_result = tf.math.real(fft_result)
+                abs_fft_result = tf.abs(fft_result)
+                if False:
+                    plt.subplots(1,2,figsize=(5,10))
+                    plt.subplot(1,2,1)
+                    plt.plot(tf.math.real(fft_result[0]))
+                    plt.plot(tf.math.imag(fft_result[0]))
+                    m1 = tf.argmax(real_fft_result[0])
+                    plt.axvline(m1,c='r',linestyle='--')
+                    plt.legend(["real","imag","desc"])
+                    plt.subplot(1,2,2)
+                    plt.plot(abs_fft_result[0])
+                    m2 = tf.argmax(abs_fft_result[0])
+                    plt.axvline(m2, c='r',linestyle='--')
+                    plt.legend(["abs","desc"])
+                    plt.show()
+                    print(f"Detections: from real: {m1}, from abs: {m2}")
 
                 # Decode the message using argmax
-                msg_rx = model.detect(fft_result, snr_val, M, noise_power)
+                msg_rx = model.detect(abs_fft_result, snr_val, M, noise_power)
 
                 # Calculate the number of errors in batch
                 msg_tx = tf.squeeze(msg_tx)
