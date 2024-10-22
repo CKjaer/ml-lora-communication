@@ -1,51 +1,35 @@
-# YAML file for hyperparameter tuning with Weights and Biases
-program: cnn.py
-method: #????
+program: cnn_v3.py
+method: random
 metric:
-    name: 
-    metric:
+    name: accuracy_val
+    metric: accuracy
+    goal: maximize
 
+# Parameters which are mentioned in the paper, are kept constant
+# Parameters regarding architecture are excluded and defined in the program
 parameters:
-
-    learning_rate:
-    distribution: uniform
-    min: 0.0001
-    max: 0.01
+    lr:
+        distribution: uniform
+        min: 0.0001
+        max: 0.01
 
     batch_size:
-    values: [16, 32, 64, 128]
+        values: [16, 32, 64, 128]
 
     num_epochs:
-    values: [3, 5, 10]
+        values: [1, 2, 3, 4, 5]
 
     optimizer:
-    values: ['adam', 'sgd']
+        values: ["adam", "sgd"]
 
-    conv1_out_channels:
-    values: [32, 64, 128]
-
-    conv2_out_channels:
-    values: [64, 128, 256]
-
-    dropout_rate:
-    distribution: uniform
-    min: 0.1
-    max: 0.5
-
-    fc1_units:
-    values: [4 * 128, 4 * 256, 4 * 512]  # Depends on the input size M
-
-    fc2_units:
-    values: [2 * 128, 2 * 256, 2 * 512]  # Follows from the first fully connected layer
+    num_symbols:
+        values: 128
 
     activation_function:
-    values: ['relu', 'tanh']
-
-    weight_initialization:
-    values: ['xavier_uniform', 'he_normal']
+        values: "relu"
 
     pooling_layer:
-    values: ['avgpool', 'maxpool']
+        values: "avgpool"
 
     kernel_size:
-    values: [3, 4, 5]
+        values: 4
