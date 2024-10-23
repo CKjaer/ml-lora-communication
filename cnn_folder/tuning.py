@@ -93,15 +93,15 @@ class CustomImageDataset(Dataset):
             label_image_dict[label].append(img)
 
         # Log the number of images for each label
-        for label, images in label_image_dict.items():
-            logger.info(f"Label: {label}, Number of images before sampling: {len(images)}")
+        # for label, images in label_image_dict.items():
+            #logger.info(f"Label: {label}, Number of images before sampling: {len(images)}")
 
         # Randomly sample images for each label
         self.img_list = []
         for label, images in label_image_dict.items():
             sampled_images = random.sample(images, min(self.samples_per_label, len(images)))
             self.img_list.extend(sampled_images)
-            logger.info(f"Label: {label}, Number of images after sampling: {len(sampled_images)}")
+            #logger.info(f"Label: {label}, Number of images after sampling: {len(sampled_images)}")
 
     def __len__(self):
         return len(self.img_list)
@@ -154,10 +154,7 @@ def train(model, train_loader, num_epochs, optimizer, criterion, logger, device)
             if i % 100 == 99:
                 logger.info(f'Epoch [{epoch+1}], Step [{i+1}], Loss: {running_loss / 100:.4f}')
                 
-                wandb.log({'Epoch': epoch+1})
-                wandb.log({'Step': i+1})
-                wandb.log({'Loss': np.round(running_loss / 100, 4)})
-                
+                wandb.log({'Epoch': epoch+1, 'Step': i+1, 'Loss': np.round(running_loss / 100, 4)})
                 running_loss = 0.0
 
 ############# evaluation #############
@@ -195,6 +192,8 @@ def evaluate_and_calculate_ser(model, test_loader, criterion, logger, device):
     return accuracy
 
 def main():
+    # load sweep config
+    wandb.init()
     # Directory paths
     img_dir = "./output/full_set_20241003-214909/plots/"
     output_folder = './cnn_output/'
@@ -215,9 +214,6 @@ def main():
     
     # TODO change this to whatever condition we want to tune on
     snr_value = -10
-    
-    # load sweep config
-    wandb.init(project="CNN")
     
     # define hyperparameters
     num_epochs = wandb.config.num_epochs
@@ -265,6 +261,3 @@ if __name__ == "__main__":
     sweep_id = wandb.sweep(sweep=params, project="CNN")
     
     wandb.agent(sweep_id, function=main, count=10)
-    
-    
-    
