@@ -8,7 +8,6 @@ import logging
 import time
 
 def generate_plots(data, logger, spreading_factor: int, num_samples: int, directory: str, max_vals: dict = None, line_plot: bool = True):
-    
     sample_idx = 0
     start_time = time.time()
     num_symbols = 2**spreading_factor
@@ -25,8 +24,18 @@ def generate_plots(data, logger, spreading_factor: int, num_samples: int, direct
     plt.axis('off')
     plt.xlim(0,num_symbols-1)
     plt.gca().set_facecolor('black')  # Set background color to black
-    
+    #Set prev_symbol to a symbol it can never be
+    prev_symbol = num_symbols+1
+
     for i in tqdm(range(len(data)), desc="Generating plots"):
+        #order: RateParam -> SNR -> Symbol -> index
+        snr = data['snr'][i]
+        symbol = data['symbol'][i]
+        rate = data['rate'][i]
+
+        #List is ordered - thus a new symbol requires sample index to start over :)
+        if symbol != prev_symbol:
+            sample_idx = 0
         # find the upper limit for current snr condition
         upper_y_lim = max_vals[data['snr'][i]]
         plt.ylim(0, upper_y_lim)
@@ -55,15 +64,16 @@ def generate_plots(data, logger, spreading_factor: int, num_samples: int, direct
                 stem.set_aa(False)  # Disable anti-aliasing
         
         # find the index of the current sample
-        sample_idx = i % num_samples
+        #sample_idx = i % num_samples[0]
         
         #save images to folder
         try:
             # removes padding
             plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
+            filename = f"snr_{snr}_symbol_{symbol}_rate_{rate}_{sample_idx}.png"
             plt.savefig(os.path.join(
                             plots_dir,
-                            f"snr_{data['snr'][i]}_symbol_{data['symbol'][i]}_rate_{data['rate'][i]}_{sample_idx}.png"
+                            filename
                         ),
                         pad_inches=0, # Probably not nessecary
                         dpi=num_symbols # Also probably not nessecary
@@ -78,12 +88,13 @@ def generate_plots(data, logger, spreading_factor: int, num_samples: int, direct
         
         if (i + 1) % 5000 == 0:
             logger.info(f"Generated {i + 1} plots in {time.time() - start_time:.4f} seconds") 
+        prev_symbol = symbol
+        sample_idx = sample_idx + 1
 
     logger.info(f"Finished generating {len(data)} plots in {time.time() - start_time:.4f} seconds")
 
 def find_max(df, logger):
     snr_values = df['snr'].unique()
-
     # store the maximum value for each snr in a dictionary
     max_vals = {}
     for snr in snr_values:
@@ -113,7 +124,7 @@ if __name__ == "__main__":
     logging.basicConfig(filename=logfilename, encoding='utf-8', level=logging.INFO)
     logger.info("Starting the program")
     
-    csv_dir = "C:/Users/rdybs/Desktop/gitnstuff/ml-lora-communication/output/20241018-142131/csv"
+    csv_dir = "C:/Users/rdybs/Desktop/gitnstuff/ml-lora-communication/output/20241023-134010/csv"
     data = load_data(csv_dir, logger=logger) # change directory when running test
     max_vals = find_max(data, logger=logger)
 
@@ -123,4 +134,4 @@ if __name__ == "__main__":
     outdir = "C:/Users/rdybs/Desktop/gitnstuff/ml-lora-communication/output/example"
     outerdir = os.path.join(outdir,str(rand))
     os.makedirs(outerdir,exist_ok=True)
-    generate_plots(data, logger=logger, spreading_factor=7, num_samples=1000, directory=outerdir, max_vals=max_vals, line_plot=True) # change directory when running test
+    generate_plots(data, logger=logger, spreading_factor=7, num_samples=[10,10,10,10,10,10,10], directory=outerdir, max_vals=max_vals, line_plot=True) # change directory when running test
