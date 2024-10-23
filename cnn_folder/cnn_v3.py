@@ -78,17 +78,21 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 class CustomImageDataset(Dataset):
-    def __init__(self, img_dir, specific_label=None, transform=None, samples_per_label=250):
+    def __init__(self, img_dir, specific_label=None, rate_param=None, transform=None, samples_per_label=250):
         self.img_dir = img_dir
         self.img_list = os.listdir(img_dir)
         self.transform = transform
         self.specific_label = specific_label
+        self.rate_param = rate_param
         self.samples_per_label = samples_per_label
 
         # Filter images based on specific label (if provided)
         if specific_label is not None:
             self.img_list = [img for img in self.img_list if float(img.split('_')[1]) == specific_label]
 
+        if rate_param is not None:
+            self.img_list = [img for img in self.img_list if float(img.split('_')[5]) == rate_param]
+        
         logger.info(f"Total images after filtering by specific label {specific_label}: {len(self.img_list)}")
 
         # Group images by label
@@ -100,15 +104,15 @@ class CustomImageDataset(Dataset):
             label_image_dict[label].append(img)
 
         # Log the number of images for each label
-        for label, images in label_image_dict.items():
-            logger.info(f"Label: {label}, Number of images before sampling: {len(images)}")
+        # for label, images in label_image_dict.items():
+        #     logger.info(f"Label: {label}, Number of images before sampling: {len(images)}")
 
         # Randomly sample images for each label
         self.img_list = []
         for label, images in label_image_dict.items():
             sampled_images = random.sample(images, min(self.samples_per_label, len(images)))
             self.img_list.extend(sampled_images)
-            logger.info(f"Label: {label}, Number of images after sampling: {len(sampled_images)}")
+            #logger.info(f"Label: {label}, Number of images after sampling: {len(sampled_images)}")
 
     def __len__(self):
         return len(self.img_list)
@@ -204,66 +208,93 @@ output_folder = './cnn_output/'
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
 
-# List of specific values for which SER will be calculated
+# List of snr and rate parameters for which SER will be calculated
 specific_values = [i for i in range(-16, -2, 2)]
+rates = [0,0.25,0.5,0.7,1]
 
 # Placeholder to store symbol error rates
-symbol_error_rates = []
+symbol_error_rates = {} # dictionary to store SER for each rate
+for rate in rates:
+    symbol_error_rates[rate] = []
 
 # Loop over each specific value
 for value in specific_values:
-    logger.info(f"Calculating SER for specific value: {value}")
+    for rate in rates:
+        logger.info(f"Calculating SER for specific value: {value}, rate {rate}")
 
-    dataset = CustomImageDataset(img_dir=img_dir, specific_label=float(value), transform=transform, samples_per_label=250)
-    logger.info(f"Number of images in dataset: {len(dataset)}")
-    # Dataset size check
-    if len(dataset) == 0:
-        logger.warning(f"No images found for specific value: {value}. Skipping.")
-        continue
+        dataset = CustomImageDataset(img_dir=img_dir, specific_label=float(value), rate_param=float(rate), transform=transform, samples_per_label=250)
+        logger.info(f"Number of images in dataset: {len(dataset)}")
+        # Dataset size check
+        if len(dataset) == 0:
+            logger.warning(f"No images found for specific value: {value}. Skipping.")
+            continue
 
-    dataset_size = len(dataset)
-    train_size = int(0.8 * dataset_size)
-    test_size = dataset_size - train_size
+        dataset_size = len(dataset)
+        train_size = int(0.8 * dataset_size)
+        test_size = dataset_size - train_size
 
-    train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
+        train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
 
-    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+        train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+        test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
-    model = LoRaCNN(M).to(device)
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+        model = LoRaCNN(M).to(device)
+        optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-    # Train the model
-    train(model, train_loader, 3, optimizer, criterion)
+        # Train the model
+        train(model, train_loader, 3, optimizer, criterion)
 
-    # Save model and optimizer
-    torch.save(model.state_dict(), os.path.join(output_folder, f'model_{value}_snr.pth'))
-    torch.save(optimizer.state_dict(), os.path.join(output_folder, f'optimizer_{value}_snr.pth'))
+        # Save model and optimizer
+        torch.save(model.state_dict(), os.path.join(output_folder, f'model_snr_{value}_rate{rate}.pth'))
+        torch.save(optimizer.state_dict(), os.path.join(output_folder, f'optimizer_snr_{value}_rate_{rate}.pth'))
 
-    # Evaluate model and calculate SER
-    ser = evaluate_and_calculate_ser(model, test_loader, criterion)
-    symbol_error_rates.append(ser)
+        # Evaluate model and calculate SER
+        ser = evaluate_and_calculate_ser(model, test_loader, criterion)
+        symbol_error_rates[rate].append((ser, value)) # store SER and SNR value in corresponding rate
+
 
 logger.info("All SER values have been calculated.")
 
-ser_values_dashed_circle = np.array([1.0, 0.16, 0.13, 0.02, 0.003, 3.16e-5, 0])
+
+for rate, values in symbol_error_rates.items():
+    snr_values = [snr for ser, snr in values] # stupid but I think it works
+    ser_values = [ser for ser, snr in values]
+    
+    plt.figure(figsize=(10, 6))
+    plt.plot(snr_values, ser_values, marker='o', linestyle='-', color='b')
+    plt.xlabel('SNR')
+    plt.ylabel('Symbol Error Rate (SER)')
+    plt.yscale('log')
+    plt.ylim(1e-5, 1e0)
+    plt.title(f'SNR vs Symbol Error Rate for rate {rate}')
+    plt.grid(True)
+        
+    # Save the plot
+    plot_filename = os.path.join(output_folder, f'snr_vs_ser_rate_{rate}.png')
+    plt.savefig(plot_filename)
+    plt.show()
+    plt.close()
+    logger.info(f"Plot for rate {rate} has been saved to {plot_filename}.")
+    
+
+#ser_values_dashed_circle = np.array([1.0, 0.16, 0.13, 0.02, 0.003, 3.16e-5, 0])
 
 # Plotting SNR vs SER
-plt.figure(figsize=(10, 6))
-plt.plot(specific_values, symbol_error_rates, marker='o', linestyle='-', color='b')
-plt.plot(specific_values, ser_values_dashed_circle, marker='o', linestyle='--', color='black', label='CNN output in paper')
-plt.xlabel('SNR')
-plt.ylabel('Symbol Error Rate (SER)')
-plt.yscale('log')
-plt.ylim(1e-5, 1e0)
-plt.title('SNR vs Symbol Error Rate')
-plt.legend(['CNN Output', 'CNN Output in Paper'])
-plt.grid(True)
+# plt.figure(figsize=(10, 6))
+# plt.plot(specific_values, symbol_error_rates, marker='o', linestyle='-', color='b')
+# #plt.plot(specific_values, ser_values_dashed_circle, marker='o', linestyle='--', color='black', label='CNN output in paper')
+# plt.xlabel('SNR')
+# plt.ylabel('Symbol Error Rate (SER)')
+# plt.yscale('log')
+# plt.ylim(1e-5, 1e0)
+# plt.title('SNR vs Symbol Error Rate')
+# plt.legend(['CNN Output', 'CNN Output in Paper'])
+# plt.grid(True)
 
-# Save and show plot
-final_plot_filename = os.path.join(output_folder, 'snr_vs_ser_final_plot.png')
-plt.savefig(final_plot_filename)
-plt.show()
-plt.close()
+# # Save and show plot
+# final_plot_filename = os.path.join(output_folder, 'snr_vs_ser_final_plot.png')
+# plt.savefig(final_plot_filename)
+# plt.show()
+# plt.close()
 
-print(f"Final plot has been saved to {final_plot_filename}.")
+# print(f"Final plot has been saved to {final_plot_filename}.")
