@@ -25,7 +25,7 @@ parameters:
     num_symbols:
         values: 128
 
-    activation_function:
+    activation:
         values: "relu"
 
     pooling_layer:
