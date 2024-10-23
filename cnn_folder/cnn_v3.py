@@ -201,15 +201,15 @@ def evaluate_and_calculate_ser(model, test_loader, criterion):
 
 
 # Directory paths
-img_dir = "./output/full_set_20241003-214909/plots/"
-output_folder = './cnn_output/'
+img_dir = "./output/20241021-173148/plots/"
+output_folder = './cnn_output/test_rates/'
 
 # Create the directory if it doesn't exist
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
 
 # List of snr and rate parameters for which SER will be calculated
-specific_values = [i for i in range(-16, -2, 2)]
+specific_values = [i for i in range(-10, -6, 2)] # TODO change this to -16, -2, 2
 rates = [0,0.25,0.5,0.7,1]
 
 # Placeholder to store symbol error rates
@@ -251,6 +251,7 @@ for value in specific_values:
         # Evaluate model and calculate SER
         ser = evaluate_and_calculate_ser(model, test_loader, criterion)
         symbol_error_rates[rate].append((ser, value)) # store SER and SNR value in corresponding rate
+        
 
 
 logger.info("All SER values have been calculated.")
