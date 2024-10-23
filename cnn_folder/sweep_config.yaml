@@ -2,7 +2,6 @@ program: cnn_v3.py
 method: random
 metric:
     name: accuracy_val
-    metric: accuracy
     goal: maximize
 
 # Parameters which are mentioned in the paper, are kept constant
@@ -23,13 +22,13 @@ parameters:
         values: ["adam", "sgd"]
 
     num_symbols:
-        values: 128
+        value: 128
 
     activation:
-        values: "relu"
+        value: "ReLU"
 
     pooling_layer:
-        values: "avgpool"
+        value: "avgpool"
 
     kernel_size:
-        values: 4
+        value: 4
