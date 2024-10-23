@@ -70,18 +70,22 @@ class LoRaCNN(nn.Module):
 
 ############# data processing #############
 class CustomImageDataset(Dataset):
-    def __init__(self, img_dir, logger, samples_per_label, specific_label=None, transform=None, ):
+    def __init__(self, img_dir, logger, samples_per_label, specific_label=None, rate_param=None, transform=None, ):
         self.img_dir = img_dir
         self.img_list = os.listdir(img_dir)
         self.transform = transform
         self.specific_label = specific_label
+        self.rate_param = rate_param
         self.samples_per_label = samples_per_label
         self.logger = logger
-
+        
         # Filter images based on specific label (if provided)
         if specific_label is not None:
             self.img_list = [img for img in self.img_list if float(img.split('_')[1]) == specific_label]
 
+        if rate_param is not None:
+            self.img_list = [img for img in self.img_list if float(img.split('_')[5]) == rate_param]
+            
         logger.info(f"Total images after filtering by specific label {specific_label}: {len(self.img_list)}")
 
         # Group images by label
@@ -192,11 +196,9 @@ def evaluate_and_calculate_ser(model, test_loader, criterion, logger, device):
     return accuracy
 
 def main():
-    # load sweep config
-    wandb.init()
     # Directory paths
-    img_dir = "./output/full_set_20241003-214909/plots/"
-    output_folder = './cnn_output/'
+    img_dir = "./output/20241021-173148/plots/"
+    output_folder = './cnn_output/sweep_run/'
     
     # Create the directory if it doesn't exist
     if not os.path.exists(output_folder):
@@ -208,12 +210,17 @@ def main():
     logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',datefmt='%Y-%m-%d %H:%M:%S', filename=os.path.join(output_folder, logfilename), encoding='utf-8', level=logging.INFO)
     logger.info("Starting the program")
     
+    # load sweep config
+    wandb.init()
+    logger.info(f"Config: {wandb.config}")
+    
     # Check for GPU availability
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info(f"Using device: {device}")
     
     # TODO change this to whatever condition we want to tune on
     snr_value = -10
+    rate = 0
     
     # define hyperparameters
     num_epochs = wandb.config.num_epochs
@@ -223,7 +230,7 @@ def main():
     optimizer = wandb.config.optimizer
     
     # Load the dataset
-    dataset = CustomImageDataset(img_dir=img_dir, logger=logger, samples_per_label=250,specific_label=float(snr_value), transform=transform)
+    dataset = CustomImageDataset(img_dir=img_dir, logger=logger, samples_per_label=250,specific_label=float(snr_value), rate_param=float(rate), transform=transform)
     
     dataset_size = len(dataset)
     train_size = int(0.8 * dataset_size)
