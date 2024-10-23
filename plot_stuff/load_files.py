@@ -49,6 +49,7 @@ def load_data(directory, logger):
     
     # Sort the data by SNR and Symbol
     combined_data.sort_values(by=['rate','snr','symbol'], ascending=True, inplace=True)
+                # NOTE: IF ORDER IS EVER CHANGED FROM SYMBOL TO NOT BE LAST, THEN NAMING WILL BREAK!
 
     # Reset index after sorting
     combined_data = combined_data.reset_index(drop=True)
