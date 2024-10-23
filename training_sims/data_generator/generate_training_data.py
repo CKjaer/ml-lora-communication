@@ -32,7 +32,8 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
         # LoRa PHY parameters (based on EU863-870 DR0 channel)
         SF = tf.constant(SF, dtype=tf.int32)
         M = tf.constant(tf.pow(2,SF), dtype=tf.int32)
-        N_samp = tf.constant(N_samples, dtype=tf.int32)
+
+        N_samp_array = tf.constant(N_samples, dtype=tf.int32)
         snr_values = tf.constant(snr_values, dtype=tf.int32)
         
         # Precompute chirps
@@ -60,6 +61,7 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
         for _, current_rate in enumerate(rate_params):
             log_and_print(log,f"Current Rate Param: {current_rate}")
             for i, snr in enumerate(snr_values):
+                N_samp = N_samp_array[i]
                 tf_snr = tf.constant(snr, dtype=tf.int32)
                 log_and_print(log,f"Processing SNR {snr} ({i + 1}/{len(snr_values)})")
                 for j in tf.range(M):
