@@ -24,7 +24,7 @@ if __name__ == "__main__":
         SF = 7  # Spreading factor
         BW = 250e3  # Bandwidth [Hz] (EU863-870 DR0 channel)
         M = int(2**SF)  # Number of symbols per chirp
-        SIR_tuple = (1, 5, True)  # Set to min=max for constant SIR
+        SIR_tuple = (0, 7.5, True)  # Set to min=max for constant SIR
 
         # Create the basic chirp
         basic_chirp = lora.create_basechirp(M)
@@ -43,8 +43,8 @@ if __name__ == "__main__":
         basic_dechirp = tf.math.conj(basic_chirp)
 
         # Simulation parameters
-        n_symbols = int(1e7)
-        batch_size = int(100e3)  # Number of symbols per batch
+        n_symbols = int(8e6)
+        batch_size = int(80e3)  # Number of symbols per batch
         nr_of_batches = int(
             n_symbols / batch_size
         )  # NB: n_symbols must be divisible by batch_size
@@ -104,7 +104,7 @@ if __name__ == "__main__":
                     updates=[error_count],
                 )
                 print(
-                    f"SNR: {snr_values[j]} dB, error count: {tf.gather_nd(result_list, [[j, i]])} SER: {result_list[j, i]/n_symbols:E}"
+                    f"Rate: {rate_params[i]}, SNR: {snr_values[j]} dB, error count: {tf.gather_nd(result_list, [[j, i]])} SER: {result_list[j, i]/n_symbols:E}"
                 )
         print(f"Simulation duration: {time.time() - start_time}")
 
@@ -113,6 +113,8 @@ if __name__ == "__main__":
         N_list = tf.fill([len(snr_values)], tf.cast(n_symbols, tf.float64))
         snr_list = tf.cast(snr_values, tf.float64)
 
+
+        time_str = time.strftime("%Y_%m_%d_%H_%M_%S")
         # Save the results to a .txt file for every rate parameter and create a plot
         for i, rate_param in enumerate(rate_params):
             ser_list = tf.divide(result_list[:, i], n_symbols)
@@ -125,7 +127,6 @@ if __name__ == "__main__":
                 os.path.join(file_path, "sim_output/snr_sims")
             )
             os.makedirs(output_path, exist_ok=True)
-            time_str = time.strftime("%Y_%m_%d_%H_%M_%S")
             file_name = f"{output_path}/{time_str}_SNR_simulations_results_SF{SF}_lam{rate_param.numpy()}.txt"
             head = (
                 f"Test done: {time_str} - "
@@ -136,7 +137,7 @@ if __name__ == "__main__":
 
             # Plot SER curves as function of SNR
             if i > 0:
-                fig, ax = plt.subplots(1, 1, figsize=(10, 5))
+                fig, ax = plt.subplots(1, 1, figsize=(8, 6))
 
                 # Classic decoder without interfering users
                 ax.plot(
