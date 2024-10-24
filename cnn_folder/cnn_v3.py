@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import logging
 import numpy as np
 import random
+from numpy import savetxt
 
 # Configure logger
 logfilename = "cnn.log"
@@ -202,14 +203,14 @@ def evaluate_and_calculate_ser(model, test_loader, criterion):
 
 # Directory paths
 img_dir = "./output/20241021-173148/plots/"
-output_folder = './cnn_output/test_rates/'
+output_folder = './cnn_output/'
 
 # Create the directory if it doesn't exist
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
 
 # List of snr and rate parameters for which SER will be calculated
-specific_values = [i for i in range(-10, -6, 2)] # TODO change this to -16, -2, 2
+specific_values = [i for i in range(-16, -2, 2)] # TODO change this to -16, -2, 2
 rates = [0,0.25,0.5,0.7,1]
 
 # Placeholder to store symbol error rates
@@ -260,6 +261,8 @@ logger.info("All SER values have been calculated.")
 for rate, values in symbol_error_rates.items():
     snr_values = [snr for ser, snr in values] # stupid but I think it works
     ser_values = [ser for ser, snr in values]
+    
+    savetxt(os.path.join(output_folder, f'snr_vs_ser_rate_{rate}.csv'), np.array([snr_values, ser_values]).T, delimiter=';', fmt='%.6f')
     
     plt.figure(figsize=(10, 6))
     plt.plot(snr_values, ser_values, marker='o', linestyle='-', color='b')
