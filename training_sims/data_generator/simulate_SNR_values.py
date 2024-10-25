@@ -24,7 +24,7 @@ if __name__ == "__main__":
         SF = 7  # Spreading factor
         BW = 250e3  # Bandwidth [Hz] (EU863-870 DR0 channel)
         M = int(2**SF)  # Number of symbols per chirp
-        SIR_tuple = (0, 7.5, True)  # Set to min=max for constant SIR
+        SIR_tuple = (0, 10, True)  # Set to min=max for constant SIR
 
         # Create the basic chirp
         basic_chirp = lora.create_basechirp(M)
@@ -43,8 +43,8 @@ if __name__ == "__main__":
         basic_dechirp = tf.math.conj(basic_chirp)
 
         # Simulation parameters
-        n_symbols = int(800e6)
-        batch_size = int(80e3)  # Number of symbols per batch
+        n_symbols = int(1e7)
+        batch_size = int(250e3)  # Number of symbols per batch
         nr_of_batches = int(
             n_symbols / batch_size
         )  # NB: n_symbols must be divisible by batch_size
@@ -67,7 +67,7 @@ if __name__ == "__main__":
                 error_count = 0
                 snr_start_time = time.time()
                 for batch in tf.range(nr_of_batches):
-                    print(f"\t Batch {batch} of {nr_of_batches} for rate {rate_params[i]} in snr {snr_values[j]}")
+                    #print(f"\t Batch {batch} of {nr_of_batches} for rate {rate_params[i]} in snr {snr_values[j]}")
                     # Generate the user message and look up the upchirps
                     msg_tx = tf.random.uniform(
                         (batch_size,), minval=0, maxval=M, dtype=tf.int32

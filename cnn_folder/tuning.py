@@ -197,7 +197,7 @@ def evaluate_and_calculate_ser(model, test_loader, criterion, logger, device):
 
 def main():
     # Directory paths
-    img_dir = "./output/training_set_250_samples_20241025-075643"
+    img_dir = "./output/training_set_250_samples_20241025-075643/plots"
     output_folder = './cnn_output/sweep_run2/'
     
     # Create the directory if it doesn't exist
@@ -205,7 +205,7 @@ def main():
         os.makedirs(output_folder)
     
     # Configure logger
-    logfilename = f"{__name__}.log"
+    logfilename = "sweep2.log"
     logger = logging.getLogger(__name__)
     logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',datefmt='%Y-%m-%d %H:%M:%S', filename=os.path.join(output_folder, logfilename), encoding='utf-8', level=logging.INFO)
     logger.info("Starting the program")
