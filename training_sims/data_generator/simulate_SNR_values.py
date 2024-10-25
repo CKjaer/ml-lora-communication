@@ -43,7 +43,7 @@ if __name__ == "__main__":
         basic_dechirp = tf.math.conj(basic_chirp)
 
         # Simulation parameters
-        n_symbols = int(8e6)
+        n_symbols = int(800e6)
         batch_size = int(80e3)  # Number of symbols per batch
         nr_of_batches = int(
             n_symbols / batch_size
@@ -65,7 +65,9 @@ if __name__ == "__main__":
         for i in tf.range(len(rate_params)):
             for j in tf.range(len(snr_values)):
                 error_count = 0
+                snr_start_time = time.time()
                 for batch in tf.range(nr_of_batches):
+                    print(f"\t Batch {batch} of {nr_of_batches} for rate {rate_params[i]} in snr {snr_values[j]}")
                     # Generate the user message and look up the upchirps
                     msg_tx = tf.random.uniform(
                         (batch_size,), minval=0, maxval=M, dtype=tf.int32
@@ -106,6 +108,7 @@ if __name__ == "__main__":
                 print(
                     f"Rate: {rate_params[i]}, SNR: {snr_values[j]} dB, error count: {tf.gather_nd(result_list, [[j, i]])} SER: {result_list[j, i]/n_symbols:E}"
                 )
+                print(f"SNR time: {time.time() - snr_start_time}")
         print(f"Simulation duration: {time.time() - start_time}")
 
         # Stack and cast the results to float64
@@ -134,68 +137,68 @@ if __name__ == "__main__":
                 f"SF, SNR, error count, simulated symbols, SER"
             )
             savetxt(file_name, output.numpy().T, delimiter=",", header=head)
+            if False:
+                # Plot SER curves as function of SNR
+                if i > 0:
+                    fig, ax = plt.subplots(1, 1, figsize=(8, 6))
 
-            # Plot SER curves as function of SNR
-            if i > 0:
-                fig, ax = plt.subplots(1, 1, figsize=(8, 6))
+                    # Classic decoder without interfering users
+                    ax.plot(
+                        snr_values,
+                        result_list[:, 0] / n_symbols,
+                        marker="o",
+                        label=f"SF{SF}, λ=0.00",
+                        color="black",
+                    )
 
-                # Classic decoder without interfering users
-                ax.plot(
-                    snr_values,
-                    result_list[:, 0] / n_symbols,
-                    marker="o",
-                    label=f"SF{SF}, λ=0.00",
-                    color="black",
-                )
+                    # Classical with Poisson distributed interferers
+                    ax.plot(
+                        snr_values,
+                        result_list[:, i] / n_symbols,
+                        marker="^",
+                        linestyle="dashed",
+                        label=f"SF{SF}, λ={rate_param.numpy():.2f}",
+                        color="black",
+                    )  # Poisson decoder with λ=rate_param
+                    ax.set_yscale("log")
+                    ax.set_xlabel("SNR [dB]")
+                    ax.set_ylabel("SER")
+                    ax.grid(True, which="both", alpha=0.5)
+                    ax.set_ylim(1e-5, 1)
+                    ax.set_xlim(-16, -4)
 
-                # Classical with Poisson distributed interferers
-                ax.plot(
-                    snr_values,
-                    result_list[:, i] / n_symbols,
-                    marker="^",
-                    linestyle="dashed",
-                    label=f"SF{SF}, λ={rate_param.numpy():.2f}",
-                    color="black",
-                )  # Poisson decoder with λ=rate_param
-                ax.set_yscale("log")
-                ax.set_xlabel("SNR [dB]")
-                ax.set_ylabel("SER")
-                ax.grid(True, which="both", alpha=0.5)
-                ax.set_ylim(1e-5, 1)
-                ax.set_xlim(-16, -4)
+                    # Create an inset with the Poisson PMF stem plot
+                    inset_ax = inset_axes(
+                        ax,
+                        width="40%",
+                        height="45%",
+                        loc="lower left",
+                        bbox_to_anchor=(0.1, 0.1, 1, 1),
+                        bbox_transform=ax.transAxes,
+                    )
+                    poisson_dist = tf.random.poisson(
+                        [batch_size], rate_param, dtype=tf.int32
+                    )
+                    poisson_values, idx, poisson_counts = tf.unique_with_counts(
+                        poisson_dist
+                    )
+                    poisson_count = poisson_counts / batch_size
+                    inset_ax.set_title(f"PMF, λ={rate_param.numpy():.2f}")
+                    inset_ax.set_xlabel(r"$N_i$", labelpad=-4)
+                    inset_ax.set_xlim([0, 10])
+                    inset_ax.set_ylim([0, 0.8])
 
-                # Create an inset with the Poisson PMF stem plot
-                inset_ax = inset_axes(
-                    ax,
-                    width="40%",
-                    height="45%",
-                    loc="lower left",
-                    bbox_to_anchor=(0.1, 0.1, 1, 1),
-                    bbox_transform=ax.transAxes,
-                )
-                poisson_dist = tf.random.poisson(
-                    [batch_size], rate_param, dtype=tf.int32
-                )
-                poisson_values, idx, poisson_counts = tf.unique_with_counts(
-                    poisson_dist
-                )
-                poisson_count = poisson_counts / batch_size
-                inset_ax.set_title(f"PMF, λ={rate_param.numpy():.2f}")
-                inset_ax.set_xlabel(r"$N_i$", labelpad=-4)
-                inset_ax.set_xlim([0, 10])
-                inset_ax.set_ylim([0, 0.8])
+                    stem_inset = inset_ax.stem(
+                        poisson_values.numpy(),
+                        poisson_count.numpy(),
+                        basefmt=" ",
+                        linefmt="k-",
+                    )
+                    # Allow clipping of the stem plot
+                    for artist in stem_inset.get_children():
+                        artist.set_clip_on(False)
 
-                stem_inset = inset_ax.stem(
-                    poisson_values.numpy(),
-                    poisson_count.numpy(),
-                    basefmt=" ",
-                    linefmt="k-",
-                )
-                # Allow clipping of the stem plot
-                for artist in stem_inset.get_children():
-                    artist.set_clip_on(False)
-
-                plt.tight_layout()
-                plt.savefig(
-                    f"{output_path}/{time_str}_SNR_simulations_results_SF{SF}_lam{rate_param.numpy()}.png"
-                )
+                    plt.tight_layout()
+                    plt.savefig(
+                        f"{output_path}/{time_str}_SNR_simulations_results_SF{SF}_lam{rate_param.numpy()}.png"
+                    )
