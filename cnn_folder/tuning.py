@@ -197,8 +197,8 @@ def evaluate_and_calculate_ser(model, test_loader, criterion, logger, device):
 
 def main():
     # Directory paths
-    img_dir = "./output/20241021-173148/plots/"
-    output_folder = './cnn_output/sweep_run/'
+    img_dir = "./output/training_set_250_samples_20241025-075643"
+    output_folder = './cnn_output/sweep_run2/'
     
     # Create the directory if it doesn't exist
     if not os.path.exists(output_folder):
