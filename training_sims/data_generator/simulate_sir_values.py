@@ -60,6 +60,7 @@ if __name__ == "__main__":
 
         for i in tf.range(len(sir_vals)):
             for batch in tf.range(nr_of_batches):
+                sir_start_time = time.time()
                 # Generate the user message and look up the upchirps
                 msg_tx = tf.random.uniform(
                     (batch_size,), minval=0, maxval=M, dtype=tf.int32
@@ -97,7 +98,7 @@ if __name__ == "__main__":
                     result_list, [[i]], [batch_result]
                 )
             print(
-                f"SIR: {sir_vals[i]} dB, error count: {result_list[i]} SER: {result_list[i]/n_symbols:E}"
+                f"SIR: {sir_vals[i]} dB, error count: {result_list[i]} SER: {result_list[i]/n_symbols:E}, time: {time.time() - sir_start_time}"
             )
         print(f"Simulation duration: {time.time() - start_time:.2f} s")
 
