@@ -43,9 +43,9 @@ if __name__ == "__main__":
         relative_error = 0.01
         max_ser = 1e-5
         n_symbols = int(tf.math.ceil(1 / (relative_error * max_ser)))
-        batch_size = int(200e3)  # Number of symbols per batch
+        batch_size = int(250e3)  # Number of symbols per batch
         nr_of_batches = int(n_symbols // batch_size)
-        snr_val = tf.constant(-6.6, dtype=tf.float64)  # dB
+        snr_val = tf.constant(-6, dtype=tf.float64)  # dB
         rate_param = tf.constant(0.25, dtype=tf.float64)  #
         sir_vals = tf.cast(tf.linspace(-10, 10, 11), dtype=tf.float64)  # dB
         result_list = tf.zeros(sir_vals.shape, dtype=tf.float64)
@@ -119,20 +119,28 @@ if __name__ == "__main__":
             f"SF, SIR, error count, simulated symbols, SER"
         )
         savetxt(file_name, output.numpy().T, delimiter=",", header=head)
+        
+        plt.rcParams['mathtext.fontset'] = 'custom'
+        plt.rcParams['mathtext.rm'] = 'Palatino Linotype'
+        plt.rcParams['font.family'] ='Palatino Linotype'
+        fs = 20
+        plt.rcParams.update({'font.size': fs})
+
 
         # Plot SER curves as function of SIR
-        figure = plt.figure(figsize=(10, 5))
+        figure = plt.figure(figsize=(8, 6))
 
         plt.plot(
             sir_vals,
-            result_list / n_symbols,
-            marker="^",
+            ser_list,
+            marker="v",
             linestyle="dashed",
             color="black",
             label=f"SF{SF}, λ={rate_param.numpy():.2f}, SNR={snr_val} dB",
             clip_on=False,
             markevery=1,
         )
+
         plt.yscale("log")
         plt.xlabel("SIR [dB]")
         plt.ylabel("SER")
@@ -142,6 +150,9 @@ if __name__ == "__main__":
         plt.xticks(tf.range(-10, 12, 2))
         plt.legend()
         plt.tight_layout()
+
         plt.savefig(
-            f"{output_path}/{time_str}_SIR_simulations_results_SF{SF}_rate{rate_param.numpy()}.png"
+            f"{output_path}/{time_str}_SIR_simulations_results_SF{SF}_rate{rate_param.numpy()}.pdf",
+            format = "pdf",
+            bbox_inches = "tight"
         )
