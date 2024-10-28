@@ -195,11 +195,13 @@ def evaluate_and_calculate_ser(model, test_loader, criterion):
 
 # Directory paths
 img_dir = "./output/training_set_250_samples_20241025-132034/plots"
-output_folder = './cnn_output/rate_0_run'
+output_folder = './cnn_output/final_run'
+models_folder = os.path.join(output_folder, 'models')
 
 # Create the directory if it doesn't exist
 if not os.path.exists(output_folder):
     os.makedirs(output_folder)
+    os.makedirs(models_folder)
 
 # List of snr and rate parameters for which SER will be calculated
 snr_list = [i for i in range(-16, -2, 2)] # TODO change this to -16, -2, 2
@@ -253,8 +255,8 @@ for snr in snr_list:
         train(model, train_loader, num_epochs, optimizer, criterion)
 
         # Save model and optimizer
-        torch.save(model.state_dict(), os.path.join(output_folder, f'model_snr_{snr}_rate{rate}.pth'))
-        torch.save(optimizer.state_dict(), os.path.join(output_folder, f'optimizer_snr_{snr}_rate_{rate}.pth'))
+        torch.save(model.state_dict(), os.path.join(models_folder, f'model_snr_{snr}_rate{rate}.pth'))
+        torch.save(optimizer.state_dict(), os.path.join(models_folder, f'optimizer_snr_{snr}_rate_{rate}.pth'))
 
         # Evaluate model and calculate SER
         ser = evaluate_and_calculate_ser(model, test_loader, criterion)
