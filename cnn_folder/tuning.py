@@ -70,7 +70,8 @@ class LoRaCNN(nn.Module):
 
 ############# data processing #############
 class CustomImageDataset(Dataset):
-    def __init__(self, img_dir, logger, samples_per_label, specific_label=None, rate_param=None, transform=None, ):
+    def __init__(self, 
+img_dir, logger, samples_per_label, specific_label=None, rate_param=None, transform=None, ):
         self.img_dir = img_dir
         self.img_list = os.listdir(img_dir)
         self.transform = transform
@@ -197,7 +198,7 @@ def evaluate_and_calculate_ser(model, test_loader, criterion, logger, device):
 
 def main():
     # Directory paths
-    img_dir = "./output/training_set_250_samples_20241025-075643/plots"
+    img_dir = "./output/training_set_250_samples_20241025-132034/plots"
     output_folder = './cnn_output/sweep_run2/'
     
     # Create the directory if it doesn't exist
@@ -219,7 +220,7 @@ def main():
     logger.info(f"Using device: {device}")
     
     # TODO change this to whatever condition we want to tune on
-    snr_value = -10
+    snr_value = -14
     rate = 0
     
     # define hyperparameters
@@ -267,4 +268,4 @@ if __name__ == "__main__":
 
     sweep_id = wandb.sweep(sweep=params, project="CNN")
     
-    wandb.agent(sweep_id, function=main, count=10)
+    wandb.agent(sweep_id, function=main, count=30)
