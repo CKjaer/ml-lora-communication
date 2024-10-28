@@ -88,17 +88,28 @@ if __name__ == "__main__":
                 # Run the FFT to demodulate
                 # Compute the periodogram
                 # print("UE symbol", msg_tx[0].numpy())
+                print("User sym", msg_tx[0].numpy())
+                print()
                 fft_result = tf.abs(tf.signal.fft(dechirped_rx))
                 # periodogram = tf.abs(fft_result[0, :]) ** 2
                 # periodogram_dB = 10 * np.log10(periodogram.numpy())
-                # plt.plot(np.abs(fft_result[0, :]))
-                # plt.title(
-                #     f"FFT Result for SIR: {sir_vals[i].numpy()} dB, Batch: {batch.numpy()}"
-                # )
-                # plt.xlabel("Frequency Bin")
-                # plt.ylabel("Magnitude")
-                # plt.grid(True)
-                # plt.show()
+                plt.rcParams["font.family"] = "Palatino Linotype"
+                plt.rcParams.update({"font.size": 20})
+                plt.figure(figsize=(8, 6))
+                plt.plot((fft_result[0, :]))
+                plt.xlabel("Frequency [Hz]")
+                plt.ylabel("|X[k]|")
+                plt.xlim(0, 128)
+                plt.ylim(0, 5e-6)
+                plt.grid(True, alpha=0.5)
+                plt.tight_layout()
+                file_path = os.path.dirname(os.path.abspath(__file__))
+                output_path = os.path.abspath(
+                    os.path.join(file_path, "sim_output/sir_sims")
+                )
+                os.makedirs(output_path, exist_ok=True)
+                plt.savefig(f"{output_path}/fft_plot_dB.pdf")
+                plt.show()
 
                 # Decode the message using argmax
                 msg_rx = model.detect(fft_result, snr_val, M, noise_power)

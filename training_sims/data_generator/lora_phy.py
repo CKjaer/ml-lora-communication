@@ -94,6 +94,7 @@ def generate_interferer_symbols(
     rand_symbols = tf.random.uniform(
         [batch_size, 2 * max_interferers], minval=0, maxval=M, dtype=tf.int32
     )
+    print(rand_symbols[0, :].numpy())
 
     # Sequence mask creates an array of true and false depending on how many the poisson pulled
     # Eg: [[1 0 0], [0 0 0], [1 1 0]]
