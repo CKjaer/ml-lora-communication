@@ -147,7 +147,7 @@ if __name__ == "__main__":
         plt.ylabel("SER")
         plt.grid(True, which="both", alpha=0.5)
         plt.xlim(-10, 10)
-        plt.ylim(1e-5, 1)
+        plt.ylim(1e-4, 1)
         plt.xticks(tf.range(-10, 12, 2))
         plt.legend()
         plt.tight_layout()
