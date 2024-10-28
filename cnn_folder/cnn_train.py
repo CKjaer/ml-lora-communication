@@ -70,14 +70,6 @@ class LoRaCNN(nn.Module):
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 logger.info(f"Using device: {device}")
 
-# Example model
-M = 128
-model = LoRaCNN(M).to(device)
-
-# Loss function and optimizer
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.001)
-
 class CustomImageDataset(Dataset):
     def __init__(self, img_dir, specific_label=None, rate_param=None, transform=None, samples_per_label=250):
         self.img_dir = img_dir
@@ -211,12 +203,22 @@ if not os.path.exists(output_folder):
 
 # List of snr and rate parameters for which SER will be calculated
 specific_values = [i for i in range(-16, -2, 2)] # TODO change this to -16, -2, 2
-rates = [0] # TODO change this to 0, 0.25, 0.5, 0.7, 1
+rates = [0, 0.25, 0.5, 0.7, 1] 
 
 # Placeholder to store symbol error rates
 symbol_error_rates = {} # dictionary to store SER for each rate
 for rate in rates:
     symbol_error_rates[rate] = []
+
+
+# Hyperparameters
+M = 128  # Number of classes
+batch_size = 32
+learning_rate = 0.02
+num_epochs = 3
+optimizer_choice = 'SGD' # 'Adam' or 'SGD'
+criterion = nn.CrossEntropyLoss()
+
 
 # Loop over each specific value
 for value in specific_values:
@@ -236,14 +238,19 @@ for value in specific_values:
 
         train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
 
-        train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-        test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
         model = LoRaCNN(M).to(device)
-        optimizer = optim.Adam(model.parameters(), lr=0.001)
+        
+        if optimizer_choice == 'Adam':
+            optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+        elif optimizer_choice == 'SGD':
+            optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+            
 
         # Train the model
-        train(model, train_loader, 3, optimizer, criterion)
+        train(model, train_loader, num_epochs, optimizer, criterion)
 
         # Save model and optimizer
         torch.save(model.state_dict(), os.path.join(output_folder, f'model_snr_{value}_rate{rate}.pth'))
@@ -259,8 +266,7 @@ logger.info("All SER values have been calculated.")
 
 
 for rate, values in symbol_error_rates.items():
-    snr_values = [snr for ser, snr in values] # stupid but I think it works
-    ser_values = [ser for ser, snr in values]
+    ser_values, snr_values = zip(*values)
     
     savetxt(os.path.join(output_folder, f'snr_vs_ser_rate_{rate}.csv'), np.array([snr_values, ser_values]).T, delimiter=';', fmt='%.6f')
     
