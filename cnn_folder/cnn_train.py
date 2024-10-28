@@ -202,7 +202,7 @@ if not os.path.exists(output_folder):
     os.makedirs(output_folder)
 
 # List of snr and rate parameters for which SER will be calculated
-specific_values = [i for i in range(-16, -2, 2)] # TODO change this to -16, -2, 2
+snr_list = [i for i in range(-16, -2, 2)] # TODO change this to -16, -2, 2
 rates = [0, 0.25, 0.5, 0.7, 1] 
 
 # Placeholder to store symbol error rates
@@ -221,15 +221,15 @@ criterion = nn.CrossEntropyLoss()
 
 
 # Loop over each specific value
-for value in specific_values:
+for snr in snr_list:
     for rate in rates:
-        logger.info(f"Calculating SER for specific value: {value}, rate {rate}")
+        logger.info(f"Calculating SER for snr: {snr}, rate {rate}")
 
-        dataset = CustomImageDataset(img_dir=img_dir, specific_label=float(value), rate_param=float(rate), transform=transform, samples_per_label=250)
+        dataset = CustomImageDataset(img_dir=img_dir, specific_label=float(snr), rate_param=float(rate), transform=transform, samples_per_label=250)
         logger.info(f"Number of images in dataset: {len(dataset)}")
         # Dataset size check
         if len(dataset) == 0:
-            logger.warning(f"No images found for specific value: {value}. Skipping.")
+            logger.warning(f"No images found for specific value: {snr}. Skipping.")
             continue
 
         dataset_size = len(dataset)
@@ -253,12 +253,12 @@ for value in specific_values:
         train(model, train_loader, num_epochs, optimizer, criterion)
 
         # Save model and optimizer
-        torch.save(model.state_dict(), os.path.join(output_folder, f'model_snr_{value}_rate{rate}.pth'))
-        torch.save(optimizer.state_dict(), os.path.join(output_folder, f'optimizer_snr_{value}_rate_{rate}.pth'))
+        torch.save(model.state_dict(), os.path.join(output_folder, f'model_snr_{snr}_rate{rate}.pth'))
+        torch.save(optimizer.state_dict(), os.path.join(output_folder, f'optimizer_snr_{snr}_rate_{rate}.pth'))
 
         # Evaluate model and calculate SER
         ser = evaluate_and_calculate_ser(model, test_loader, criterion)
-        symbol_error_rates[rate].append((ser, value)) # store SER and SNR value in corresponding rate
+        symbol_error_rates[rate].append((ser, snr)) # store SER and SNR value in corresponding rate
         
 
 
