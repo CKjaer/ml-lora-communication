@@ -135,7 +135,7 @@ def generate_interferer_symbols(
     return half_shifted_inter
 
 
-@tf.function
+#@tf.function
 def process_batch(
     upchirp_lut, rate_param, snr, msg_tx, batch_size, M, noise_power, SIR_tuple
 ):
@@ -179,7 +179,7 @@ def process_batch(
     snr = tf.cast(snr, dtype=tf.float64)
     snr_linear = tf.pow(tf.cast(10.0, dtype=tf.float64), snr / 10.0)
     user_amp = tf.sqrt(snr_linear * noise_power)
-
+    
     # Generate the interfering users symbols and their distances
     if rate_param > 0:
         inter_symbols_scaled = generate_interferer_symbols(
@@ -190,7 +190,8 @@ def process_batch(
 
     # Combine the signals and add noise
     upchirp_tx = (
-        tf.cast(user_amp, dtype=tf.complex64) * user_chirp_tx
+        tf.cast(user_amp, dtype=tf.complex64) * 
+        user_chirp_tx
         + inter_symbols_scaled
         + complex_noise
     )

@@ -6,6 +6,7 @@ import time
 from numpy import savetxt
 import os
 import tensorflow as tf
+from math import pi
 
 if __name__ == "__main__":
     # Check if GPU is available otherwise use CPU
@@ -43,7 +44,7 @@ if __name__ == "__main__":
         relative_error = 0.01
         max_ser = 1e-5
         n_symbols = int(tf.math.ceil(1 / (relative_error * max_ser)))
-        batch_size = int(250e3)  # Number of symbols per batch
+        batch_size = int(100e3)  # Number of symbols per batch
         nr_of_batches = int(n_symbols // batch_size)
         snr_val = tf.constant(-6, dtype=tf.float64)  # dB
         rate_param = tf.constant(0.25, dtype=tf.float64)  #
@@ -79,12 +80,39 @@ if __name__ == "__main__":
                     noise_power,
                     sir_tuple,
                 )
+                      
+                phase = tf.random.uniform(msg_tx.shape, minval=0, maxval=2*pi, dtype=tf.float64)
+                phase_exp = tf.exp(tf.complex(tf.zeros_like(phase), phase))
+                phase_exp = tf.cast(phase_exp, dtype=tf.complex64)
+                phase_exp = tf.reshape(tf.repeat(phase_exp, M), (batch_size, M))
+                chirped_rx = chirped_rx * phase_exp
 
                 # Dechirp by multiplying the upchirp with the basic dechirp
                 dechirped_rx = lora.dechirp(chirped_rx, basic_dechirp)
 
                 # Run the FFT to demodulate
-                fft_result = tf.abs(tf.signal.fft(dechirped_rx))
+                fft = tf.signal.fft(dechirped_rx)
+                fft_result = tf.abs(fft)
+                """plt.plot(tf.math.real(fft[0]))
+                plt.plot(tf.math.imag(fft[0]))
+                plt.title(msg_tx[0])
+                plt.axvline(x=msg_tx[0], color="red")
+                plt.legend(["real", "imag", "symbol"])
+                print(f"phase of msg: {tf.math.imag(fft[0])[msg_tx[0]]}")
+                plt.show()
+
+                real = tf.math.real(chirped_rx)
+                imag = tf.math.imag(chirped_rx)
+                sent = tf.gather(upchirp_lut, msg_tx[0], axis=0)
+                real_lut = tf.math.real(sent)
+                imag_lut = tf.math.imag(sent)
+                plt.plot(tf.math.atan2(imag, real)[0])
+                plt.plot(tf.math.atan2(imag_lut, real_lut))
+                plt.title(msg_tx[0])
+                plt.axvline(x=msg_tx[0], color="red")
+                plt.legend(["rec", "trans", "symbol"])
+                plt.show()
+                """
 
                 # Decode the message using argmax
                 msg_rx = model.detect(fft_result, snr_val, M, noise_power)
