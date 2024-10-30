@@ -13,18 +13,16 @@ import matplotlib.pyplot as plt
 import logging
 import numpy as np
 import random
-import wandb
-import yaml
+from numpy import savetxt
 
-"""
-The purpose of this script is to conduct a sweep of hyperparameters for the CNN model.
+# Configure logger
+logfilename = "cnn.log"
+logger = logging.getLogger(__name__)
+logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',datefmt='%Y-%m-%d %H:%M:%S', filename=logfilename, encoding='utf-8', level=logging.INFO)
+logger.info("Starting the program")
 
-It only considers a single snr condition, as the assumption is that the best hyperparameters for one snr condition will be the best for all snr conditions.
 
-The configuration of hyperparameters can be found in sweep_config.yaml.
-"""
-
-############# model architecture #############
+# Define the CNN architecture
 class LoRaCNN(nn.Module):
     def __init__(self, M):
         super(LoRaCNN, self).__init__()
@@ -68,25 +66,26 @@ class LoRaCNN(nn.Module):
         return num_features
 
 
-############# data processing #############
+# Check for GPU availability
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+logger.info(f"Using device: {device}")
+
 class CustomImageDataset(Dataset):
-    def __init__(self, 
-img_dir, logger, samples_per_label, specific_label=None, rate_param=None, transform=None, ):
+    def __init__(self, img_dir, specific_label=None, rate_param=None, transform=None, samples_per_label=250):
         self.img_dir = img_dir
         self.img_list = os.listdir(img_dir)
         self.transform = transform
         self.specific_label = specific_label
         self.rate_param = rate_param
         self.samples_per_label = samples_per_label
-        self.logger = logger
-        
+
         # Filter images based on specific label (if provided)
         if specific_label is not None:
             self.img_list = [img for img in self.img_list if float(img.split('_')[1]) == specific_label]
 
         if rate_param is not None:
             self.img_list = [img for img in self.img_list if float(img.split('_')[5]) == rate_param]
-            
+        
         logger.info(f"Total images after filtering by specific label {specific_label}: {len(self.img_list)}")
 
         # Group images by label
@@ -99,7 +98,7 @@ img_dir, logger, samples_per_label, specific_label=None, rate_param=None, transf
 
         # Log the number of images for each label
         # for label, images in label_image_dict.items():
-            #logger.info(f"Label: {label}, Number of images before sampling: {len(images)}")
+        #     logger.info(f"Label: {label}, Number of images before sampling: {len(images)}")
 
         # Randomly sample images for each label
         self.img_list = []
@@ -129,8 +128,10 @@ img_dir, logger, samples_per_label, specific_label=None, rate_param=None, transf
             return image, label
 
         except (PIL.UnidentifiedImageError, IndexError, FileNotFoundError) as e:
-            self.logger.error(f"Error loading image {img_name}: {e}")
+            logger.error(f"Error loading image {img_name}: {e}")
             return None, None
+
+ 
 
 # Define transformations for the images
 transform = transforms.Compose([
@@ -138,10 +139,10 @@ transform = transforms.Compose([
     transforms.ToTensor(),  # Convert to tensor
     transforms.Normalize(mean=[0.5], std=[0.5])  # Normalize with mean and std
 ])
-  
-  
-############# training #############
-def train(model, train_loader, num_epochs, optimizer, criterion, logger, device):
+
+
+# Training function
+def train(model, train_loader, num_epochs, optimizer, criterion):
     model.train()
     for epoch in range(num_epochs):
         running_loss = 0.0
@@ -158,12 +159,11 @@ def train(model, train_loader, num_epochs, optimizer, criterion, logger, device)
             running_loss += loss.item()
             if i % 100 == 99:
                 logger.info(f'Epoch [{epoch+1}], Step [{i+1}], Loss: {running_loss / 100:.4f}')
-                
-                wandb.log({'Epoch': epoch+1, 'Step': i+1, 'Loss': np.round(running_loss / 100, 4)})
                 running_loss = 0.0
 
-############# evaluation #############
-def evaluate_and_calculate_ser(model, test_loader, criterion, logger, device):
+
+# Evaluation function
+def evaluate_and_calculate_ser(model, test_loader, criterion):
     model.eval()  # Set model to evaluation mode
     correct_predictions = 0
     total_predictions = 0
@@ -190,82 +190,125 @@ def evaluate_and_calculate_ser(model, test_loader, criterion, logger, device):
     logger.info(f'Validation/Test Loss: {average_loss:.4f}')
     logger.info(f'Validation/Test Accuracy: {accuracy:.2f}%')
     logger.info(f'Symbol Error Rate (SER): {ser:.6f}')
-    
-    wandb.log({'Validation/Test Loss': np.round(average_loss, 4)})
-    wandb.log({'Validation/Test Accuracy': np.round(accuracy, 2)})
-    
-    return accuracy
+    return ser
 
-def main():
-    # Directory paths
-    img_dir = "./output/training_set_250_samples_20241025-132034/plots"
-    output_folder = './cnn_output/sweep_run2/'
-    
-    # Create the directory if it doesn't exist
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
-    
-    # Configure logger
-    logfilename = "sweep2.log"
-    logger = logging.getLogger(__name__)
-    logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',datefmt='%Y-%m-%d %H:%M:%S', filename=os.path.join(output_folder, logfilename), encoding='utf-8', level=logging.INFO)
-    logger.info("Starting the program")
-    
-    # load sweep config
-    wandb.init()
-    logger.info(f"Config: {wandb.config}")
-    
-    # Check for GPU availability
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    logger.info(f"Using device: {device}")
-    
-    # TODO change this to whatever condition we want to tune on
-    snr_value = -14
-    rate = 0
-    
-    # define hyperparameters
-    num_epochs = wandb.config.num_epochs
-    M = wandb.config.num_symbols
-    learning_rate = wandb.config.lr
-    batch_size = wandb.config.batch_size
-    optimizer = wandb.config.optimizer
-    
-    # Load the dataset
-    dataset = CustomImageDataset(img_dir=img_dir, logger=logger, samples_per_label=250,specific_label=float(snr_value), rate_param=float(rate), transform=transform)
-    
-    dataset_size = len(dataset)
-    train_size = int(0.8 * dataset_size)
-    test_size = dataset_size - train_size
-    train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
-    
-    
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
-    
-    model = LoRaCNN(M).to(device) 
-    if optimizer == "adam":
-        optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    elif optimizer == "sgd":
-        optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+
+# Directory paths
+img_dir = "./output/training_set_250_samples_20241025-132034/plots"
+output_folder = './cnn_output/final_run'
+models_folder = os.path.join(output_folder, 'models')
+
+# Create the directory if it doesn't exist
+if not os.path.exists(output_folder):
+    os.makedirs(output_folder)
+    os.makedirs(models_folder)
+
+# List of snr and rate parameters for which SER will be calculated
+snr_list = [i for i in range(-16, -2, 2)] # TODO change this to -16, -2, 2
+rates = [0, 0.25, 0.5, 0.7, 1] 
+
+# Placeholder to store symbol error rates
+symbol_error_rates = {} # dictionary to store SER for each rate
+for rate in rates:
+    symbol_error_rates[rate] = []
+
+
+# Hyperparameters
+M = 128  # Number of classes
+batch_size = 32
+learning_rate = 0.02
+num_epochs = 3
+optimizer_choice = 'SGD' # 'Adam' or 'SGD'
+criterion = nn.CrossEntropyLoss()
+
+
+# Loop over each specific value
+for snr in snr_list:
+    for rate in rates:
+        logger.info(f"Calculating SER for snr: {snr}, rate {rate}")
+
+        dataset = CustomImageDataset(img_dir=img_dir, specific_label=float(snr), rate_param=float(rate), transform=transform, samples_per_label=250)
+        logger.info(f"Number of images in dataset: {len(dataset)}")
+        # Dataset size check
+        if len(dataset) == 0:
+            logger.warning(f"No images found for specific value: {snr}. Skipping.")
+            continue
+
+        dataset_size = len(dataset)
+        train_size = int(0.8 * dataset_size)
+        test_size = dataset_size - train_size
+
+        train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
+
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+
+        model = LoRaCNN(M).to(device)
         
-    
-    criterion = nn.CrossEntropyLoss()
-    
-    
-    # Train the model
-    train(model, train_loader, num_epochs, optimizer, criterion, logger, device)
-    
-    # Evaluate the model
-    accuracy = evaluate_and_calculate_ser(model, test_loader, criterion, logger, device)
-    logger.info(f"Final accuracy: {accuracy}")
-    
-    wandb.log({'Final accuracy': accuracy})
+        if optimizer_choice == 'Adam':
+            optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+        elif optimizer_choice == 'SGD':
+            optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+            
 
-if __name__ == "__main__":
-    #load sweep_config.yaml
-    with open("./cnn_folder/sweep_config.yaml") as file:
-        params = yaml.load(file, Loader=yaml.FullLoader)
+        # Train the model
+        train(model, train_loader, num_epochs, optimizer, criterion)
 
-    sweep_id = wandb.sweep(sweep=params, project="CNN")
+        # Save model and optimizer
+        torch.save(model.state_dict(), os.path.join(models_folder, f'model_snr_{snr}_rate{rate}.pth'))
+        torch.save(optimizer.state_dict(), os.path.join(models_folder, f'optimizer_snr_{snr}_rate_{rate}.pth'))
+
+        # Evaluate model and calculate SER
+        ser = evaluate_and_calculate_ser(model, test_loader, criterion)
+        symbol_error_rates[rate].append((ser, snr)) # store SER and SNR value in corresponding rate
+        
+
+
+logger.info("All SER values have been calculated.")
+
+
+for rate, values in symbol_error_rates.items():
+    snr_values = list(map(int, values.keys()))
+    ser_values = list(values.values())
     
-    wandb.agent(sweep_id, function=main, count=30)
+    snr_values = sorted(snr_values)
+    savetxt(f'snr_vs_ser_rate_{rate}.csv', np.array([snr_values, ser_values]).T, delimiter=';', fmt='%d;%.6f')
+    
+    plt.figure(figsize=(10, 6))
+    plt.plot(snr_values, ser_values, marker='o', linestyle='-', color='b')
+    plt.xlabel('SNR')
+    plt.ylabel('Symbol Error Rate (SER)')
+    plt.yscale('log')
+    plt.ylim(1e-5, 1e0)
+    plt.title(f'SNR vs Symbol Error Rate for rate {rate}')
+    plt.grid(True)
+        
+    # Save the plot
+    plot_filename = os.path.join(output_folder, f'snr_vs_ser_rate_{rate}.png')
+    plt.savefig(plot_filename)
+    plt.show()
+    plt.close()
+    logger.info(f"Plot for rate {rate} has been saved to {plot_filename}.")
+    
+
+#ser_values_dashed_circle = np.array([1.0, 0.16, 0.13, 0.02, 0.003, 3.16e-5, 0])
+
+# Plotting SNR vs SER
+# plt.figure(figsize=(10, 6))
+# plt.plot(specific_values, symbol_error_rates, marker='o', linestyle='-', color='b')
+# #plt.plot(specific_values, ser_values_dashed_circle, marker='o', linestyle='--', color='black', label='CNN output in paper')
+# plt.xlabel('SNR')
+# plt.ylabel('Symbol Error Rate (SER)')
+# plt.yscale('log')
+# plt.ylim(1e-5, 1e0)
+# plt.title('SNR vs Symbol Error Rate')
+# plt.legend(['CNN Output', 'CNN Output in Paper'])
+# plt.grid(True)
+
+# # Save and show plot
+# final_plot_filename = os.path.join(output_folder, 'snr_vs_ser_final_plot.png')
+# plt.savefig(final_plot_filename)
+# plt.show()
+# plt.close()
+
+# print(f"Final plot has been saved to {final_plot_filename}.")
