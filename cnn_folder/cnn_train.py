@@ -17,12 +17,26 @@ from numpy import savetxt
 from scipy import stats
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
+# Directory paths
+img_dir = "./output/training_set_250_samples_20241025-132034/plots"
+output_folder = './cnn_output/final_run'
+models_folder = os.path.join(output_folder, 'models')
+
+# Create the directory if it doesn't exist
+if not os.path.exists(output_folder):
+    os.makedirs(output_folder)
+    os.makedirs(models_folder)
+    
 # Configure logger
 logfilename = "cnn.log"
 logger = logging.getLogger(__name__)
-logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',datefmt='%Y-%m-%d %H:%M:%S', filename=logfilename, encoding='utf-8', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',datefmt='%Y-%m-%d %H:%M:%S', filename=os.path.join(output_folder, logfilename), encoding='utf-8', level=logging.INFO)
 logger.info("Starting the program")
 
+
+# Check if GPU is available
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+logger.info(f"Using device: {device}")
 
 # Define the CNN architecture
 class LoRaCNN(nn.Module):
@@ -66,12 +80,6 @@ class LoRaCNN(nn.Module):
         for s in size:
             num_features *= s
         return num_features
-
-
-# Check for GPU availability
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-logger.info(f"Using device: {device}")
-
 class CustomImageDataset(Dataset):
     def __init__(self, img_dir, specific_label=None, rate_param=None, transform=None, samples_per_label=250):
         self.img_dir = img_dir
@@ -194,17 +202,6 @@ def evaluate_and_calculate_ser(model, test_loader, criterion):
     logger.info(f'Symbol Error Rate (SER): {ser:.6f}')
     return ser
 
-
-# Directory paths
-img_dir = "./output/training_set_250_samples_20241025-132034/plots"
-output_folder = './cnn_output/final_run'
-models_folder = os.path.join(output_folder, 'models')
-
-# Create the directory if it doesn't exist
-if not os.path.exists(output_folder):
-    os.makedirs(output_folder)
-    os.makedirs(models_folder)
-
 # List of snr and rate parameters for which SER will be calculated
 snr_list = [i for i in range(-16, -2, 2)] # TODO change this to -16, -2, 2
 rates = [0, 0.25, 0.5, 0.7, 1] 
@@ -222,7 +219,6 @@ learning_rate = 0.02
 num_epochs = 3
 optimizer_choice = 'SGD' # 'Adam' or 'SGD'
 criterion = nn.CrossEntropyLoss()
-
 
 # Loop over each specific value
 for snr in snr_list:
