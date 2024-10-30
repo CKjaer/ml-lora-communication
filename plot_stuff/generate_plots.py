@@ -37,11 +37,13 @@ def generate_plots(data, logger, spreading_factor: int, num_samples: int, direct
         if symbol != prev_symbol:
             sample_idx = 0
         # find the upper limit for current snr condition
-        upper_y_lim = max_vals[data['snr'][i]]
-        plt.ylim(0, upper_y_lim)
+        #upper_y_lim = max_vals[data['snr'][i]]
+        #upper_y_lim = 3.3229393920919392e-06
 
         # find the data that should be used for this plot
         data_freqs_i = data['freqs'][i]
+        upper_y_lim = np.max(data_freqs_i)
+        plt.ylim(0, upper_y_lim)
         
         # set to true to plot line_plot
         if line_plot:
@@ -124,7 +126,7 @@ if __name__ == "__main__":
     logging.basicConfig(filename=logfilename, encoding='utf-8', level=logging.INFO)
     logger.info("Starting the program")
     
-    csv_dir = "C:/Users/rdybs/Desktop/gitnstuff/ml-lora-communication/output/20241023-134010/csv"
+    csv_dir = "C:/Users/rdybs/Desktop/gitnstuff/ml-lora-communication/output/20241028-152946/csv"
     data = load_data(csv_dir, logger=logger) # change directory when running test
     max_vals = find_max(data, logger=logger)
 
