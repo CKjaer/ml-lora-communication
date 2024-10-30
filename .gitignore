@@ -158,3 +158,4 @@ data/
 venv/
 *.log
 cnn_folder/torch_logs/
+wandb/
