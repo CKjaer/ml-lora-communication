@@ -268,9 +268,11 @@ logger.info("All SER values have been calculated.")
 
 
 for rate, values in symbol_error_rates.items():
-    ser_values, snr_values = zip(*values)
+    snr_values = list(map(int, values.keys()))
+    ser_values = list(values.values())
     
-    savetxt(os.path.join(output_folder, f'snr_vs_ser_rate_{rate}.csv'), np.array([int(snr_values), np.round(ser_values, 6)]).T, delimiter=';')
+    snr_values = sorted(snr_values)
+    savetxt(f'snr_vs_ser_rate_{rate}.csv', np.array([snr_values, ser_values]).T, delimiter=';', fmt='%d;%.6f')
     
     plt.figure(figsize=(10, 6))
     plt.plot(snr_values, ser_values, marker='o', linestyle='-', color='b')
