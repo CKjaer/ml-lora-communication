@@ -3,8 +3,6 @@ import time
 from numpy import savetxt
 import lora_phy as lora
 import tensorflow as tf
-import argparse
-import json
 import logging
 
 def log_and_print(log:logging, message:str):
@@ -34,7 +32,7 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
         snr_values = tf.constant(snr_values, dtype=tf.int32)
         
         # Precompute chirps
-        basic_chirp = lora.create_basechirp(M)
+        basic_chirp = lora.create_basechirp(M, 0)
         upchirp_lut = tf.concat(
             [
                 lora.upchirp_lut(M, basic_chirp),
@@ -92,10 +90,10 @@ if __name__ == '__main__':
     logging.basicConfig(filename=log_path, encoding='utf-8', level=logging.INFO)
     logger.info("Starting the program")
     # Load the setup file
-    N_samp_raw = [10]
-    snr_values_raw = [-4,-8,-12,-16]
+    N_samp_raw = [100]
+    snr_values_raw = [-6,-10,-14]
     SF_raw = 7
-    rate = [0.5]
+    rate = [0.0, 0.5]
     SIR_Random = False
 
     og_path = os.path.join(outputdir,"csv")
