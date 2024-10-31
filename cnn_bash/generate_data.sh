@@ -9,10 +9,11 @@
 #SBATCH --mem=16G
 
 singularity shell --nv "$(pwd)/tensorflow_24.09.sif" << 'EOF'
-
+BASE_DIR="$(pwd)"
+echo "Currently in directory: $BASE_DIR"
 
 # Run Python file (generate_data.py)
-python -u "$(pwd)/generate_data.py" || { echo "Python script failed"; exit 1; }
+python -u "$BASE_DIR/../generate_data.py" || { echo "Python script failed"; exit 1; }
 
 # Exit the container shell
 

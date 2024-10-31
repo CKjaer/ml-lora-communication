@@ -13,8 +13,8 @@
 singularity shell --nv "./pytorch_24.09.sif" << 'EOF'
 BASE_DIR="$(pwd)"
 
-# Run Python file (generate_data.py)
-python "$BASE_DIR/cnn_model/tuning.py" || { echo "Python script failed"; exit 1; }
+# Run Python file (tuning.py)
+python "$BASE_DIR/../cnn_model/tuning.py" || { echo "Python script failed"; exit 1; }
 
 # Exit the container shell
 exit

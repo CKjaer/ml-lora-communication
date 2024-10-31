@@ -12,9 +12,10 @@
 
 singularity shell --nv "./pytorch_24.09.sif" << 'EOF'
 BASE_DIR="$(pwd)"
+echo "Currently in directory: $BASE_DIR"
 
 # Run Python file (main.py)
-python "$BASE_DIR/cnn_model/cnn_train.py" || { echo "Python script failed"; exit 1; }
+python "$BASE_DIR/../cnn_model/cnn_train.py" || { echo "Python script failed"; exit 1; }
 
 # Exit the container shell
 exit
