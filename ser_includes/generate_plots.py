@@ -120,20 +120,25 @@ def find_max(df, logger):
 
 
 if __name__ == "__main__":
+
+    folder = "20241031-093018"
+    outputfolder = os.path.join(os.path.dirname(__file__),"output",folder)
+    if not os.path.exists(os.path.join(outputfolder,"csv")):
+        print(f"Folder {folder}/csv does not exist")
+        exit()
+    
     from load_files import load_data
-    logfilename = os.path.join("plot_stuff","generate_plots.log")
+    logfilename = os.path.join(outputfolder,"generate_plots.log")
     logger = logging.getLogger(__name__)
     logging.basicConfig(filename=logfilename, encoding='utf-8', level=logging.INFO)
     logger.info("Starting the program")
-    
-    csv_dir = "C:/Users/rdybs/Desktop/gitnstuff/ml-lora-communication/output/20241028-152946/csv"
+
+    csv_dir = os.path.join(outputfolder,"csv")
     data = load_data(csv_dir, logger=logger) # change directory when running test
     max_vals = find_max(data, logger=logger)
 
     import uuid
     rand = uuid.uuid1()
-    print(rand)
-    outdir = "C:/Users/rdybs/Desktop/gitnstuff/ml-lora-communication/output/example"
-    outerdir = os.path.join(outdir,str(rand))
+    outerdir = os.path.join(outputfolder,"plots_"+str(rand))
     os.makedirs(outerdir,exist_ok=True)
     generate_plots(data, logger=logger, spreading_factor=7, num_samples=[10,10,10,10,10,10,10], directory=outerdir, max_vals=max_vals, line_plot=True) # change directory when running test

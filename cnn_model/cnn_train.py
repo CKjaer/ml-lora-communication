@@ -14,13 +14,29 @@ import logging
 import numpy as np
 import random
 from numpy import savetxt
+from scipy import stats
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
+# Directory paths
+img_dir = "./output/training_set_250_samples_20241025-132034/plots"
+output_folder = './cnn_output/final_run'
+models_folder = os.path.join(output_folder, 'models')
+
+# Create the directory if it doesn't exist
+if not os.path.exists(output_folder):
+    os.makedirs(output_folder)
+    os.makedirs(models_folder)
+    
 # Configure logger
 logfilename = "cnn.log"
 logger = logging.getLogger(__name__)
-logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',datefmt='%Y-%m-%d %H:%M:%S', filename=logfilename, encoding='utf-8', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',datefmt='%Y-%m-%d %H:%M:%S', filename=os.path.join(output_folder, logfilename), encoding='utf-8', level=logging.INFO)
 logger.info("Starting the program")
 
+
+# Check if GPU is available
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+logger.info(f"Using device: {device}")
 
 # Define the CNN architecture
 class LoRaCNN(nn.Module):
@@ -64,20 +80,6 @@ class LoRaCNN(nn.Module):
         for s in size:
             num_features *= s
         return num_features
-
-
-# Check for GPU availability
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-logger.info(f"Using device: {device}")
-
-# Example model
-M = 128
-model = LoRaCNN(M).to(device)
-
-# Loss function and optimizer
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.001)
-
 class CustomImageDataset(Dataset):
     def __init__(self, img_dir, specific_label=None, rate_param=None, transform=None, samples_per_label=250):
         self.img_dir = img_dir
@@ -200,34 +202,34 @@ def evaluate_and_calculate_ser(model, test_loader, criterion):
     logger.info(f'Symbol Error Rate (SER): {ser:.6f}')
     return ser
 
-
-# Directory paths
-img_dir = "./output/20241021-173148/plots/"
-output_folder = './cnn_output/'
-
-# Create the directory if it doesn't exist
-if not os.path.exists(output_folder):
-    os.makedirs(output_folder)
-
 # List of snr and rate parameters for which SER will be calculated
-specific_values = [i for i in range(-16, -2, 2)] # TODO change this to -16, -2, 2
-rates = [0,0.25,0.5,0.7,1]
+snr_list = [i for i in range(-16, -2, 2)] # TODO change this to -16, -2, 2
+rates = [0, 0.25, 0.5, 0.7, 1] 
 
 # Placeholder to store symbol error rates
 symbol_error_rates = {} # dictionary to store SER for each rate
 for rate in rates:
     symbol_error_rates[rate] = []
 
-# Loop over each specific value
-for value in specific_values:
-    for rate in rates:
-        logger.info(f"Calculating SER for specific value: {value}, rate {rate}")
 
-        dataset = CustomImageDataset(img_dir=img_dir, specific_label=float(value), rate_param=float(rate), transform=transform, samples_per_label=250)
+# Hyperparameters
+M = 128  # Number of classes
+batch_size = 32
+learning_rate = 0.02
+num_epochs = 3
+optimizer_choice = 'SGD' # 'Adam' or 'SGD'
+criterion = nn.CrossEntropyLoss()
+
+# Loop over each specific value
+for snr in snr_list:
+    for rate in rates:
+        logger.info(f"Calculating SER for snr: {snr}, rate {rate}")
+
+        dataset = CustomImageDataset(img_dir=img_dir, specific_label=float(snr), rate_param=float(rate), transform=transform, samples_per_label=250)
         logger.info(f"Number of images in dataset: {len(dataset)}")
         # Dataset size check
         if len(dataset) == 0:
-            logger.warning(f"No images found for specific value: {value}. Skipping.")
+            logger.warning(f"No images found for specific value: {snr}. Skipping.")
             continue
 
         dataset_size = len(dataset)
@@ -236,42 +238,107 @@ for value in specific_values:
 
         train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
 
-        train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-        test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
         model = LoRaCNN(M).to(device)
-        optimizer = optim.Adam(model.parameters(), lr=0.001)
+        
+        if optimizer_choice == 'Adam':
+            optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+        elif optimizer_choice == 'SGD':
+            optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+            
 
         # Train the model
-        train(model, train_loader, 3, optimizer, criterion)
+        train(model, train_loader, num_epochs, optimizer, criterion)
 
         # Save model and optimizer
-        torch.save(model.state_dict(), os.path.join(output_folder, f'model_snr_{value}_rate{rate}.pth'))
-        torch.save(optimizer.state_dict(), os.path.join(output_folder, f'optimizer_snr_{value}_rate_{rate}.pth'))
+        torch.save(model.state_dict(), os.path.join(models_folder, f'model_snr_{snr}_rate{rate}.pth'))
+        torch.save(optimizer.state_dict(), os.path.join(models_folder, f'optimizer_snr_{snr}_rate_{rate}.pth'))
 
         # Evaluate model and calculate SER
         ser = evaluate_and_calculate_ser(model, test_loader, criterion)
-        symbol_error_rates[rate].append((ser, value)) # store SER and SNR value in corresponding rate
+        symbol_error_rates[rate].append((ser, snr)) # store SER and SNR value in corresponding rate
         
 
 
 logger.info("All SER values have been calculated.")
 
 
+# parameters for plotting
+# plt.rcParams['mathtext.fontset'] = 'custom'
+# plt.rcParams['mathtext.rm'] = 'TeX Gyre Pagella'
+# plt.rcParams['font.family'] ='TeX Gyre Pagella'
+fs = 20
+plt.rcParams.update({'font.size': fs})
+
+
 for rate, values in symbol_error_rates.items():
-    snr_values = [snr for ser, snr in values] # stupid but I think it works
-    ser_values = [ser for ser, snr in values]
+    snr_values = list(map(int, values.keys()))
+    ser_values = list(values.values())
+    snr_values = sorted(snr_values)
     
-    savetxt(os.path.join(output_folder, f'snr_vs_ser_rate_{rate}.csv'), np.array([snr_values, ser_values]).T, delimiter=';', fmt='%.6f')
+    if rate == 0:
+        zero_snr_values = snr_values
+        zero_ser_values = ser_values
+
+    savetxt(f'snr_vs_ser_rate_{rate}.csv', np.array([snr_values, ser_values]).T, delimiter=';', fmt='%d;%.6f')
     
-    plt.figure(figsize=(10, 6))
-    plt.plot(snr_values, ser_values, marker='o', linestyle='-', color='b')
-    plt.xlabel('SNR')
-    plt.ylabel('Symbol Error Rate (SER)')
-    plt.yscale('log')
-    plt.ylim(1e-5, 1e0)
-    plt.title(f'SNR vs Symbol Error Rate for rate {rate}')
-    plt.grid(True)
+    fig, ax = plt.subplots(1, 1, figsize=(8, 6))
+    ax.plot(
+        zero_snr_values,
+        zero_ser_values,
+        label=f"SF:{7} λ=0.00",
+        linestyle="dashed",
+        color="black",
+        marker="v"
+    )
+    ax.plot(
+        snr_values,
+        ser_values,
+        marker="v",
+        color="black",
+        label=f"SF:{7} λ={rate:.2f}"
+    )
+    ax.set_xlabel('SNR [dB]')
+    ax.set_ylabel('SER')
+    ax.set_yscale('log')
+    ax.set_ylim(1e-5, 1)
+    ax.set_xlim(-16, -4)
+    ax.grid(True, which="both", alpha=0.5)
+    ax.legend(loc='upper right')
+    
+    
+# Create an inset with the Poisson PMF stem plot
+    inset_ax = inset_axes(
+        ax,
+        width="30%",
+        height="40%",
+        loc="lower left",
+        bbox_to_anchor=(0.1, 0.1, 1, 1),
+        bbox_transform=ax.transAxes,
+    )
+    l = np.linspace(0,10,11)
+    poisson_dist = stats.poisson.pmf(l, mu=rate)
+    print(poisson_dist)
+    mask = (poisson_dist >= 0.005)
+    inset_ax.set_title(f"PMF, λ={rate:.2f}", fontsize = (fs - 2))
+    inset_ax.set_xlabel(r"$\mathrm{N_i}$", labelpad=-4, fontsize = (fs - 2))
+    inset_ax.set_xlim([0, 10])
+    inset_ax.set_ylim([0, 0.8])
+    inset_ax.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8])
+
+    stem_inset = inset_ax.stem(
+        l[mask],
+        poisson_dist[mask],
+        basefmt=" ",
+        linefmt="k-",
+    )
+    # Allow clipping of the stem plot
+    for artist in stem_inset.get_children():
+        artist.set_clip_on(False)
+
+    plt.tight_layout()
         
     # Save the plot
     plot_filename = os.path.join(output_folder, f'snr_vs_ser_rate_{rate}.png')
