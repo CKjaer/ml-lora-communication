@@ -190,10 +190,10 @@ def process_batch(
 
     # Combine the signals and add noise
     upchirp_tx = (
-        #tf.cast(user_amp, dtype=tf.complex64) * 
+        tf.cast(user_amp, dtype=tf.complex64) * 
         user_chirp_tx
-        #+ inter_symbols_scaled
-        #+ complex_noise
+        + inter_symbols_scaled
+        + complex_noise
     )
     return upchirp_tx
 

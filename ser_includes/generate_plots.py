@@ -121,7 +121,7 @@ def find_max(df, logger):
 
 if __name__ == "__main__":
 
-    folder = "20241031-093018"
+    folder = "20241031-100117"
     outputfolder = os.path.join(os.path.dirname(__file__),"output",folder)
     if not os.path.exists(os.path.join(outputfolder,"csv")):
         print(f"Folder {folder}/csv does not exist")
@@ -137,8 +137,4 @@ if __name__ == "__main__":
     data = load_data(csv_dir, logger=logger) # change directory when running test
     max_vals = find_max(data, logger=logger)
 
-    import uuid
-    rand = uuid.uuid1()
-    outerdir = os.path.join(outputfolder,"plots_"+str(rand))
-    os.makedirs(outerdir,exist_ok=True)
-    generate_plots(data, logger=logger, spreading_factor=7, num_samples=[10,10,10,10,10,10,10], directory=outerdir, max_vals=max_vals, line_plot=True) # change directory when running test
+    generate_plots(data, logger=logger, spreading_factor=7, num_samples=[10,10,10,10,10,10,10], directory=outputfolder, max_vals=max_vals, line_plot=True) # change directory when running test
