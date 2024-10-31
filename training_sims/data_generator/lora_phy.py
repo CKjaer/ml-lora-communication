@@ -2,8 +2,8 @@ import tensorflow as tf
 from math import pi
 
 
-@tf.function
-def create_basechirp(M):
+#@tf.function
+def create_basechirp(M, m):
     """Create the basic chirp
 
     Formula based on "Efficient Design of Chirp Spread Spectrum Modulation for Low-Power Wide-Area Networks" by Nguyen et al.
@@ -14,6 +14,7 @@ def create_basechirp(M):
     """
     n = tf.linspace(0, M - 1, M)
     n = tf.cast(n, tf.complex64)
+    n = tf.roll(n, -m, axis=0)
     M_complex = tf.cast(M, tf.complex64)
 
     # We've split the calculation into two parts - mult1 handling 2*pi*1j and mult2 handling the rest of the formula
@@ -26,7 +27,7 @@ def create_basechirp(M):
     return tf.exp(tf.multiply(mult1, mult2))
 
 
-@tf.function
+#@tf.function
 def upchirp_lut(M, basic_chirp):
     """Create a lookup table based on the basic chirp.
     Returns:
@@ -39,8 +40,7 @@ def upchirp_lut(M, basic_chirp):
     lut_array = lut_array.write(0, basic_chirp)  # Write the basic chirp
 
     for i in tf.range(1, M):
-        rolled_chirp = tf.roll(basic_chirp, -i, axis=0)
-        lut_array = lut_array.write(i, rolled_chirp)
+        lut_array = lut_array.write(i, create_basechirp(M, i))  # Write the chirp with a roll of i
 
     return lut_array.stack()
 
@@ -63,7 +63,7 @@ def channel_model(SNR, signal_length, M):
 
 @tf.function
 def generate_interferer_symbols(
-    batch_size, rate_param, M, upchirp_lut, user_amp, SIR_tuple
+    batch_size, rate_param, M, upchirp_lut, user_amp, SIR_tuple, noise_power
 ):
     """
     Generate symbols for interferers based on a Poisson distribution.
@@ -116,13 +116,13 @@ def generate_interferer_symbols(
 
     # A random SIR value between min and max is sampled uniformly
     SIR_dB = tf.random.uniform((batch_size, max_interferers), SIR_min_dB, SIR_max_dB)
-    SIR_dB = tf.cast(SIR_dB, dtype=tf.complex64)
+    SIR_dB = tf.cast(SIR_dB, dtype=tf.float64)
 
     # SIR_dB is transformed into linear
     SIR_lin = tf.pow(tf.cast(10.0, dtype=SIR_dB.dtype), SIR_dB / 10.0)
 
     # Scale the interferer amplitude based on the SIR
-    interferer_amp = tf.cast(user_amp, dtype=tf.complex64) / tf.sqrt(SIR_lin)
+    interferer_amp = (tf.cast(user_amp, dtype=tf.float64) / tf.sqrt(SIR_lin))
     interferer_amp = tf.cast(interferer_amp, dtype=tf.complex64)
 
     # Scale each symbol for the users, and combine them into a single M-vector for each symbol in the batch
@@ -135,7 +135,7 @@ def generate_interferer_symbols(
     return half_shifted_inter
 
 
-#@tf.function
+@tf.function
 def process_batch(
     upchirp_lut, rate_param, snr, msg_tx, batch_size, M, noise_power, SIR_tuple
 ):
@@ -183,17 +183,17 @@ def process_batch(
     # Generate the interfering users symbols and their distances
     if rate_param > 0:
         inter_symbols_scaled = generate_interferer_symbols(
-            batch_size, rate_param, M, upchirp_lut, user_amp, SIR_tuple
+            batch_size, rate_param, M, upchirp_lut, user_amp, SIR_tuple,noise_power
         )
     else:
         inter_symbols_scaled = tf.zeros((batch_size, M), dtype=tf.complex64)
 
     # Combine the signals and add noise
     upchirp_tx = (
-        tf.cast(user_amp, dtype=tf.complex64) * 
+        #tf.cast(user_amp, dtype=tf.complex64) * 
         user_chirp_tx
-        + inter_symbols_scaled
-        + complex_noise
+        #+ inter_symbols_scaled
+        #+ complex_noise
     )
     return upchirp_tx
 

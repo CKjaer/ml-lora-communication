@@ -132,8 +132,8 @@ optimizer.load_state_dict(torch.load(optimizer_path, map_location=device,weights
 # Directory paths
 # img_dir = "C:\\Users\\rdybs\\Desktop\\gitnstuff\\ml-lora-communication\\output\\bonjour\\plots"
 # img_dir = "C:\\Users\\rdybs\\Desktop\\gitnstuff\\ml-lora-communication\\output\\example\\a77f548a-950b-11ef-b4df-c33ae230792f\\plots"
-img_dir = "C:\\Users\\rdybs\\Desktop\\gitnstuff\\ml-lora-communication\\output\\example\\1181ca87-955e-11ef-8368-c33ae230792f\\plots"
-# img_dir = "C:\\Users\\rdybs\\Desktop\\gitnstuff\\ml-lora-communication\\output\\20241028-152946\\plots"
+# img_dir = "C:\\Users\\rdybs\\Desktop\\gitnstuff\\ml-lora-communication\\output\\example\\1181ca87-955e-11ef-8368-c33ae230792f\\plots"
+img_dir = "C:\\Users\\rdybs\\Desktop\\gitnstuff\\ml-lora-communication\\output\\20241028-152946\\plots"
 # List of snr and rate parameters for which SER will be calculated
 specific_values = [i for i in range(-10, -2, 2)] # TODO change this to -16, -2, 2
 specific_values = [-10]
