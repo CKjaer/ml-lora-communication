@@ -1,19 +1,18 @@
 import os
 import sys
 script_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(script_dir, '..', 'ser_includes')))
-
+sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
 import json
-from generate_plots import generate_plots, find_max
-from load_files import load_data
-from create_data_csv import create_data_csvs
-import lora_phy  # Must be imported for create_data_csvs to work
+from ser_includes.generate_plots import generate_plots, find_max
+from ser_includes.load_files import load_data
+from ser_includes.create_data_csv import create_data_csvs
+
 import logging
 import time
 
 if __name__ == "__main__":
     # Generate a unique
-    with open("config.json") as f:
+    with open("cnn_bash/config.json") as f:
         config = json.load(f)
     test_id = time.strftime("%Y%m%d-%H%M%S")
     output_dir = os.path.join("output")
