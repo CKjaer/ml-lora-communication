@@ -18,8 +18,8 @@ from scipy import stats
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 # Directory paths
-img_dir = "./output/training_set_250_samples_20241025-132034/plots"
-output_folder = './cnn_output/final_run'
+img_dir = "./output/output/20241030-131623/plots"
+output_folder = './cnn_output/noScaling'
 models_folder = os.path.join(output_folder, 'models')
 
 # Create the directory if it doesn't exist
@@ -308,40 +308,40 @@ for rate, values in symbol_error_rates.items():
     ax.grid(True, which="both", alpha=0.5)
     ax.legend(loc='upper right')
     
-    
-# Create an inset with the Poisson PMF stem plot
-    inset_ax = inset_axes(
-        ax,
-        width="30%",
-        height="40%",
-        loc="lower left",
-        bbox_to_anchor=(0.1, 0.1, 1, 1),
-        bbox_transform=ax.transAxes,
-    )
-    l = np.linspace(0,10,11)
-    poisson_dist = stats.poisson.pmf(l, mu=rate)
-    print(poisson_dist)
-    mask = (poisson_dist >= 0.005)
-    inset_ax.set_title(f"PMF, λ={rate:.2f}", fontsize = (fs - 2))
-    inset_ax.set_xlabel(r"$\mathrm{N_i}$", labelpad=-4, fontsize = (fs - 2))
-    inset_ax.set_xlim([0, 10])
-    inset_ax.set_ylim([0, 0.8])
-    inset_ax.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8])
+    if rate != 0:
+        # Create an inset with the Poisson PMF stem plot
+        inset_ax = inset_axes(
+            ax,
+            width="30%",
+            height="40%",
+            loc="lower left",
+            bbox_to_anchor=(0.1, 0.1, 1, 1),
+            bbox_transform=ax.transAxes,
+        )
+        l = np.linspace(0,10,11)
+        poisson_dist = stats.poisson.pmf(l, mu=rate)
+        print(poisson_dist)
+        mask = (poisson_dist >= 0.005)
+        inset_ax.set_title(f"PMF, λ={rate:.2f}", fontsize = (fs - 2))
+        inset_ax.set_xlabel(r"$\mathrm{N_i}$", labelpad=-4, fontsize = (fs - 2))
+        inset_ax.set_xlim([0, 10])
+        inset_ax.set_ylim([0, 0.8])
+        inset_ax.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8])
 
-    stem_inset = inset_ax.stem(
-        l[mask],
-        poisson_dist[mask],
-        basefmt=" ",
-        linefmt="k-",
-    )
-    # Allow clipping of the stem plot
-    for artist in stem_inset.get_children():
-        artist.set_clip_on(False)
+        stem_inset = inset_ax.stem(
+            l[mask],
+            poisson_dist[mask],
+            basefmt=" ",
+            linefmt="k-",
+        )
+        # Allow clipping of the stem plot
+        for artist in stem_inset.get_children():
+            artist.set_clip_on(False)
 
     plt.tight_layout()
         
     # Save the plot
-    plot_filename = os.path.join(output_folder, f'snr_vs_ser_rate_{rate}.png')
+    plot_filename = os.path.join(output_folder, f'snr_vs_ser_rate_{rate}.pdf')
     plt.savefig(plot_filename)
     plt.show()
     plt.close()

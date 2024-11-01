@@ -1,4 +1,4 @@
-#!/bin/bash
+  GNU nano 6.2                                                                       train_model.sh                                                                                #!/bin/bash
 #SBATCH --job-name=726_Symbol_Generator
 #SBATCH --output=./job_results/result_%j.out
 #SBATCH --error=./job_results/error_%j.err
@@ -12,10 +12,9 @@
 
 singularity shell --nv "./pytorch_24.09.sif" << 'EOF'
 BASE_DIR="$(pwd)"
-echo "Currently in directory: $BASE_DIR"
 
 # Run Python file (main.py)
-python "$BASE_DIR/../cnn_model/cnn_train.py" || { echo "Python script failed"; exit 1; }
+python "$BASE_DIR/cnn_models/recreating_tesfay/cnn_train.py" || { echo "Python script failed"; exit 1; }
 
 # Exit the container shell
 exit
