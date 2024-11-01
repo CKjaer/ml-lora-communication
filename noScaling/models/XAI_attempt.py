@@ -117,9 +117,9 @@ transform = transforms.Compose([
 ])
 
 dir = os.path.dirname(__file__)
-model = "model_snr_-6_rate0.pth"
+model = "model_snr_-10_rate0.pth"
 model_path = os.path.join(dir, model)
-optimizer = "optimizer_snr_-6_rate_0.pth"
+optimizer = "optimizer_snr_-10_rate_0.pth"
 optimizer_path = os.path.join(dir, optimizer)
 device=torch.device('cpu')
 
@@ -149,19 +149,21 @@ for i, param in enumerate(model.named_parameters()):
     if len(param[1].shape) == 4:
         if(param[1].shape[1] == 1):
             plt.subplots(8, 4)
-            for j in range(param[1].shape[0]):
-                for k in range(param[1].shape[1]):
+            for j in range(8):
+                for k in range(4):
                     plt.subplot(8, 4, j + k +1)
                     plt.imshow(param[1][j][k].detach().numpy(), cmap='gray')
                     plt.title(f"Kernel {j}")
+                    plt.colorbar()
             plt.show()
         if(param[1].shape[1] == 32):
             plt.subplots(8, 8)
-            for j in range(param[1].shape[0]):
-                for k in range(param[1].shape[1]):
-                    plt.subplot(8, 8, j + k+1)
+            for j in range(8):
+                for k in range(8):
+                    plt.subplot(8, 8, j + k + 1)
                     plt.imshow(param[1][j][k].detach().numpy(), cmap='gray')
                     plt.title(f"Kernel {j}")
+            plt.colorbar()
             plt.show()
         if len(param[1].shape) == 2:
             plt.plot(param[1].detach().numpy())
