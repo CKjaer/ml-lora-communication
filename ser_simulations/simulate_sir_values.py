@@ -57,6 +57,7 @@ if __name__ == "__main__":
         result_list = tf.zeros(sir_vals.shape, dtype=tf.float64)
 
         # Noise formula based on thermal noise N0=k*T*B
+        BW = 250e3  # Bandwidth [Hz] (EU863-870 DR0 channel)
         k_b = tf.constant(1.380649e-23, dtype=tf.float64)  # Boltzmann constant
         noise_power = tf.constant((k_b * 298.16 * BW), dtype=tf.float64)  # dB
 
