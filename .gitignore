@@ -157,6 +157,7 @@ data/
 venv/
 *.log
 cnn_folder/torch_logs/
-
+SERplots/
+cnn_models/recreating_tesfay/restructered_cnn.py
 noScaling/
 rate_0_run/
