@@ -148,7 +148,6 @@ data/
 test_data_fft*
 test_data_for_plots
 plots/
-plots/
 *.pyc
 csv/
 job_results/
@@ -158,4 +157,11 @@ data/
 venv/
 *.log
 cnn_folder/torch_logs/
+<<<<<<< HEAD
 wandb/
+=======
+SERplots/
+cnn_models/recreating_tesfay/restructered_cnn.py
+noScaling/
+rate_0_run/
+>>>>>>> 04f02f11d81d417a988c474ac31f22d480757c8a
