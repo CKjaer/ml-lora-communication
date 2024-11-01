@@ -11,6 +11,17 @@ def generate_plots(data, logger, spreading_factor: int, num_samples: int, direct
     sample_idx = 0
     start_time = time.time()
     num_symbols = 2**spreading_factor
+
+    BW = 250e3  # Bandwidth [Hz] (EU863-870 DR0 channel)
+    k_b = 1.380649e-23
+    noise_power = k_b * 298.16 * BW
+    y_scale = {}
+    for i, snr in enumerate(np.unique(data['snr'])):
+        logger.info(f"Unique snr: {snr}")
+        snr_linear = np.power(10.0,(snr / 10.0))
+        user_amp = np.sqrt(snr_linear * noise_power)
+        y_scale[snr] = 2*(user_amp*num_symbols+noise_power)
+        logger.info(f"{snr}: {y_scale[snr]}")
     
     # create a lin space for the frequency values
     #freqs_idx = np.arange(0, num_symbols, 1)
@@ -37,13 +48,17 @@ def generate_plots(data, logger, spreading_factor: int, num_samples: int, direct
         if symbol != prev_symbol:
             sample_idx = 0
         # find the upper limit for current snr condition
-        #upper_y_lim = max_vals[data['snr'][i]]
-        #upper_y_lim = 3.3229393920919392e-06
+        data_freqs_i = data['freqs'][i]
+
+        #y_max = max_vals[data['snr'][i]] #Scaling method 1: Everything scaled for maximum value in set
+        #y_max = np.max(data_freqs_i) #Scaling method 2: Autoscaling
+        y_max = y_scale[snr] #Scaling method 3: Scaling based expected values
+        #data_freqs_i = data_freqs_i / (y_scale[snr]-2*noise_power)   #Method 4: Normalizing data
+        #y_max = 2 #Scaling method 3: Scaling based expected values
 
         # find the data that should be used for this plot
-        data_freqs_i = data['freqs'][i]
-        upper_y_lim = np.max(data_freqs_i)
-        plt.ylim(0, upper_y_lim)
+        plt.ylim(0, y_max)#[snr])
+        #plt.autoscale(True)
         
         # set to true to plot line_plot
         if line_plot:
@@ -120,20 +135,27 @@ def find_max(df, logger):
 
 
 if __name__ == "__main__":
+
+    folder = "20241101-102808"
+    outputfolder = os.path.join(os.path.dirname(__file__),"output",folder)
+    if not os.path.exists(os.path.join(outputfolder,"csv")):
+        print(f"Folder {folder}/csv does not exist")
+        exit()
+    
     from load_files import load_data
-    logfilename = os.path.join("plot_stuff","generate_plots.log")
+    logfilename = os.path.join(outputfolder,"generate_plots.log")
     logger = logging.getLogger(__name__)
     logging.basicConfig(filename=logfilename, encoding='utf-8', level=logging.INFO)
     logger.info("Starting the program")
-    
-    csv_dir = "C:/Users/rdybs/Desktop/gitnstuff/ml-lora-communication/output/20241028-152946/csv"
+
+    csv_dir = os.path.join(outputfolder,"csv")
     data = load_data(csv_dir, logger=logger) # change directory when running test
     max_vals = find_max(data, logger=logger)
 
     import uuid
     rand = uuid.uuid1()
-    print(rand)
-    outdir = "C:/Users/rdybs/Desktop/gitnstuff/ml-lora-communication/output/example"
-    outerdir = os.path.join(outdir,str(rand))
+    rand = "fixed_scale"
+    outerdir = os.path.join(outputfolder,"plots_"+str(rand))
+    print(f"UUID name: {rand}")
     os.makedirs(outerdir,exist_ok=True)
     generate_plots(data, logger=logger, spreading_factor=7, num_samples=[10,10,10,10,10,10,10], directory=outerdir, max_vals=max_vals, line_plot=True) # change directory when running test

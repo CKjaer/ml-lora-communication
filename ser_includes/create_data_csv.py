@@ -1,10 +1,7 @@
 import os
 import time
 from numpy import savetxt
-if os.getcwd().endswith("training_sims"):
-    import lora_phy as lora
-else:
-    import training_sims.data_generator.lora_phy as lora
+import lora_phy as lora
 import tensorflow as tf
 import argparse
 import json
@@ -85,48 +82,29 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
             log_and_print(log,f"Total CSV creation time: {time.time() - start_time}")
 
 if __name__ == '__main__':
-    for i in range(10): print("\n")
-    # Setup of the argument parser. Eases multiple runs of the program
-    desc = (
-        "This program generates test data for the LoRa PHY model.\n"
-        "The data is saved as CSV files in the specified output directory.\n"
-        "The program requires a setup file in JSON format to run.\n"
-        "Note that the program overwrites any existing files with the same name.\n"
-    )
-    parser = argparse.ArgumentParser(prog="LoRa Phy gen",description=desc)
-    parser.add_argument("-c","--config_file", help="A json file containing the setup for the process. The setup file should contain the following fields: 'test_id', 'number_of_samples', 'snr_values' and 'spreading_factor'.", type=str,required=True)
-    parser.add_argument("-o","--output_dir", help=f"Allows for a specified outputdir. Otherwise the default directory is the name of the config file",default="DEFAULT",type=str,required=False)
-    parser.add_argument("-v","--verbose", help="Allows printing of data",action="store_true",default=False)
+    output_dir = time.strftime("%Y%m%d-%H%M%S")
 
-    args = parser.parse_args()
-    config_file = args.config_file
-    output_dir = args.output_dir
-    verbose = args.verbose
-    
-    logfilename = "test.log"
-    file_path = os.path.dirname(os.path.realpath(__file__))
-    log_path = os.path.abspath(os.path.join(file_path,logfilename))
+    logfilename = "generate.log"
+    outputdir = os.path.join(os.path.dirname(__file__), "output", output_dir)
+    os.makedirs(outputdir, exist_ok=True)
+    log_path = os.path.abspath(os.path.join(outputdir, logfilename))
     logger = logging.getLogger("LoRa Phy gen")
     logging.basicConfig(filename=log_path, encoding='utf-8', level=logging.INFO)
     logger.info("Starting the program")
     # Load the setup file
-    try:
-        setup_path = os.path.abspath(os.path.join(os.getcwd(), config_file))
-        logger.info(setup_path)
-        setup_json = json.load(open(setup_path))
-    except FileNotFoundError:
-        logger.error(logger,f"File {config_file} not found. Check the path and try again.")
-        exit()
+    N_samp_raw = [10]
+    snr_values_raw = [-4,-8,-12,-16]
+    SF_raw = 7
+    rate = [0.5]
+    SIR_Random = False
 
-    # Loads and print the setup data
-    N_samp_raw = setup_json.get("number_of_samples")
-    snr_values_raw = setup_json.get("snr_values")
-    SF_raw = setup_json.get("spreading_factor")
-
-    #Setup file structure for saving the results
-    if output_dir == "DEFAULT":
-        output_dir = setup_json.get("test_id")
-    og_path = os.path.abspath(os.path.join(file_path, "output",output_dir))
+    og_path = os.path.join(outputdir,"csv")
     os.makedirs(og_path, exist_ok=True)
 
-    create_data_csvs(logger, N_samp_raw, snr_values_raw, SF_raw, og_path,0)
+    if len(N_samp_raw) == 1:
+        N_samp_raw = N_samp_raw * len(snr_values_raw)
+    elif len(N_samp_raw) != len(snr_values_raw):
+        raise TypeError(
+            f"Number_of_samples has invalid dimensions: Must be either 1, or the same as snr_values ({len(snr_values_raw)})"
+        )
+    create_data_csvs(logger, N_samp_raw, snr_values_raw, SF_raw, og_path, rate, SIR_Random, [0,7.5], verbose=True)
