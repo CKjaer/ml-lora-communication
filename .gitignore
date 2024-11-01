@@ -148,7 +148,6 @@ data/
 test_data_fft*
 test_data_for_plots
 plots/
-plots/
 *.pyc
 csv/
 job_results/
@@ -158,3 +157,6 @@ data/
 venv/
 *.log
 cnn_folder/torch_logs/
+
+noScaling/
+rate_0_run/

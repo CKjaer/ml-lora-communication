@@ -1,4 +1,9 @@
 import os
+import sys
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.abspath(os.path.join(script_dir, '..', 'ser_includes')))
+
 import lora_phy as lora
 import model_space as model
 import matplotlib.pyplot as plt

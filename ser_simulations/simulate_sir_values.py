@@ -1,6 +1,12 @@
 import os
+import sys
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.abspath(os.path.join(script_dir, '..', 'ser_includes')))
+
 import lora_phy as lora
 import model_space as model
+
 import matplotlib.pyplot as plt
 import time
 from numpy import savetxt
@@ -43,7 +49,7 @@ if __name__ == "__main__":
         relative_error = 0.01
         max_ser = 1e-5
         n_symbols = int(tf.math.ceil(1 / (relative_error * max_ser)))
-        batch_size = int(250e3)  # Number of symbols per batch
+        batch_size = int(50e3)  # Number of symbols per batch
         nr_of_batches = int(n_symbols // batch_size)
         snr_val = tf.constant(-6.6, dtype=tf.float64)  # dB
         rate_param = tf.constant(0.25, dtype=tf.float64)  #

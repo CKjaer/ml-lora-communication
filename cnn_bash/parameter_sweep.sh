@@ -6,15 +6,17 @@
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=16G
+#SBATCH --mem=20G
 
-singularity shell --nv "$(pwd)/tensorflow_24.09.sif" << 'EOF'
+#pyhon3 -m venv virtualenv
 
+singularity shell --nv "./pytorch_24.09.sif" << 'EOF'
+BASE_DIR="$(pwd)"
 
-# Run Python file (main.py)
-python -u "$(pwd)/main.py" || { echo "Python script failed"; exit 1; }
+# Run Python file (tuning.py)
+python "$BASE_DIR/../cnn_model/tuning.py" || { echo "Python script failed"; exit 1; }
 
 # Exit the container shell
-
 exit
+
 EOF
