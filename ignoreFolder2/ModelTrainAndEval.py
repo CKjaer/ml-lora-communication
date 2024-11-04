@@ -1,14 +1,17 @@
 from loadData import loadData
-from model import LoRaCNN
+from ML_models.LoRaCNN import LoRaCNN
+from ML_models.IQ_cnn import IQ_cnn
 from trainModel import train
 from evalModel import evaluate_and_calculate_ser
+from find_model import find_model
 import os
 import torch
 import torch.optim as optim
 import torch.nn as nn
 import logging
+import sys
 
-def ModelTrainAndEval(logger:logging.Logger, img_dir, output_folder, snr_list, rates, batch_size: int, M=128, optimizer="SGD", num_epochs=3, learning_rate=0.01, model="LoRaCNN"):
+def ModelTrainAndEval(logger:logging.Logger, img_dir, output_folder, snr_list:list, rates:list, batch_size: int, base_model:str, M=128, optimizer="SGD", num_epochs=3, learning_rate=0.01):
     criterion=nn.CrossEntropyLoss()
 
     modelFolder=os.path.join(output_folder, "modelFolder")
@@ -20,9 +23,25 @@ def ModelTrainAndEval(logger:logging.Logger, img_dir, output_folder, snr_list, r
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     SERs=[[None]*len(rates) for _ in range(len(snr_list))]
+
+    str_model=find_model(base_model)
+    if str_model!=None:
+        try:
+            model_class=getattr(sys.modules[__name__], str_model)
+        except Exception as e:
+            return
+    else:
+        logger.error("no such class is found")
+        print("error finding model")
+        return
+
     for snr in range(len(snr_list)):
         for rate in range(len(rates)):
-            model=LoRaCNN(M).to(device)
+            try:
+                model=model_class(M).to(device)
+            except Exception as e:
+                logger.error(f"error loading model: {e}")
+                return
             if optimizer_choice == 'Adam':
                 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
             elif optimizer_choice == 'SGD':
@@ -35,7 +54,7 @@ def ModelTrainAndEval(logger:logging.Logger, img_dir, output_folder, snr_list, r
 
             train_loader, test_loader=loadData(img_dir, batch_size, snr_list[snr], rates[rate], M)
             train(model, train_loader, num_epochs, optimizer, criterion)
-            torch.save(model.state_dict(), os.path.join(modelFolder, f"model_snr_{snr_list[snr]}_rate{rates[rate]}.pth"))
+            torch.save(model.state_dict(), os.path.join(modelFolder, f"{str_model}_snr_{snr_list[snr]}_rate{rates[rate]}.pth"))
             ser=evaluate_and_calculate_ser(model, test_loader, criterion)
             SERs[snr][rate]=ser
             logger.info(f"Trained and evalulated model for SNR: {snr_list[snr]} and rate:{rates[rate]}. SER is {ser}")
@@ -64,5 +83,5 @@ if __name__=="__main__":
     rates=[0,0.25]
     img_dir="output/20241030-093008/plots/"
     output_folder="output/"
-    ModelTrainAndEval(logger, img_dir, output_folder, snr_list, rates, batch_size)
+    ModelTrainAndEval(logger, img_dir, output_folder, snr_list, rates, batch_size, base_model="LoRaCNN")
     logger.info("finnished model train and evaluation")
