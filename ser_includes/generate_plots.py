@@ -38,11 +38,11 @@ def generate_plots(data, logger, spreading_factor: int, num_samples: int, direct
             sample_idx = 0
         # find the upper limit for current snr condition
         #upper_y_lim = max_vals[data['snr'][i]]
-        #upper_y_lim = 3.3229393920919392e-06
+        upper_y_lim = 3.3229393920919392e-06
 
         # find the data that should be used for this plot
         data_freqs_i = data['freqs'][i]
-        upper_y_lim = np.max(data_freqs_i)
+        #upper_y_lim = np.max(data_freqs_i)
         plt.ylim(0, upper_y_lim)
         
         # set to true to plot line_plot
@@ -120,8 +120,7 @@ def find_max(df, logger):
 
 
 if __name__ == "__main__":
-
-    folder = "20241031-100117"
+    folder = "signal_and_noise_75_1280"
     outputfolder = os.path.join(os.path.dirname(__file__),"output",folder)
     if not os.path.exists(os.path.join(outputfolder,"csv")):
         print(f"Folder {folder}/csv does not exist")
