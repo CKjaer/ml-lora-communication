@@ -1,7 +1,10 @@
 import os
+import sys
 import time
 from numpy import savetxt
-import lora_phy as lora
+script_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
+import ser_includes.lora_phy as lora
 import tensorflow as tf
 import argparse
 import json
@@ -82,6 +85,7 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
             log_and_print(log,f"Total CSV creation time: {time.time() - start_time}")
 
 if __name__ == '__main__':
+
     output_dir = time.strftime("%Y%m%d-%H%M%S")
 
     logfilename = "generate.log"
