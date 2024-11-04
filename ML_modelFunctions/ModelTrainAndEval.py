@@ -1,6 +1,7 @@
 from loadData import loadData
-from ML_models.LoRaCNN import LoRaCNN
-from ML_models.IQ_cnn import IQ_cnn
+from ML_models import *
+# from ML_models.LoRaCNN import LoRaCNN
+# from ML_models.IQ_cnn import IQ_cnn
 from trainModel import train
 from evalModel import evaluate_and_calculate_ser
 from find_model import find_model
