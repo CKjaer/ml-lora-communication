@@ -6,6 +6,7 @@ import json
 from ser_includes.generate_plots import generate_plots, find_max
 from ser_includes.load_files import load_data
 from ser_includes.create_data_csv import create_data_csvs
+from ML_modelFunctions import ModelTrainAndEval
 
 import logging
 import time
@@ -87,6 +88,8 @@ if __name__ == "__main__":
 
     ################# train model #################
     # function calls to train the model go here
+
+
 
     # save config
     config["test_id"] = test_id
