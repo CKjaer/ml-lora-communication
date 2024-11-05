@@ -65,21 +65,20 @@ if __name__=="__main__":
                           learning_rate=config["learning_rate"],
                           seed=config["seed"])
     
-    symbol_error_rates={}
-    for rate in config["rate"]:
-        symbol_error_rates[rate]=[]
-
     rates=config["rate"]
     SNRs=config["snr_values"]
+    symbol_error_rates={rate: {} for rate in rates}
+
     for rate in range(len(rates)):
         for snr in range(len(SNRs)):
-            symbol_error_rates[rates[rate]].append((SERs[rate][snr], SNRs[snr]))
+            symbol_error_rates[rates[rate]][SNRs[snr]] = SERs[rate][snr]
+            # symbol_error_rates[rates[rate]].append((SERs[rate][snr], SNRs[snr]))
     print(symbol_error_rates)
 
+
 for rate, values in symbol_error_rates.items():
-    snr_values = list(map(int, values.keys()))
-    ser_values = list(values.values())
-    snr_values = sorted(snr_values)
+    snr_values = sorted(values.keys()) 
+    ser_values = [values[snr] for snr in snr_values] # loop through to not mix up the order
     
     if rate == 0:
         zero_snr_values = snr_values
