@@ -70,7 +70,7 @@ if __name__ == "__main__":
         snr_values = sorted(values.keys())  # Just sort the keys directly
         ser_values = [values[snr] for snr in snr_values]  # loop through to not mix up the order
         
-        # savetxt(f'snr_vs_ser_rate_{rate}.csv', np.array([snr_values, ser_values]).T, delimiter=';', fmt='%d;%.6f')
+        savetxt(os.path.join(outputpath,f'snr_vs_ser_rate_{rate}.csv'), np.array([snr_values, ser_values]).T, delimiter=';', fmt='%d;%.6f')
 
         if rate == 0:
             zero_ser_values = ser_values
