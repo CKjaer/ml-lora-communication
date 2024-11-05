@@ -206,10 +206,8 @@ def evaluate_and_calculate_ser(model, test_loader, criterion):
 snr_list = [i for i in range(-16, -2, 2)] # TODO change this to -16, -2, 2
 rates = [0, 0.25, 0.5, 0.7, 1] 
 
-# Placeholder to store symbol error rates
-symbol_error_rates = {} # dictionary to store SER for each rate
-for rate in rates:
-    symbol_error_rates[rate] = []
+# placeholder for symbol error rates
+symbol_error_rates = {rate: {} for rate in rates}
 
 
 # Hyperparameters
@@ -258,7 +256,7 @@ for snr in snr_list:
 
         # Evaluate model and calculate SER
         ser = evaluate_and_calculate_ser(model, test_loader, criterion)
-        symbol_error_rates[rate].append((ser, snr)) # store SER and SNR value in corresponding rate
+        symbol_error_rates[rate][snr] = ser
         
 
 
@@ -274,9 +272,8 @@ plt.rcParams.update({'font.size': fs})
 
 
 for rate, values in symbol_error_rates.items():
-    snr_values = list(map(int, values.keys()))
-    ser_values = list(values.values())
-    snr_values = sorted(snr_values)
+    snr_values = sorted(values.keys()) 
+    ser_values = [values[snr] for snr in snr_values] # loop through to not mix up the order
     
     if rate == 0:
         zero_snr_values = snr_values
