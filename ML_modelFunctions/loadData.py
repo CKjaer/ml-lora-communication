@@ -1,4 +1,8 @@
-from imageDataSet import CustomImageDataset
+import sys
+import os
+script_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
+from ML_modelFunctions.imageDataSet import CustomImageDataset
 from torchvision import transforms
 from torch.utils.data import random_split, DataLoader
 import torch
@@ -13,8 +17,7 @@ def loadData(img_dir, batch_size, SNR, rate_param, M=2**7, seed=None):
     ])
 
 
-    if seed!=None:
-        seed=0
+    if seed!=0:
         generator=torch.Generator().manual_seed(seed)
         dataset =CustomImageDataset(img_dir=img_dir, specific_label=SNR, rate_param=rate_param, transform=transform, seed=seed)
         train_size=int(len(dataset)*0.8)
