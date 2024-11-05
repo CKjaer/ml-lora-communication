@@ -272,9 +272,8 @@ plt.rcParams.update({'font.size': fs})
 
 
 for rate, values in symbol_error_rates.items():
-    snr_values = list(map(int, values.keys()))
-    ser_values = list(values.values())
-    snr_values = sorted(snr_values)
+    snr_values = sorted(values.keys()) 
+    ser_values = [values[snr] for snr in snr_values] # loop through to not mix up the order
     
     if rate == 0:
         zero_snr_values = snr_values
