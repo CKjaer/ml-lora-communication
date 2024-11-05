@@ -104,15 +104,18 @@ def generate_interferer_symbols(
     # Gather symbols from LUT and shift with random arrival times
     inter_symbols = tf.gather(upchirp_lut, masked_symbols, axis=0)
     rand_arrival = tf.random.uniform(
-        [batch_size], minval=1, maxval=M - 1, dtype=tf.int32
+        [batch_size, 2 * n_interferers], minval=1, maxval=M - 1, dtype=tf.int32
     )
 
     # Shifts the 2 symbols connected, s.t. the timing is randomized
-    shifted_inter = tf.roll(
-        tf.reshape(inter_symbols, (batch_size, 2 * max_interferers * M)),
-        shift=-rand_arrival,
-        axis=tf.ones([batch_size], dtype=tf.int32),
+    shifted_inter = tf.map_fn(
+    lambda x: tf.roll(x[0], shift=-x[1], axis=0),
+    (tf.reshape(inter_symbols, (batch_size * 2 * max_interferers, M)), tf.reshape(rand_arrival, [-1])),
+    fn_output_signature=tf.int32
     )
+
+    shifted_inter = tf.reshape(shifted_inter, (batch_size, 2 * max_interferers, M))
+
 
     # A random SIR value between min and max is sampled uniformly
     SIR_dB = tf.random.uniform((batch_size, max_interferers), SIR_min_dB, SIR_max_dB)
