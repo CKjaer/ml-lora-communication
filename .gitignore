@@ -162,3 +162,8 @@ cnn_models/recreating_tesfay/restructered_cnn.py
 noScaling/
 rate_0_run/
 SERplots/
+SERplots/
+cnn_models/recreating_tesfay/restructered_cnn.py
+noScaling/
+rate_0_run/
+fftplot.py
