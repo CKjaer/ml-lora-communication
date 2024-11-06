@@ -1,21 +1,21 @@
-from loadData import loadData
-from ML_models import *
-# from ML_models.LoRaCNN import LoRaCNN
-# from ML_models.IQ_cnn import IQ_cnn
-from trainModel import train
-from evalModel import evaluate_and_calculate_ser
-from find_model import find_model
 import os
 import torch
 import torch.optim as optim
 import torch.nn as nn
 import logging
 import sys
+script_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
+from ML_modelFunctions.loadData import loadData
+from ML_modelFunctions.ML_models import *
+from ML_modelFunctions.trainModel import train
+from ML_modelFunctions.evalModel import evaluate_and_calculate_ser
+from ML_modelFunctions.find_model import find_model
 
-def ModelTrainAndEval(logger:logging.Logger, img_dir, output_folder, snr_list:list, rates:list, batch_size: int, base_model:str, M=128, optimizer="SGD", num_epochs=3, learning_rate=0.01):
+def ModelTrainAndEval(logger:logging.Logger, img_dir, output_folder, snr_list:list, rates:list, batch_size: int, base_model:str, M=128, optimizer_choice="SGD", num_epochs=3, learning_rate=0.01, seed=0):
     criterion=nn.CrossEntropyLoss()
 
-    modelFolder=os.path.join(output_folder, "modelFolder")
+    modelFolder=os.path.join(output_folder, "models")
 
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -23,7 +23,7 @@ def ModelTrainAndEval(logger:logging.Logger, img_dir, output_folder, snr_list:li
         os.makedirs(modelFolder)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    SERs=[[None]*len(rates) for _ in range(len(snr_list))]
+    SERs=[[None]*len(snr_list) for _ in range(len(rates))]
 
     str_model=find_model(base_model)
     if str_model!=None:
@@ -53,7 +53,8 @@ def ModelTrainAndEval(logger:logging.Logger, img_dir, output_folder, snr_list:li
                 break
 
 
-            train_loader, test_loader=loadData(img_dir, batch_size, snr_list[snr], rates[rate], M)
+            train_loader, test_loader=loadData(img_dir, batch_size, snr_list[snr], rates[rate], M, seed=seed)
+
             train(model, train_loader, num_epochs, optimizer, criterion)
             torch.save(model.state_dict(), os.path.join(modelFolder, f"{str_model}_snr_{snr_list[snr]}_rate{rates[rate]}.pth"))
             ser=evaluate_and_calculate_ser(model, test_loader, criterion)

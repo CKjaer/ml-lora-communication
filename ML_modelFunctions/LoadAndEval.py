@@ -1,26 +1,26 @@
-from evalModel import evaluate_and_calculate_ser
-from loadData import loadData
-from ML_models import *
-# from ML_models.LoRaCNN import LoRaCNN
-# from ML_models.IQ_cnn import IQ_cnn
-from find_model import find_model
 import torch
 import torch.nn as nn
 import os
 import logging
 import sys
+script_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
+from ML_modelFunctions.evalModel import evaluate_and_calculate_ser
+from ML_modelFunctions.loadData import loadData
+from ML_modelFunctions.ML_models import *
+from ML_modelFunctions.find_model import find_model
 
 
 def loadAndevalModel(logger:logging.Logger, img_dir, output_dir, trained_model, batch_size, snr_list:list, rates:list, base_model, M=128, seed=None):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # img_dir="output/20241030-093008/plots/"
     img_dir=os.path.join(output_dir, img_dir)
-    modelFolder=os.path.join(output_dir, "modelFolder")
+    modelFolder=os.path.join(output_dir, "models")
     savedModel=os.path.join(modelFolder,trained_model)
 
     criterion=nn.CrossEntropyLoss()
     M=2**7
-    SERs=[[None]*len(rates) for _ in range(len(snr_list))]
+    SERs=[[None]*len(snr_list) for _ in range(len(rates))]
 
     model=find_model(base_model)
     if model!=None:

@@ -1,8 +1,10 @@
 import os
 import logging
 import sys
-from ML_models.LoRaCNN import LoRaCNN
-from ML_models.IQ_cnn import IQ_cnn
+script_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
+from ML_modelFunctions.ML_models.LoRaCNN import LoRaCNN
+from ML_modelFunctions.ML_models.IQ_cnn import IQ_cnn
 import torch
 
 def find_model(model:str):
