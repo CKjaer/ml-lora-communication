@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
         # Simulation parameters
         n_symbols = int(1e7)
-        batch_size = int(250e3)  # Number of symbols per batch
+        batch_size = int(100e3)  # Number of symbols per batch
         nr_of_batches = int(
             n_symbols / batch_size
         )  # NB: n_symbols must be divisible by batch_size
@@ -124,24 +124,20 @@ if __name__ == "__main__":
 
         time_str = time.strftime("%Y_%m_%d_%H_%M_%S")
         # Save the results to a .txt file for every rate parameter and create a plot
-        for i, rate_param in enumerate(rate_params):
+        for i, rate_param in enumerate(rate_params):  
             ser_list = tf.divide(result_list[:, i], n_symbols)
-            output = tf.stack(
-                [SF_list, snr_values, result_list[:, i], N_list, ser_list], axis=0
-            )
 
             file_path = os.path.dirname(os.path.abspath(__file__))
             output_path = os.path.abspath(
                 os.path.join(file_path, "sim_output/snr_sims")
             )
+
             os.makedirs(output_path, exist_ok=True)
-            file_name = f"{output_path}/{time_str}_SNR_simulations_results_SF{SF}_lam{rate_param.numpy()}.txt"
-            head = (
-                f"Test done: {time_str} - "
-                f"time taken: {time.time() - start_time} \n"
-                f"SF, SNR, error count, simulated symbols, SER"
-            )
-            savetxt(file_name, output.numpy().T, delimiter=",", header=head)
+            file_name = f"{output_path}/{time_str}_classical_snr_vs_ser_rate_{rate_param.numpy():.2f}.csv"
+
+            import numpy as np
+            savetxt(file_name, np.array([snr_values, ser_list]).T, delimiter=';', fmt='%d;%.6f')
+            
             if False:
                 # Plot SER curves as function of SNR
                 if i > 0:

@@ -90,6 +90,7 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut, user_amp
 
     # Generate random arrival times (shifts) for each batch
     rand_arrival = tf.random.uniform(
+<<<<<<< HEAD
         [batch_size, 2 * max_interferers], minval=1, maxval=M - 1, dtype=tf.int32
     )
 
@@ -108,6 +109,18 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut, user_amp
     # Stack the shifted symbols to form a tensor
     shifted_inter = shifted_inter.stack()
 
+=======
+        [batch_size], minval=1, maxval=M - 1, dtype=tf.int32
+    )
+
+    # Shifts the 2 symbols connected, s.t. the timing is randomized
+    shifted_inter = tf.roll(
+        tf.reshape(inter_symbols, (batch_size, 2 * max_interferers * M)),
+        shift=-rand_arrival,
+        axis=tf.ones([batch_size], dtype=tf.int32),
+    )
+
+>>>>>>> 9e8c9741c06d8fb2dfdaaea17d7f3d6b7a167cba
     # A random SIR value between min and max is sampled uniformly
     SIR_dB = tf.random.uniform([batch_size, max_interferers], SIR_min_dB, SIR_max_dB)
     SIR_lin = tf.pow(10.0, SIR_dB / 10.0)
