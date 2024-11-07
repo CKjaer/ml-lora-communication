@@ -18,8 +18,8 @@ from scipy import stats
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 # Directory paths
-img_dir = "./output/output/20241030-131623/plots"
-output_folder = './cnn_output/noScaling'
+img_dir = "./output/20241101-121700/plots"
+output_folder = './cnn_output/snrScaling'
 models_folder = os.path.join(output_folder, 'models')
 
 # Create the directory if it doesn't exist
