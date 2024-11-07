@@ -55,9 +55,8 @@ def ModelTrainAndEval(logger:logging.Logger, img_dir, output_folder, snr_list:li
 
             train_loader, test_loader=loadData(img_dir, batch_size, snr_list[snr], rates[rate], M, seed=seed)
 
-            train(model, train_loader, num_epochs, optimizer, criterion)
+            ser=train(model, train_loader, num_epochs, optimizer, criterion, test_loader=test_loader)
             torch.save(model.state_dict(), os.path.join(saveModelFolder, f"{str_model}_snr_{snr_list[snr]}_rate{rates[rate]}.pth"))
-            ser=evaluate_and_calculate_ser(model, test_loader, criterion)
             SERs[0][snr][rate]=ser 
             logger.info(f"Trained and evalulated model for SNR: {snr_list[snr]} and rate:{rates[rate]}. SER is {ser}")
     return SERs, [base_model]
