@@ -8,7 +8,7 @@ from torch.utils.data import random_split, DataLoader
 import torch
 
 
-def loadData(img_dir, batch_size, SNR, rate_param, M=2**7, seed=None):
+def loadData(img_dir, batch_size, SNR, rate_param, M=2**7, seed=0):
 
     transform = transforms.Compose([
         transforms.Resize((M, M)),  # Resize images to a fixed size

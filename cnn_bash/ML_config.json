@@ -7,13 +7,13 @@
     "SIR_span_and_steps": [0,7.5,10],
     "line_plot": true,
 
+    "img_dir": "C:/Users/lukas/Desktop/AAU/EIT7/output/20241030-093008/plots",
     "model": "LoRaCNN",
-    "optimizer": "SGD",
+    "trained_model_folder": "C:/Users/lukas/Desktop/AAU/EIT7/Project/git/ml-lora-communication/ML_output/Test/models",
     "batch_size": 25,
+    
+    "optimizer": "SGD",
     "num_epochs": 3,
     "learning_rate": 0.01,
-
-    "trained_model": "",
-    "img_dir": "output/20241030-093008/plots/",
     "seed": 0
 }

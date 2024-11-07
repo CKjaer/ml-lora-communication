@@ -23,7 +23,7 @@ def ModelTrainAndEval(logger:logging.Logger, img_dir, output_folder, snr_list:li
         os.makedirs(modelFolder)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    SERs=[[None]*len(snr_list) for _ in range(len(rates))]
+    SERs=[[[None]*len(snr_list) for _ in range(len(rates))]]
 
     str_model=find_model(base_model)
     if str_model!=None:
@@ -58,9 +58,9 @@ def ModelTrainAndEval(logger:logging.Logger, img_dir, output_folder, snr_list:li
             train(model, train_loader, num_epochs, optimizer, criterion)
             torch.save(model.state_dict(), os.path.join(modelFolder, f"{str_model}_snr_{snr_list[snr]}_rate{rates[rate]}.pth"))
             ser=evaluate_and_calculate_ser(model, test_loader, criterion)
-            SERs[snr][rate]=ser
+            SERs[0][snr][rate]=ser
             logger.info(f"Trained and evalulated model for SNR: {snr_list[snr]} and rate:{rates[rate]}. SER is {ser}")
-    return SERs
+    return SERs, [base_model]
 
 
 

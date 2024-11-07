@@ -13,7 +13,7 @@ from ML_modelFunctions.LoadAndEval import loadAndevalModel
 
 if __name__=="__main__":
     #generate unique folder
-    with open("cnn_bash/ML_config.json") as f: #fix so dont have to be in root
+    with open("cnn_bash/ML_config.json") as f: #fix so dont have to be in root?
         config=json.load(f)
     if config["test_id"]!="":
         test_id = config["test_id"]
@@ -37,22 +37,23 @@ if __name__=="__main__":
     )
     logger.info("starting model evalulation")
 
-    trained_model=config["trained_model"]
-    if trained_model!="": #make it so that it can loop through a list of trained models
+    trained_model_folder=config["trained_model_folder"]
+    if trained_model_folder!="": #make it so that it can loop through a list of trained models
         logger.info("Loading and evalulating models")
-        SERs=loadAndevalModel(logger=logger, 
+        SERs, trained_models=loadAndevalModel(logger=logger, 
                          img_dir=config["img_dir"],
                          output_dir=output_dir,
-                         trained_model=trained_model,
+                         trained_model_folder=os.path.join(trained_model_folder),
                          batch_size=config["batch_size"],
                          snr_list=config["snr_values"],
                          rates=config["rate"],
                          base_model=config["model"],
                          M=2**config["spreading_factor"],
                          seed=config["seed"])
+
     else:
         logger.info("Training and evalulating models")
-        SERs=ModelTrainAndEval(logger=logger,
+        SERs, trained_models=ModelTrainAndEval(logger=logger,
                           img_dir=config["img_dir"],
                           output_folder=output_dir,
                           batch_size=config["batch_size"],
@@ -65,27 +66,31 @@ if __name__=="__main__":
                           learning_rate=config["learning_rate"],
                           seed=config["seed"])
     
+    logger.info("Starting save data to csv")
     rates=config["rate"]
     SNRs=config["snr_values"]
     symbol_error_rates={rate: {} for rate in rates}
+    for trained_model in range(len(trained_models)):
+        for rate in range(len(rates)):
+            for snr in range(len(SNRs)):
+                symbol_error_rates[rates[rate]][SNRs[snr]] = SERs[trained_model][rate][snr]
+                # symbol_error_rates[rates[rate]].append((SERs[rate][snr], SNRs[snr]))
 
-    for rate in range(len(rates)):
-        for snr in range(len(SNRs)):
-            symbol_error_rates[rates[rate]][SNRs[snr]] = SERs[rate][snr]
-            # symbol_error_rates[rates[rate]].append((SERs[rate][snr], SNRs[snr]))
-    print(symbol_error_rates)
-
-
-for rate, values in symbol_error_rates.items():
-    snr_values = sorted(values.keys()) 
-    ser_values = [values[snr] for snr in snr_values] # loop through to not mix up the order
-    
-    if rate == 0:
-        zero_snr_values = snr_values
-        zero_ser_values = ser_values
-    
-    savetxt(os.path.join(data_dir,f'snr_vs_ser_rate_{rate}.csv'), np.array([snr_values, ser_values]).T, delimiter=';', fmt='%d;%.6f')
+        for rate, values in symbol_error_rates.items():
+            snr_values = sorted(values.keys()) 
+            ser_values = [values[snr] for snr in snr_values] # loop through to not mix up the order
+            
+            if rate == 0:
+                zero_snr_values = snr_values
+                zero_ser_values = ser_values
+            
+            savetxt(os.path.join(data_dir,f'{trained_models[trained_model]}snr_vs_ser_rate_{rate}.csv'), np.array([snr_values, ser_values]).T, delimiter=';', fmt='%d;%.6f')
+            logger.info(f'saved {trained_models[trained_model]}snr_vs_ser_rate_{rate}.csv')
     # os.makedirs(os.path.join(output_dir, test_id), exist_ok=True)
+    logger.info("save config file")
+    config["test_id"] = test_id
+    with open(os.path.join(output_dir, "config.json"), "w") as f:
+        json.dump(config, f)
 
 
 
