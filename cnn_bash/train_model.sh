@@ -1,4 +1,4 @@
-  GNU nano 6.2                                                                       train_model.sh                                                                                #!/bin/bash
+#!/bin/bash
 #SBATCH --job-name=726_Symbol_Generator
 #SBATCH --output=./job_results/result_%j.out
 #SBATCH --error=./job_results/error_%j.err
