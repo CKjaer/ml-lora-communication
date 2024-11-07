@@ -1,5 +1,5 @@
 import os
-import logger
+import logging
 from torch.utils.data import Dataset, DataLoader
 import torch
 from PIL import Image
@@ -70,5 +70,5 @@ class CustomImageDataset(Dataset):
             return image, label
 
         except (PIL.UnidentifiedImageError, IndexError, FileNotFoundError) as e:
-            logger.error(f"Error loading image {img_name}: {e}")
+            # logger.error(f"Error loading image {img_name}: {e}")
             return None, None

@@ -8,7 +8,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=16G
 
-singularity shell --nv "$(pwd)/tensorflow_24.09.sif" << 'EOF'
+singularity shell --nv "$(pwd)/pytorch_24.09.sif" << 'EOF'
 BASE_DIR="$(pwd)"
 echo "Currently in directory: $BASE_DIR"
 

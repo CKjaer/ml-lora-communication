@@ -19,7 +19,7 @@ if __name__=="__main__":
         test_id = config["test_id"]
     else:
         test_id = time.strftime("%Y%m%d-%H%M%S")
-    output_dir = os.path.join("ML_output", test_id)
+    output_dir = os.path.join("cnn_output", test_id)
     model_dir = os.path.join(output_dir, "models")
     data_dir = os.path.join(output_dir, "data")
     os.makedirs(model_dir, exist_ok=True)
