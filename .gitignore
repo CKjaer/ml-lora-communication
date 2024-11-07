@@ -157,11 +157,14 @@ data/
 venv/
 *.log
 cnn_folder/torch_logs/
-<<<<<<< HEAD
 wandb/
-=======
+cnn_models/recreating_tesfay/restructered_cnn.py
+noScaling/
+rate_0_run/
+SERplots/
 SERplots/
 cnn_models/recreating_tesfay/restructered_cnn.py
 noScaling/
 rate_0_run/
->>>>>>> 04f02f11d81d417a988c474ac31f22d480757c8a
+fftplot.py
+ML_output/

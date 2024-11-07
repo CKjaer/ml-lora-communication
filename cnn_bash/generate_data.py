@@ -88,6 +88,8 @@ if __name__ == "__main__":
     ################# train model #################
     # function calls to train the model go here
 
+
+
     # save config
     config["test_id"] = test_id
     with open(os.path.join(output_dir, test_id, "config.json"), "w") as f:
