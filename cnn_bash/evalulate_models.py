@@ -38,7 +38,8 @@ if __name__=="__main__":
     logger.info("starting model evalulation")
 
     trained_model_folder=config["trained_model_folder"]
-    if trained_model_folder!="": #make it so that it can loop through a list of trained models
+    #if the config file in line trained_model_folder is not empty, the program will run the load model and eval
+    if trained_model_folder!="": 
         logger.info("Loading and evalulating models")
         SERs, trained_models=loadAndevalModel(logger=logger, 
                          img_dir=config["img_dir"],
@@ -74,7 +75,7 @@ if __name__=="__main__":
         for rate in range(len(rates)):
             for snr in range(len(SNRs)):
                 symbol_error_rates[rates[rate]][SNRs[snr]] = SERs[trained_model][rate][snr]
-                # symbol_error_rates[rates[rate]].append((SERs[rate][snr], SNRs[snr]))
+                
 
         for rate, values in symbol_error_rates.items():
             snr_values = sorted(values.keys()) 
@@ -86,7 +87,7 @@ if __name__=="__main__":
             
             savetxt(os.path.join(data_dir,f'{trained_models[trained_model]}snr_vs_ser_rate_{rate}.csv'), np.array([snr_values, ser_values]).T, delimiter=';', fmt='%d;%.6f')
             logger.info(f'saved {trained_models[trained_model]}snr_vs_ser_rate_{rate}.csv')
-    # os.makedirs(os.path.join(output_dir, test_id), exist_ok=True)
+    
     logger.info("save config file")
     config["test_id"] = test_id
     with open(os.path.join(output_dir, "config.json"), "w") as f:

@@ -13,12 +13,8 @@ from ML_modelFunctions.find_model import find_model
 
 def loadAndevalModel(logger:logging.Logger, img_dir, output_dir, trained_model_folder, batch_size, snr_list:list, rates:list, base_model, M=128, seed=0):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    # img_dir="output/20241030-093008/plots/"
     img_dir=os.path.join(output_dir, img_dir)
-    modelFolder=os.path.join(output_dir, "models")
-    # savedModel=os.path.join(modelFolder,trained_model)
     trained_models=os.listdir(trained_model_folder)
-    # savedModel=trained_model
     criterion=nn.CrossEntropyLoss()
     M=2**7
     SERs=[[[None]*len(snr_list) for _ in range(len(rates))] for _ in range(len(trained_models))]
@@ -28,11 +24,10 @@ def loadAndevalModel(logger:logging.Logger, img_dir, output_dir, trained_model_f
             try:
                 model_class=getattr(sys.modules[__name__], model)
             except Exception as e:
-                print("error loading model")
-                
+                logger.error("error loading model")
                 return
         else:
-            print("no such class is found")
+            logger.error("no such model is found")
             return
         for snr in range(len(snr_list)):
             for rate in range(len(rates)):
