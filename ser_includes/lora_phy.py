@@ -93,38 +93,52 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut, user_amp
         [batch_size, 2 * max_interferers], minval=1, maxval=M - 1, dtype=tf.int32
     )
 
-    # Initialize TensorArray to store shifted symbols
-    shifted_inter = tf.TensorArray(dtype=tf.complex64, size=batch_size)
+   # Function to shift symbols for each batch
+    def shift_symbols_for_batch(batch_idx):
+    # Extract the random arrival times for the current batch
+        batch_rand_arrival = rand_arrival[batch_idx]
+        # Function to shift a single interferer symbol
+        def shift_single_symbol(interferer_idx):
+            shifted_symbol = tf.roll(
+                inter_symbols[batch_idx, interferer_idx, :], 
+                shift=-batch_rand_arrival[interferer_idx], 
+                axis=0)
+            return shifted_symbol
+    
+    # Use tf.map_fn to shift all interferer symbols for the current batch
+        batch_shifted_symbols = tf.map_fn(
+            shift_single_symbol, 
+            tf.range(2 * max_interferers), 
+            fn_output_signature=tf.complex64
+        )
 
-    # Shift each symbol in the batch
-    for b in tf.range(batch_size):
-        batch_symbols = tf.TensorArray(dtype=tf.complex64, size=2 * max_interferers)
-        for i in tf.range(2 * max_interferers):
-            # Shift each symbol by its corresponding random arrival time
-            shifted_symbol = tf.roll(inter_symbols[b, i, :], shift=-rand_arrival[b, i], axis=0)
-            batch_symbols = batch_symbols.write(i, shifted_symbol)
-        shifted_inter = shifted_inter.write(b, batch_symbols.stack())
+        return batch_shifted_symbols
 
-    # Stack the shifted symbols to form a tensor
-    shifted_inter = shifted_inter.stack()
+# Use tf.map_fn to apply the shifting to all batches11
+    shifted_inter = tf.map_fn(
+        shift_symbols_for_batch, 
+        tf.range(batch_size), 
+        fn_output_signature=tf.complex64
+    )
 
-    # A random SIR value between min and max is sampled uniformly
+# A random SIR value between min and max is sampled uniformly
     SIR_dB = tf.random.uniform([batch_size, max_interferers], SIR_min_dB, SIR_max_dB)
     SIR_lin = tf.pow(10.0, SIR_dB / 10.0)
 
-    # Calculate interferer amplitudes based on SIR
+# Calculate interferer amplitudes based on SIR
     interferer_amp = tf.cast(user_amp, tf.complex64) / tf.sqrt(tf.cast(SIR_lin, tf.complex64))
 
-    # Initialize the output tensor
+# Initialize the output tensor
     half_shifted_inter = tf.zeros([batch_size, M], dtype=tf.complex64)
 
-    # Scale and combine the interferer symbols
+# Scale and combine the interferer symbols
     for i in tf.range(max_interferers):
         half_shifted_inter += (
-            tf.expand_dims(interferer_amp[:, i], axis=-1) * shifted_inter[:, i, :]
-        )
+        tf.expand_dims(interferer_amp[:, i], axis=-1) * shifted_inter[:, i, :]
+    )
 
     return half_shifted_inter
+
 
 
 
@@ -194,4 +208,5 @@ def process_batch(
 def dechirp(upchirp_tx, basic_dechirp):
     dechirp_rx = tf.multiply(upchirp_tx, basic_dechirp)
     return dechirp_rx
+
 
