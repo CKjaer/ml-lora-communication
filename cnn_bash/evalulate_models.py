@@ -16,7 +16,7 @@ if __name__=="__main__":
     with open("cnn_bash/ML_config.json") as f: #fix so dont have to be in root?
         config=json.load(f)
     if config["test_id"]!="":
-        test_id = config["test_id"]
+        test_id = config["test_id"]+"_",time.strftime("%Y%m%d-%H%M%S")
     else:
         test_id = time.strftime("%Y%m%d-%H%M%S")
     output_dir = os.path.join("cnn_output", test_id)
