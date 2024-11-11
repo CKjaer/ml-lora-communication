@@ -5,13 +5,38 @@ import logging
 import sys
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
-from ML_modelFunctions.evalModel import evaluate_and_calculate_ser
-from ML_modelFunctions.loadData import loadData
-from ML_modelFunctions.ML_models import *
-from ML_modelFunctions.find_model import find_model
+from model_includes.evalModel import evaluate_and_calculate_ser
+from ser_includes.load_files import load_data
+from model_includes.ML_models import *
+from model_includes.find_model import find_model
+from torchvision import transforms
+from torch.utils.data import random_split, DataLoader
+import pandas as pd
 
 
-def loadAndevalModel(logger:logging.Logger, train_dir, test_dir, img_size:list, output_dir, trained_model_folder, batch_size, snr_list:list, rates:list, base_model, M=128):
+# Load the IQ data from .csv files
+def load_csv(logger:logging.Logger):
+
+    
+    
+
+    # Loads the IQ data from the csv files as a pandas dataframe
+    file_dir = os.path.join("output")
+    load_data(file_dir, logger, header="iq")
+
+    # Convert to 
+
+
+    transform = transforms.Compose([
+        transforms.Resize((img_size[0], img_size[1])),  # Resize images to a fixed size
+        transforms.ToTensor(),  # Convert to tensor
+        transforms.Normalize(mean=[0.5], std=[0.5])  # Normalize with mean and std
+    ])
+
+
+
+
+def evaluate_model(logger:logging.Logger, train_dir, test_dir, img_size:list, output_dir, trained_model_folder, batch_size, snr_list:list, rates:list, base_model, M=128):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if train_dir!=None:
         train_dir=os.path.join(train_dir)
@@ -38,7 +63,7 @@ def loadAndevalModel(logger:logging.Logger, train_dir, test_dir, img_size:list, 
                 except Exception as e:
                     logger.error(f"error loading model: {e}")
                     return
-                _, test_loader=loadData(test_dir=test_dir, train_dir=None, batch_size=batch_size, SNR=snr_list[snr], rate_param=rates[rate], M=M, img_size=img_size)
+                _, test_loader=load_csv(logger=logger)
                 ser=evaluate_and_calculate_ser(model, test_loader, criterion)
                 SERs[trained_model][snr][rate]=ser
                 logger.info(f"Evalulated {trained_models[trained_model]} for SNR: {snr_list[snr]} and rate:{rates[rate]}. SER is {ser}")
