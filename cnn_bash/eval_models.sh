@@ -6,17 +6,16 @@
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=20G
+#SBATCH --mem=16G
 
-#pyhon3 -m venv virtualenv
-
-singularity shell --nv "./pytorch_24.09.sif" << 'EOF'
+singularity shell --nv "$(pwd)/pytorch_24.09.sif" << 'EOF'
 BASE_DIR="$(pwd)"
+echo "Currently in directory: $BASE_DIR"
 
-# Run Python file (main.py)
-python "$BASE_DIR/cnn_models/recreating_tesfay/cnn_train.py" || { echo "Python script failed"; exit 1; }
+# Run Python file (evalulate_models.py)
+python -u "$BASE_DIR/cnn_bash/evalulate_models.py" || { echo "Python script failed"; exit 1; }
 
 # Exit the container shell
-exit
 
+exit
 EOF
