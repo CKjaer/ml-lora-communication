@@ -13,20 +13,20 @@ if __name__ == "__main__":
         plt.rcParams.update({'font.size': fs})
         filepath = os.path.abspath(__file__)
         directory = os.path.join(filepath,"../snr_sims")
-        test_time = "2024_10_25_10_23_41"
+        test_time = "2024_11_09_10_31_17"
         # Initialize data_list as a list of dictionaries
         # SF, SNR, error count, simulated symbols, SER
         data_list = []
 
         for filename in os.listdir(directory):
-            if filename.startswith(test_time) & filename.endswith('.txt'):
+            if filename.startswith(test_time) & filename.endswith('.csv'):
                 fp = os.path.join(directory, filename)
-                rate = filename.split('_')[-1].removeprefix('lam').removesuffix('.txt')
+                rate = filename.split('_')[-1].removeprefix('lam').removesuffix('.csv')
                 with open(fp) as f:
-                    lines = f.readlines()[2:]
+                    lines = f.readlines()
                     for line in lines:
-                        sep = line.strip().split(',')
-                        new_row = {'Rate': rate, 'SF': sep[0], 'SNR': sep[1], 'error_count': sep[2], 'N_sym': sep[3], 'SER': sep[4]}
+                        sep = line.strip().split(';')
+                        new_row = {'Rate': rate, 'SNR': sep[0], 'SER': sep[1]}
                         data_list.append(new_row)
                     f.close()
         # Convert list of dictionaries to DataFrame
@@ -37,9 +37,9 @@ if __name__ == "__main__":
         # Save the results to a .txt file for every rate parameter and create a plot
         for i, rate_param in enumerate(rate_params):
             # Plot SER curves as function of SNR
-            zero_data = df[df["Rate"]=='0.0']
+            zero_data = df[df["Rate"]=='0.00']
             current_data = df[df["Rate"]==rate_param]
-            SF = pd.unique(df['SF'])
+            SF = [7]
             rate = float(rate_param)
             if (len(SF) != 1):
                  raise TypeError("MULTIPLE SFs DETECTED!")
