@@ -38,24 +38,27 @@ if __name__=="__main__":
     logger.info("starting model evalulation")
 
     trained_model_folder=config["trained_model_folder"]
-    #if the config file in line trained_model_folder is not empty, the program will run the load model and eval
+    #if the line trained_model_folder in config file is not empty, the program will run the load model and eval
     if trained_model_folder!="": 
         logger.info("Loading and evalulating models")
         SERs, trained_models=loadAndevalModel(logger=logger, 
-                         img_dir=config["img_dir"],
+                         test_dir=config["test_dir"],
+                         train_dir=None,
+                         img_size=config["img_size"],
                          output_dir=output_dir,
                          trained_model_folder=os.path.join(trained_model_folder),
                          batch_size=config["batch_size"],
                          snr_list=config["snr_values"],
                          rates=config["rate"],
                          base_model=config["model"],
-                         M=2**config["spreading_factor"],
-                         seed=config["seed"])
+                         M=2**config["spreading_factor"])
 
     else:
         logger.info("Training and evalulating models")
         SERs, trained_models=ModelTrainAndEval(logger=logger,
-                          img_dir=config["img_dir"],
+                          test_dir=config["test_dir"],
+                          train_dir=config["train_dir"],
+                          img_size=config["img_size"],
                           output_folder=output_dir,
                           batch_size=config["batch_size"],
                           snr_list=config["snr_values"],
@@ -64,8 +67,7 @@ if __name__=="__main__":
                           M=2**config["spreading_factor"],
                           optimizer_choice=config["optimizer"],
                           num_epochs=config["num_epochs"],
-                          learning_rate=config["learning_rate"],
-                          seed=config["seed"])
+                          learning_rate=config["learning_rate"])
     
     logger.info("Starting save data to csv")
     rates=config["rate"]

@@ -8,27 +8,28 @@ from torch.utils.data import random_split, DataLoader
 import torch
 
 
-def loadData(img_dir, batch_size, SNR, rate_param, M=2**7, seed=0):
+def loadData(train_dir, test_dir, batch_size, SNR, rate_param, img_size:list, M=2**7):
 
     transform = transforms.Compose([
-        transforms.Resize((M, M)),  # Resize images to a fixed size
+        transforms.Resize((img_size[0], img_size[1])),  # Resize images to a fixed size
         transforms.ToTensor(),  # Convert to tensor
         transforms.Normalize(mean=[0.5], std=[0.5])  # Normalize with mean and std
     ])
 
 
-    if seed!=0:
-        generator=torch.Generator().manual_seed(seed)
-        dataset =CustomImageDataset(img_dir=img_dir, specific_label=SNR, rate_param=rate_param, transform=transform, seed=seed)
-        train_size=int(len(dataset)*0.8)
-        test_size=len(dataset)-train_size
-        train_dataset, test_dataset = random_split(dataset, [train_size, test_size], generator=generator)
-    else:
-        dataset =CustomImageDataset(img_dir=img_dir, specific_label=SNR, rate_param=rate_param, transform=transform)
+    if train_dir==test_dir:
+        dataset =CustomImageDataset(img_dir=train_dir, specific_label=SNR, rate_param=rate_param, transform=transform)
         train_size=int(len(dataset)*0.8)
         test_size=len(dataset)-train_size
         train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
-
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
-    return train_loader, test_loader
+    else:
+        if train_dir!=None:
+            train_dataset =CustomImageDataset(img_dir=train_dir, specific_label=SNR, rate_param=rate_param, transform=transform)
+        test_dataset =CustomImageDataset(img_dir=test_dir, specific_label=SNR, rate_param=rate_param, transform=transform)
+    if train_dir!=None:
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+        return train_loader, test_loader
+    else:
+        test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+        return None, test_loader
