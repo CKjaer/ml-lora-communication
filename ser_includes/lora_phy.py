@@ -90,7 +90,7 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut, user_amp
 
     # Generate random arrival times (shifts) for each batch
     rand_arrival = tf.random.uniform(
-        [batch_size, 2 * max_interferers], minval=1, maxval=M - 1, dtype=tf.int32
+        [batch_size, max_interferers], minval=1, maxval=M - 1, dtype=tf.int32
     )
 
    # Function to shift symbols for each batch
@@ -108,7 +108,7 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut, user_amp
     # Use tf.map_fn to shift all interferer symbols for the current batch
         batch_shifted_symbols = tf.map_fn(
             shift_single_symbol, 
-            tf.range(2 * max_interferers), 
+            tf.range(max_interferers), 
             fn_output_signature=tf.complex64
         )
 
