@@ -25,6 +25,7 @@ for file in model_files:
 
 """
 
+from ast import mod
 import os
 import torch
 import torch.nn as nn
@@ -67,26 +68,45 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 current_folder = os.path.dirname(os.path.abspath(__file__))
 models_folder = os.path.join(current_folder, 'models')
 
-# Filtrar solo los archivos que contienen los pesos del modelo
-model_files = [os.path.join(models_folder, f) for f in os.listdir(models_folder) if f.endswith('.pth') and 'optimizer' not in f]
+# Only the snr models (not optimizer), remove the and part if we want to 
+model_files = [os.path.join(models_folder, f) for f in os.listdir(models_folder) if f.endswith('.pth')  and 'optimizer' not in f]
 models = []
+
 
 for file in model_files:
     print(f"Loading model: {file}")
     state_dict = torch.load(file, map_location=device)
     models.append(state_dict)
-
 print("Models loaded")
+
+# write models into a txt file:
+#with open('models.txt', 'w') as f:
+#    for model in models:
+#        f.write(f"{model}\n")
+#print("Models saved in models.txt")
+
 
 model_combined = LoRaCNN(128).to(device)
 
 for name, param in model_combined.named_parameters():
-    if 'conv' in name or 'fc' in name:
+    if any(layer in name for layer in ['conv', 'fc']):
         weights_list = [model[name] for model in models]
         averaged_weights = torch.mean(torch.stack(weights_list), dim=0)
         param.data = averaged_weights
+
+# write averaged_weights
+#with open('averaged_weights.txt', 'w') as f:
+#    for weights in averaged_weights:
+#        f.write(f"{weights}\n")
 
 combined_model_path = os.path.join(current_folder, 'combined_model.pth')
 torch.save(model_combined.state_dict(), combined_model_path)
 print(f"Combined model saved at {combined_model_path}")
 
+
+
+# write model_combined into a txt file:
+# av_combined_model = [model_combined.state_dict()]
+# with open('av_combined_model.txt', 'w') as f:
+#    for model in av_combined_model:
+#        f.write(f"{model}\n")
