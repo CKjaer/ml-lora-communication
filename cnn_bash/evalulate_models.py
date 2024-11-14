@@ -16,7 +16,7 @@ if __name__=="__main__":
     with open("cnn_bash/ML_config.json") as f: #fix so dont have to be in root?
         config=json.load(f)
     if config["test_id"]!="":
-        test_id = config["test_id"]+"_",time.strftime("%Y%m%d-%H%M%S")
+        test_id = config["test_id"]+"_"+time.strftime("%Y%m%d-%H%M%S")
     else:
         test_id = time.strftime("%Y%m%d-%H%M%S")
     output_dir = os.path.join("cnn_output", test_id)
@@ -87,7 +87,7 @@ if __name__=="__main__":
                 zero_snr_values = snr_values
                 zero_ser_values = ser_values
             
-            savetxt(os.path.join(data_dir,f'{trained_models[trained_model]}snr_vs_ser_rate_{rate}.csv'), np.array([snr_values, ser_values]).T, delimiter=';', fmt='%d;%.6f')
+            savetxt(os.path.join(data_dir,f'{trained_models[trained_model].replace(".pth", "", -1)}__snr_vs_ser_rate_{rate}.csv'), np.array([snr_values, ser_values]).T, delimiter=';', fmt='%d;%.6f')
             logger.info(f'saved {trained_models[trained_model]}snr_vs_ser_rate_{rate}.csv')
     
     logger.info("save config file")
