@@ -41,7 +41,7 @@ class EarlyStopper:
                 return True
         return False
 
-def train(model, train_loader, num_epochs, optimizer, criterion, test_loader, logger:logging.Logger):
+def train(model, train_loader, num_epochs, optimizer, criterion, test_loader, logger:logging.Logger, patience, min_delta):
     """
     Trains the given model using the provided training data loader, optimizer, and loss criterion.
     Args:
@@ -83,7 +83,7 @@ def train(model, train_loader, num_epochs, optimizer, criterion, test_loader, lo
 
 
         # Check if early stopping is triggered
-        early_stopper = EarlyStopper(patience=3, min_delta=10)
+        early_stopper = EarlyStopper(patience, min_delta)
 
         if early_stopper.early_stop(validation_loss):
             logger.info(f"Early stopping activated after epoch {x}")
