@@ -118,18 +118,18 @@ print(f"Combined weights model saved at {combined_model_path}")
 #        f.write(f"{model}\n")
 
 #Load and write the state_dict of the optimizers
-optimizer_files = [os.path.join(models_folder, f) for f in os.listdir(models_folder) if f.endswith('.pth') and 'optimizer' in f]
-optimizers = []
+# optimizer_files = [os.path.join(models_folder, f) for f in os.listdir(models_folder) if f.endswith('.pth') and 'optimizer' in f]
+# optimizers = []
 
-for file in optimizer_files:
-    print(f"Loading optimizer: {file}")
-    state_dict = torch.load(file, map_location=device)
-    optimizers.append(state_dict)
-print("Optimizers loaded")
+# for file in optimizer_files:
+#     print(f"Loading optimizer: {file}")
+#     state_dict = torch.load(file, map_location=device)
+#     optimizers.append(state_dict)
+# print("Optimizers loaded")
 
-#Write optimizers into a txt file:
-with open('optimizers.txt', 'w') as f:
-    for optimizer in optimizers:
-        f.write(f"{optimizer}\n")
-print("Optimizers saved in optimizers.txt")
+# #Write optimizers into a txt file:
+# with open('optimizers.txt', 'w') as f:
+#     for optimizer in optimizers:
+#         f.write(f"{optimizer}\n")
+# print("Optimizers saved in optimizers.txt")
 
