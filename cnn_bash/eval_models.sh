@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=726_Symbol_Generator
+#SBATCH --job-name=Evalulate_Models
 #SBATCH --output=./job_results/result_%j.out
 #SBATCH --error=./job_results/error_%j.err
 #SBATCH --time=12:00:00
