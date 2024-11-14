@@ -24,12 +24,10 @@ if __name__ == "__main__":
             if filename.startswith(test_time) & filename.endswith('.csv'):
                 fp = os.path.join(directory, filename)
                 rate = filename.split('_')[-1].removeprefix('lam').removesuffix('.csv')
-                print(rate)
                 with open(fp) as f:
                     lines = f.readlines()
                     for line in lines:
                         sep = line.strip().split(';')
-                        print(sep)
                         new_row = {'Rate': rate, 'SNR': sep[0], 'SER': sep[1]}
                         data_list.append(new_row)
                     f.close()
@@ -44,7 +42,9 @@ if __name__ == "__main__":
         for i, rate_param in enumerate(rate_params):
             # Plot SER curves as function of SNR
             zero_data = df[df["Rate"]=='0.00']
+            zero_data = df[df["Rate"]=='0.00']
             current_data = df[df["Rate"]==rate_param]
+            SF = [7]
             SF = [7]
             rate = float(rate_param)
             if (len(SF) != 1):

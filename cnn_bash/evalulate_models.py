@@ -16,7 +16,7 @@ if __name__=="__main__":
     with open("cnn_bash/ML_config.json") as f: #fix so dont have to be in root?
         config=json.load(f)
     if config["test_id"]!="":
-        test_id = config["test_id"]
+        test_id = config["test_id"]+"_"+time.strftime("%Y%m%d-%H%M%S")
     else:
         test_id = time.strftime("%Y%m%d-%H%M%S")
     output_dir = os.path.join("cnn_output", test_id)
@@ -38,24 +38,27 @@ if __name__=="__main__":
     logger.info("starting model evalulation")
 
     trained_model_folder=config["trained_model_folder"]
-    #if the config file in line trained_model_folder is not empty, the program will run the load model and eval
+    #if the line trained_model_folder in config file is not empty, the program will run the load model and eval
     if trained_model_folder!="": 
         logger.info("Loading and evalulating models")
         SERs, trained_models=loadAndevalModel(logger=logger, 
-                         img_dir=config["img_dir"],
+                         test_dir=config["test_dir"],
+                         train_dir=None,
+                         img_size=config["img_size"],
                          output_dir=output_dir,
                          trained_model_folder=os.path.join(trained_model_folder),
                          batch_size=config["batch_size"],
                          snr_list=config["snr_values"],
                          rates=config["rate"],
                          base_model=config["model"],
-                         M=2**config["spreading_factor"],
-                         seed=config["seed"])
+                         M=2**config["spreading_factor"])
 
     else:
         logger.info("Training and evalulating models")
         SERs, trained_models=ModelTrainAndEval(logger=logger,
-                          img_dir=config["img_dir"],
+                          test_dir=config["test_dir"],
+                          train_dir=config["train_dir"],
+                          img_size=config["img_size"],
                           output_folder=output_dir,
                           batch_size=config["batch_size"],
                           snr_list=config["snr_values"],
@@ -65,7 +68,9 @@ if __name__=="__main__":
                           optimizer_choice=config["optimizer"],
                           num_epochs=config["num_epochs"],
                           learning_rate=config["learning_rate"],
-                          seed=config["seed"])
+                          patience=config["patience"],
+                          min_delta=config["min_delta"])
+                        
     
     logger.info("Starting save data to csv")
     rates=config["rate"]
@@ -85,7 +90,7 @@ if __name__=="__main__":
                 zero_snr_values = snr_values
                 zero_ser_values = ser_values
             
-            savetxt(os.path.join(data_dir,f'{trained_models[trained_model]}snr_vs_ser_rate_{rate}.csv'), np.array([snr_values, ser_values]).T, delimiter=';', fmt='%d;%.6f')
+            savetxt(os.path.join(data_dir,f'{trained_models[trained_model].replace(".pth", "", -1)}__snr_vs_ser_rate_{rate}.csv'), np.array([snr_values, ser_values]).T, delimiter=';', fmt='%d;%.6f')
             logger.info(f'saved {trained_models[trained_model]}snr_vs_ser_rate_{rate}.csv')
     
     logger.info("save config file")
