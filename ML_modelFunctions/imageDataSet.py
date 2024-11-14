@@ -9,7 +9,7 @@ import random
 
 
 class CustomImageDataset(Dataset):
-    def __init__(self, img_dir, specific_label=None, rate_param=None, transform=None, samples_per_label=250, seed=None):
+    def __init__(self, img_dir, specific_label=None, rate_param=None, transform=None, samples_per_label=1, seed=None):
         self.img_dir = img_dir
         self.img_list = os.listdir(img_dir)
         self.transform = transform

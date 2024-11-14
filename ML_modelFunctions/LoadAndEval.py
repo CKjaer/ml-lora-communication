@@ -40,7 +40,7 @@ def loadAndevalModel(logger:logging.Logger, train_dir, test_dir, img_size:list, 
                     return
                 _, test_loader=loadData(test_dir=test_dir, train_dir=None, batch_size=batch_size, SNR=snr_list[snr], rate_param=rates[rate], M=M, img_size=img_size)
                 ser=evaluate_and_calculate_ser(model, test_loader, criterion)
-                SERs[trained_model][snr][rate]=ser
+                SERs[trained_model][rates][snr]=ser
                 logger.info(f"Evalulated {trained_models[trained_model]} for SNR: {snr_list[snr]} and rate:{rates[rate]}. SER is {ser}")
     return SERs, trained_models
 
