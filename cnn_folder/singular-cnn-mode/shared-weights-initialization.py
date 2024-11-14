@@ -85,13 +85,19 @@ print("Models loaded")
 #        f.write(f"{model}\n")
 #print("Models saved in models.txt")
 
-
+# We create a model with the same architecture as the ones we trained
 model_combined = LoRaCNN(128).to(device)
 
+# We go thorugh the layers of the combined model
 for name, param in model_combined.named_parameters():
+    # We filter the name of the layers to take only conv and fc
     if any(layer in name for layer in ['conv', 'fc']):
+        # For each layer we take the weights of the models
         weights_list = [model[name] for model in models]
+        # Stack the weights into a tensor and compute average along models dimension,
+        # (Basically wight list is a list of tensors, each tensor is the weights of a layer in a model, an by averaging we compute the mean of each position)
         averaged_weights = torch.mean(torch.stack(weights_list), dim=0)
+        # We assign the averaged weights to the combined model
         param.data = averaged_weights
 
 # write averaged_weights
@@ -99,9 +105,9 @@ for name, param in model_combined.named_parameters():
 #    for weights in averaged_weights:
 #        f.write(f"{weights}\n")
 
-combined_model_path = os.path.join(current_folder, 'combined_model.pth')
+combined_model_path = os.path.join(current_folder, 'combined_model_initialization.pth')
 torch.save(model_combined.state_dict(), combined_model_path)
-print(f"Combined model saved at {combined_model_path}")
+print(f"Combined weights model saved at {combined_model_path}")
 
 
 
@@ -111,19 +117,19 @@ print(f"Combined model saved at {combined_model_path}")
 #    for model in av_combined_model:
 #        f.write(f"{model}\n")
 
-# Load and write the state_dict of the optimizers
-# optimizer_files = [os.path.join(models_folder, f) for f in os.listdir(models_folder) if f.endswith('.pth') and 'optimizer' in f]
-# optimizers = []
+#Load and write the state_dict of the optimizers
+optimizer_files = [os.path.join(models_folder, f) for f in os.listdir(models_folder) if f.endswith('.pth') and 'optimizer' in f]
+optimizers = []
 
-# for file in optimizer_files:
-#     print(f"Loading optimizer: {file}")
-#     state_dict = torch.load(file, map_location=device)
-#     optimizers.append(state_dict)
-# print("Optimizers loaded")
+for file in optimizer_files:
+    print(f"Loading optimizer: {file}")
+    state_dict = torch.load(file, map_location=device)
+    optimizers.append(state_dict)
+print("Optimizers loaded")
 
-# #Write optimizers into a txt file:
-# with open('optimizers.txt', 'w') as f:
-#     for optimizer in optimizers:
-#         f.write(f"{optimizer}\n")
-# print("Optimizers saved in optimizers.txt")
+#Write optimizers into a txt file:
+with open('optimizers.txt', 'w') as f:
+    for optimizer in optimizers:
+        f.write(f"{optimizer}\n")
+print("Optimizers saved in optimizers.txt")
 
