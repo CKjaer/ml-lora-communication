@@ -9,29 +9,28 @@ from model_includes.evalModel import evaluate_and_calculate_ser
 from ser_includes.load_files import load_data
 from model_includes.ML_models import *
 from model_includes.find_model import find_model
-from torchvision import transforms
 from torch.utils.data import random_split, DataLoader
 import pandas as pd
 
 
 # Load the IQ data from .csv files
+# logger:logging.Logger, train_dir, test_dir, batch_size, SNR, rate_param, M=2**7
 def load_csv(logger:logging.Logger):
 
-    
-    
-
-    # Loads the IQ data from the csv files as a pandas dataframe
+    # Loads the IQ data as a pandas dataframe
     file_dir = os.path.join("output")
-    load_data(file_dir, logger, header="iq")
+    dataset = load_data(file_dir, logger, header="iq")
 
-    # Convert to 
+    # Slice the data into training and testing sets
+    train_size=int(len(dataset)*0.8)
+    test_size=len(dataset)-train_size
+    train_dataset, test_dataset = random_split(dataset, [train_size, test_size])
 
-
-    transform = transforms.Compose([
-        transforms.Resize((img_size[0], img_size[1])),  # Resize images to a fixed size
-        transforms.ToTensor(),  # Convert to tensor
-        transforms.Normalize(mean=[0.5], std=[0.5])  # Normalize with mean and std
-    ])
+    # transform = transforms.Compose([
+    #     transforms.Resize((img_size[0], img_size[1])),  # Resize images to a fixed size
+    #     transforms.ToTensor(),  # Convert to tensor
+    #     transforms.Normalize(mean=[0.5], std=[0.5])  # Normalize with mean and std
+    # ])
 
 
 
@@ -71,6 +70,7 @@ def evaluate_model(logger:logging.Logger, train_dir, test_dir, img_size:list, ou
 
 
 if __name__=="__main__":
+    
     logfilename="./LoadAndEval.log"
     logger=logging.getLogger(__name__)
     logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',
@@ -79,7 +79,9 @@ if __name__=="__main__":
                         encoding='utf-8', 
                         level=logging.INFO)
     logger.info("Starting model train and evaluation")
-    SERs, trained_models = loadAndevalModel(logger=logger, 
+
+    load_csv(logger=logger)
+    SERs, trained_models = evaluate_model(logger=logger, 
                                             train_dir=None, 
                                             test_dir="C:/Users/lukas/Desktop/AAU/EIT7/output/20241030-093008/plots",
                                             output_dir="output/", 

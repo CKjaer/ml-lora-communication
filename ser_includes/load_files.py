@@ -6,7 +6,7 @@ import time
 from tqdm import tqdm
 
 # Load all CSV files in the given directory into a single pandas DataFrame
-def load_data(directory, logger, header="snr"):
+def load_data(directory, header="snr"):
     data_list = []
     logger.name = "load_data"
     start_time = time.time()
