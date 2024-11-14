@@ -1,6 +1,5 @@
 import torch
 
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def evaluate_and_calculate_ser(model, test_loader, criterion):
@@ -33,4 +32,4 @@ def evaluate_and_calculate_ser(model, test_loader, criterion):
     # logger.info(f'Validation/Test Loss: {average_loss:.4f}')
     # logger.info(f'Validation/Test Accuracy: {accuracy:.2f}%')
     # logger.info(f'Symbol Error Rate (SER): {ser:.6f}')
-    return ser
+    return ser, average_loss
