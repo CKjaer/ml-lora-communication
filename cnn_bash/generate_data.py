@@ -10,7 +10,7 @@ from ser_includes.create_data_csv import create_data_csvs
 import logging
 import time
 
-def main(plot_data=True):  
+def main(plot_data=False):  
     # Generate a unique test ID and create the output directory
     with open("cnn_bash/config.json") as f:
         config = json.load(f)
