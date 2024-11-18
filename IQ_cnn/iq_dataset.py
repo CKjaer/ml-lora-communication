@@ -33,7 +33,13 @@ class IQDataset(Dataset):
 class CustomIQTransform:
     def __call__(self, data):
         data = torch.tensor([complex(value) for value in data], dtype=torch.cfloat)
-        #data = (data - data.mean()) / data.std() # normalize the data
+        data = (data - data.mean()) / data.std() # normalize
+        
+        # split the complex data into real and imaginary parts (remove this if you want to use complex numbers)
+        real = torch.tensor([value.real for value in data], dtype=torch.float) # [1, M]
+        imag = torch.tensor([value.imag for value in data], dtype=torch.float) # [1, M]
+        data = torch.stack([real, imag], dim=0) # stack to [2, M] tensor (real and imaginary parts)
+        
         return data
     
 if __name__ == "__main__":
@@ -42,8 +48,5 @@ if __name__ == "__main__":
     logger = logging.getLogger(__name__)
     
     dataset = IQDataset("output/20241114-115337/csv", snr=-6, rate_param=0.0, transform=CustomIQTransform(), logger=logger)
-    test, label = dataset.__getitem__(6)
-    
-    print(label)
-    
-        
+    test, label = dataset.__getitem__(0)
+    print(test[0][0], test[1][0], label)
