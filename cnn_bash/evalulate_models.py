@@ -67,7 +67,10 @@ if __name__=="__main__":
                           M=2**config["spreading_factor"],
                           optimizer_choice=config["optimizer"],
                           num_epochs=config["num_epochs"],
-                          learning_rate=config["learning_rate"])
+                          learning_rate=config["learning_rate"],
+                          patience=config["patience"],
+                          min_delta=config["min_delta"])
+                        
     
     logger.info("Starting save data to csv")
     rates=config["rate"]

@@ -28,5 +28,7 @@
     "optimizer": "SGD",
     "num_epochs": 3,
     "learning_rate": 0.01,
-    "seed": 0
+    "seed": 0,
+    "patience": 5,
+    "min_delta": 0.05
 }
