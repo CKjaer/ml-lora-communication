@@ -10,16 +10,16 @@ class IQCNN(nn.Module):
     def __init__(self, M): # M is number of symbols
         super(IQCNN, self).__init__()
         self.conv1 = nn.Sequential(
-            nn.Conv2d(in_channels=2, out_channels=M//4, kernel_size=(1,3), stride=1, padding=(0,1)), # specify dtype for complex numbers
-            nn.BatchNorm2d(M//4),
+            nn.Conv1d(in_channels=2, out_channels=M//4, kernel_size=3, stride=1, padding=1), # specify dtype for complex numbers
+            nn.BatchNorm1d(M//4),
             nn.ReLU(),
-            nn.AvgPool2d(kernel_size=(1,2), stride=2)
+            nn.AvgPool1d(kernel_size=(2), stride=2)
         )
         self.conv2 = nn.Sequential(
-            nn.Conv2d(in_channels=M//4, out_channels=M//2, kernel_size=(1,3), stride=1, padding=(0,1)),
-            nn.BatchNorm2d(M//2),
+            nn.Conv1d(in_channels=M//4, out_channels=M//2, kernel_size=3, stride=1, padding=1),
+            nn.BatchNorm1d(M//2),
             nn.ReLU(),
-            nn.AvgPool2d(kernel_size=(1,2), stride=2),
+            nn.AvgPool1d(kernel_size=2, stride=2),
             nn.Flatten()
         )
         
@@ -34,17 +34,48 @@ class IQCNN(nn.Module):
             nn.ReLU()
         )
         self.output_layer = nn.Sequential(
-            nn.Linear(2 * M, 128),
+            nn.Linear(2 * M, M)
         )
         
     def forward(self, x):
-        #print(x.shape)
-        x = x.unsqueeze(2) # add channel dimension
-        #print(x.shape)
         x = self.conv1(x)
         x = self.conv2(x) # flatten is inside conv2
         x = self.fc1(x)
         x = self.fc2(x)
+        x = self.output_layer(x)
+        return x
+
+class otherArticleIQCNN(nn.Module):
+    def __init__(self, M): # M is number of symbols
+        super(otherArticleIQCNN, self).__init__()
+        self.conv1 = nn.Sequential(
+            nn.Conv1d(in_channels=2, out_channels=64, kernel_size=7, stride=1, padding=3),
+            nn.BatchNorm1d(64),
+            nn.ReLU(),
+            nn.MaxPool1d(kernel_size=2, stride=1)
+        )
+        self.conv2 = nn.Sequential(
+            nn.Conv1d(in_channels=64, out_channels=128, kernel_size=7, stride=1, padding=3),
+            nn.BatchNorm1d(128),
+            nn.ReLU(),
+            nn.MaxPool1d(kernel_size=2, stride=1)
+        )
+        self.conv3 = nn.Sequential(
+            nn.Conv1d(in_channels=128, out_channels=256, kernel_size=7, stride=1, padding=3),
+            nn.BatchNorm1d(256),
+            nn.ReLU(),
+            nn.MaxPool1d(kernel_size=2, stride=1),
+            nn.Flatten()
+        )
+        self.output_layer = nn.Sequential(
+            nn.Dropout(0.1),
+            nn.Linear(256*125, M)
+        )
+        
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.conv2(x)
+        x = self.conv3(x)
         x = self.output_layer(x)
         return x
 
@@ -90,7 +121,6 @@ def train(model: nn.Module, train_loader: DataLoader, evaluation_loader: DataLoa
                 running_loss = 0.0
         
         # Evaluate the model after each epoch
-        logger.info(f"Evaluation after training epoch: {epoch+1}")
         ser = evaluate_and_calculate_ser(model, evaluation_loader, criterion, device, logger)
         logger.info(f"SER after epoch {epoch+1}: {ser:.6f}")
     
@@ -139,7 +169,7 @@ if __name__ == "__main__":
 
     # Define the model
     M = 128
-    model = IQCNN(M).to(device)
+    model = otherArticleIQCNN(M).to(device)
     logger.info(summary(model, (2, 128)))
 
     dataset = IQDataset("output/20241114-115337/csv", transform=CustomIQTransform(), logger=logger)
@@ -153,7 +183,3 @@ if __name__ == "__main__":
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     
     train(model, train_loader, val_loader, 10, criterion, optimizer, device, logger)
-
-    
-    
-    
