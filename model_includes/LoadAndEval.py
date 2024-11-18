@@ -5,10 +5,10 @@ import logging
 import sys
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
-from ML_modelFunctions.evalModel import evaluate_and_calculate_ser
-from ML_modelFunctions.loadData import loadData
-from ML_modelFunctions.ML_models import *
-from ML_modelFunctions.find_model import find_model
+from model_includes.evalModel import evaluate_and_calculate_ser
+from model_includes.loadData import loadData
+from model_includes.ML_models import *
+from model_includes.find_model import find_model
 
 
 def loadAndevalModel(logger:logging.Logger, train_dir, test_dir, img_size:list, output_dir, trained_model_folder, batch_size, snr_list:list, rates:list, base_model, M=128):

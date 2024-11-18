@@ -23,7 +23,7 @@
         128
     ],
     "model": "LoRaCNN",
-    "trained_model_folder": "C:/Users/lukas/Desktop/AAU/EIT7/Project/git/ml-lora-communication/ML_output/Test/models",
+    "trained_model_folder": "cnn_output",
     "batch_size": 25,
     "optimizer": "SGD",
     "num_epochs": 3,
