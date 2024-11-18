@@ -101,21 +101,23 @@ for name, param in model_combined.named_parameters():
         param.data = averaged_weights
 
 # write averaged_weights
-#with open('averaged_weights.txt', 'w') as f:
-#    for weights in averaged_weights:
-#        f.write(f"{weights}\n")
+with open('averaged_weights.txt', 'w') as f:
+   for weights in averaged_weights:
+       f.write(f"{weights}\n")
 
 combined_model_path = os.path.join(current_folder, 'combined_model_initialization.pth')
 torch.save(model_combined.state_dict(), combined_model_path)
 print(f"Combined weights model saved at {combined_model_path}")
 
-
+with open('model_combined.txt', 'w') as f:
+    f.write(f"{model_combined}\n")
+print("Model saved in model_combined.txt")
 
 # write model_combined into a txt file:
-# av_combined_model = [model_combined.state_dict()]
-# with open('av_combined_model.txt', 'w') as f:
-#    for model in av_combined_model:
-#        f.write(f"{model}\n")
+av_combined_model = [model_combined.state_dict()]
+with open('av_combined_model.txt', 'w') as f:
+   for model in av_combined_model:
+       f.write(f"{model}\n")
 
 #Load and write the state_dict of the optimizers
 # optimizer_files = [os.path.join(models_folder, f) for f in os.listdir(models_folder) if f.endswith('.pth') and 'optimizer' in f]

@@ -1,0 +1,12 @@
+LoRaCNN(
+  (conv1): Conv2d(1, 32, kernel_size=(4, 4), stride=(1, 1), padding=(2, 2))
+  (conv2): Conv2d(32, 64, kernel_size=(4, 4), stride=(1, 1), padding=(2, 2))
+  (pool): AvgPool2d(kernel_size=2, stride=2, padding=0)
+  (batchNorm1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (batchNorm2): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (fc1): Linear(in_features=65536, out_features=512, bias=True)
+  (fc2): Linear(in_features=512, out_features=256, bias=True)
+  (fc3): Linear(in_features=256, out_features=128, bias=True)
+  (batchNorm3): BatchNorm1d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (batchNorm4): BatchNorm1d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+)
