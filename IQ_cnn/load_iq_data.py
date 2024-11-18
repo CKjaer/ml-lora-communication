@@ -8,7 +8,6 @@ from tqdm import tqdm
 # Load all CSV files in the given directory into a single pandas DataFrame
 def load_data(directory, logger: logging.Logger, header="iq"):
     data_list = []
-    logger.name = "load_data"
     start_time = time.time()
 
     # Iterate through all files in the given directory
@@ -38,12 +37,14 @@ def load_data(directory, logger: logging.Logger, header="iq"):
                     logger.error(f"Error processing file {filename}: {e}")
                     continue
 
-                # Check for rows with 0 imaginary part
-                zero_imag_rows = data[data['iq_data'].apply(lambda x: all(abs(y.imag) < 1e-10 for y in x))].index
-                non_zero_imag_rows = data[~(data['iq_data'].apply(lambda x: all(abs(y.imag) < 1e-10 for y in x)))].index
-                if len(zero_imag_rows) > 0:
-                    logger.warning(f"File {filename} contains {len(zero_imag_rows)} rows with 0 imaginary part")
-                logger.info(f"File {filename} contains {len(non_zero_imag_rows)} rows with non-zero imaginary part")
+
+                # # DEBUGGING
+                # # Check for rows with 0 imaginary part
+                # zero_imag_rows = data[data['iq_data'].apply(lambda x: all(abs(y.imag) < 1e-10 for y in x))].index
+                # non_zero_imag_rows = data[~(data['iq_data'].apply(lambda x: all(abs(y.imag) < 1e-10 for y in x)))].index
+                # if len(zero_imag_rows) > 0:
+                #     logger.warning(f"File {filename} contains {len(zero_imag_rows)} rows with 0 imaginary part")
+                # logger.info(f"File {filename} contains {len(non_zero_imag_rows)} rows with non-zero imaginary part")
 
                 # Add SNR, symbol, and rate as columns
                 data['rate'] = rate
