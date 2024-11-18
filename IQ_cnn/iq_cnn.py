@@ -98,8 +98,9 @@ def train(model: nn.Module, train_loader: DataLoader, evaluation_loader: DataLoa
         float: Symbol error rate after training. Note that this only returns the final SER, as the function is a loop funcion that runs until num_epochs.
     """
 
-    model.train()
+    
     for epoch in range(num_epochs):
+        model.train()
         running_loss = 0.0
         progress_bar = tqdm(enumerate(train_loader), total=len(train_loader), desc=f"Epoch {epoch+1}/{num_epochs}")
         for i, (data, labels) in progress_bar:
