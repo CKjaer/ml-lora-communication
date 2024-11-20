@@ -29,7 +29,7 @@ if __name__ == "__main__":
         SF = 7  # Spreading factor
         BW = 250e3  # Bandwidth [Hz] (EU863-870 DR0 channel)
         M = int(2**SF)  # Number of symbols per chirp
-        SIR_tuple = (0, 10, True)  # Set to min=max for constant SIR
+        SIR_tuple = (200, 1000, True)  # Set to min=max for constant SIR
 
         # Create the basic chirp
         basic_chirp = lora.create_basechirp(M)
@@ -48,14 +48,13 @@ if __name__ == "__main__":
         basic_dechirp = tf.math.conj(basic_chirp)
 
         # Simulation parameters
-        n_symbols = int(1e7)
+        n_symbols = int(2e6)
         batch_size = int(100e3)  # Number of symbols per batch
-        nr_of_batches = int(
-            n_symbols / batch_size
-        )  # NB: n_symbols must be divisible by batch_size
+        nr_of_batches = int(n_symbols / batch_size)
+            # NB: n_symbols must be divisible by batch_size
 
         snr_values = tf.cast(tf.linspace(-4, -16, 7), dtype=tf.float64)
-        rate_params = tf.constant([0, 0.25, 0.5, 0.7, 1], dtype=tf.float64)
+        rate_params = tf.constant([0.0, 0.25, 0.5, 0.7, 1.0], dtype=tf.float64)
         result_list = tf.zeros(
             (snr_values.shape[0], rate_params.shape[0]), dtype=tf.float64
         )
@@ -63,6 +62,7 @@ if __name__ == "__main__":
         # Noise formula based on thermal noise N0=k*T*B
         k_b = tf.constant(1.380649e-23, dtype=tf.float64)  # Boltzmann constant
         noise_power = tf.constant((k_b * 298.16 * BW), dtype=tf.float64)  # dB
+        print(noise_power)
 
         print(f"Running sim for a total of {n_symbols} symbols per SNR")
         start_time = time.time()
@@ -97,6 +97,17 @@ if __name__ == "__main__":
 
                     # Decode the message using argmax
                     msg_rx = model.detect(fft_result, snr_values[j], M, noise_power)
+                    if False:
+                        snr = tf.cast(snr_values[j], dtype=tf.float64)
+                        snr_linear = tf.pow(tf.cast(10.0, dtype=tf.float64), snr / 10.0)
+                        user_amp = tf.sqrt(snr_linear * noise_power) * (tf.cast(M, dtype=tf.float64))
+                        plt.stem(fft_result[0])
+                        plt.axvline(msg_rx[0], color='r', linestyle='--')
+                        plt.axvline(msg_tx[0], color='g', linestyle='--')
+                        plt.axhline(user_amp, color='b', linestyle='--')
+                        plt.legend(['FFT', 'RX', 'TX', 'SNR'])
+                        plt.title(snr_values[j])
+                        plt.show()
 
                     # Calculate the number of errors in batch
                     msg_tx = tf.squeeze(msg_tx)

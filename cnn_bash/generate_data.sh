@@ -13,7 +13,7 @@ BASE_DIR="$(pwd)"
 echo "Currently in directory: $BASE_DIR"
 
 # Run Python file (generate_data.py)
-python -u "$BASE_DIR/cnn_bash/generate_data.py" || { echo "Python script failed"; exit 1; }
+python -u "$BASE_DIR/cnn_bash/generate_data.py" --plot_data True || { echo "Python script failed"; exit 1; }
 
 # Exit the container shell
 

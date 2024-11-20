@@ -2,7 +2,7 @@ import sys
 import os
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
-from ML_modelFunctions.imageDataSet import CustomImageDataset
+from model_includes.imageDataSet import CustomImageDataset
 from torchvision import transforms
 from torch.utils.data import random_split, DataLoader
 import torch

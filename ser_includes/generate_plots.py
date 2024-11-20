@@ -51,8 +51,8 @@ def generate_plots(data, logger, spreading_factor: int, num_samples: int, direct
         data_freqs_i = data['freqs'][i]
 
         #y_max = max_vals[data['snr'][i]] #Scaling method 1: Everything scaled for maximum value in set
-        #y_max = np.max(data_freqs_i) #Scaling method 2: Autoscaling
-        y_max = y_scale[snr] #Scaling method 3: Scaling based expected values
+        y_max = np.max(data_freqs_i) #Scaling method 2: Autoscaling
+        # y_max = y_scale[snr] #Scaling method 3: Scaling based expected values
         #data_freqs_i = data_freqs_i / (y_scale[snr]-2*noise_power)   #Method 4: Normalizing data
         #y_max = 2 #Scaling method 3: Scaling based expected values
 
