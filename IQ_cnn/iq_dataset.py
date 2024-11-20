@@ -37,7 +37,7 @@ class IQDataset(Dataset):
 class CustomIQTransform:
     def __call__(self, data):
         data = torch.tensor([complex(value) for value in data], dtype=torch.cfloat)
-        #data = (data - data.mean()) / data.std() # normalize
+        data = (data - data.mean(dim=0)) / data.std(dim=0) # normalize
         
         # split the complex data into real and imaginary parts (remove this if you want to use complex numbers)
         real = torch.tensor([value.real for value in data], dtype=torch.float) # [1, M]
