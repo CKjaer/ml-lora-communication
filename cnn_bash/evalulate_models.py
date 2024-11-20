@@ -8,8 +8,8 @@ import numpy as np
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
-from ML_modelFunctions.ModelTrainAndEval import ModelTrainAndEval
-from ML_modelFunctions.LoadAndEval import loadAndevalModel
+from model_includes.ModelTrainAndEval import ModelTrainAndEval
+from model_includes.LoadAndEval import loadAndevalModel
 
 if __name__=="__main__":
     #generate unique folder

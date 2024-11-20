@@ -1,2 +1,2 @@
 from .LoRaCNN import LoRaCNN
-from .IQ_cnn import IQ_cnn
+from .iq_dakic import IQ_cnn

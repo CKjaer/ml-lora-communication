@@ -66,7 +66,12 @@ class LoRaCNN(nn.Module):
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 current_folder = os.path.dirname(os.path.abspath(__file__))
-models_folder = os.path.join(current_folder, 'models')
+models_folder = os.path.abspath(os.path.join(current_folder, '../../cnn_output/batch_scaled/models'))
+
+if not os.path.exists(models_folder):
+    raise FileNotFoundError(f"Can't find the folder models: {models_folder}")
+
+print(f"Carpeta 'models' encontrada en: {models_folder}")
 
 # Only the snr models (not optimizer), remove the and part if we want to 
 model_files = [os.path.join(models_folder, f) for f in os.listdir(models_folder) if f.endswith('.pth')  and 'optimizer' not in f]
