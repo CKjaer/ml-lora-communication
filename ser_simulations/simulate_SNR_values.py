@@ -48,7 +48,7 @@ if __name__ == "__main__":
         basic_dechirp = tf.math.conj(basic_chirp)
 
         # Simulation parameters
-        n_symbols = int(4e6)
+        n_symbols = int(2e6)
         batch_size = int(100e3)  # Number of symbols per batch
         nr_of_batches = int(n_symbols / batch_size)
             # NB: n_symbols must be divisible by batch_size

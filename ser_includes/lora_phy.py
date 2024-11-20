@@ -82,8 +82,9 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut, Pt, Pj, 
         #print(f"Ray min: {tf.reduce_min(ray)}, Ray max: {tf.reduce_max(ray)}, Ray mean: {tf.reduce_mean(ray)}, Ray sq mean: {tf.reduce_mean(tf.pow(ray, 2))}")
 
         eta = tf.constant(3.5, dtype=tf.float32)
-        dist_loss = tf.pow(dist, -(eta/2.0))
-        hi = dist_loss * ray
+        power_dist_loss = tf.pow(dist, -(eta))
+        Pi = power_dist_loss * tf.pow(ray, 2.0)
+        hi = tf.sqrt(Pi)
     
         # Calculate interferer amplitudes based on SIR
         Pt = tf.cast(Pt, tf.float32)
