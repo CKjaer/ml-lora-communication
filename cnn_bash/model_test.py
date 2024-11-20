@@ -91,6 +91,7 @@ if __name__=="__main__":
         for Tmodel in range(len(trained_models)):
             snr=[int(trained_models[Tmodel].split("_")[2])] #find snr value from name
             rate=[float(trained_models[Tmodel].split("_")[4].replace(".pth", ""))] #find rate value from name
+            print(snr, rate)
             SERs=loadAndevalModel(logger=logger,
                                   test_dir=config["test_dir"],
                                   img_size=config["img_size"],
@@ -99,7 +100,8 @@ if __name__=="__main__":
                                   rates=rate,
                                   base_model=config["model"],
                                   M=2**config["spreading_factor"])
-            model_SERs[np.where(uniqe_snr==snr[0])[0][0]][np.where(uniqe_rate==np.float64(rate[0]))[0][0]]=SERs[0][0] # this line if fucked but it works
+            print(SERs)
+            model_SERs[np.where(uniqe_snr==snr[0])[0][0]][np.where(uniqe_rate==np.float64(rate[0]))[0][0]]=SERs[0][0] # place SER correctly
 
         print(model_SERs)
         pd.DataFrame(model_SERs, columns=uniqe_snr, index=uniqe_rate).to_csv(os.path.join(data_dir, f"{test_id}.csv"))#save to csv

@@ -2,9 +2,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class LoRaCNN(nn.Module):
+class iq_tesfay(nn.Module):
     def __init__(self, M):
-        super(LoRaCNN, self).__init__()
+        super(iq_tesfay, self).__init__()
 
         # Convolutional layers with batch normalization
         self.conv1 = nn.Conv2d(

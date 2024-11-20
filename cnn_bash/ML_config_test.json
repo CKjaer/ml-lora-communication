@@ -17,7 +17,7 @@
     ],
     "model": "LoRaCNN",
     "trained_model_folder": "C:/Users/lukas/Desktop/AAU/EIT7/Project/git/ml-lora-communication/output/models",
-    "trained_model": ["LoRaCNN_snr_-14_rate0.25.pth", "LoRaCNN_snr_-16_rate0.pth"],
+    "trained_model": ["LoRaCNN_snr_-8_rate_1.pth", "LoRaCNN_snr_-6_rate_0.7.pth"],
 
     "mixed_test": false
     
