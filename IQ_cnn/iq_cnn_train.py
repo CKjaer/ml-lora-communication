@@ -8,6 +8,7 @@ import logging
 import os
 import time
 import json
+from torch.utils.tensorboard import SummaryWriter
 
 # create output directory
 output_dir = "iq_cnn_output"
@@ -15,6 +16,8 @@ os.makedirs(output_dir, exist_ok=True) # make general output folder if it doesn'
 output_dir = os.path.join(output_dir, time.strftime("%Y%m%d-%H%M%S"))
 os.makedirs(output_dir) # make a new folder for the current run
 
+# Initialize TensorBoard writer
+writer = SummaryWriter(log_dir=os.path.join(output_dir, "tensorboard"))
 
 # create a logger
 logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S', filename=os.path.join(output_dir, "iq_cnn_train.log"), encoding='utf-8', level=logging.INFO)
@@ -26,18 +29,19 @@ print(f"Using device: {device}")
 logger.info(f"Using device: {device}")
 
 # create dataset
-dataset = IQDataset("output/20241118-110814/csv", transform=CustomIQTransform(), logger=logger)
+dataset = IQDataset("output/20241120-085757/csv", transform=CustomIQTransform(), logger=logger)
 
 # define hyperparameters
 M = 128
 learning_rate = 0.01
-batch_size = 256
+batch_size = 10
 epochs = 50
 optimizer_choice = "Adam"
 criterion_choice = "cross_entropy"
 
 # define data parameters
-snr_list = [i for i in range(-12, -4, 2)] # NOTE: use -16 to -4 for full range #TODO: make this load from a config file
+# snr_list =[-8]
+snr_list = [i for i in range(-12, -6, 2)] # NOTE: use -16 to -4 for full range #TODO: make this load from a config file
 rate_list = [0.0, 0.25] # NOTE: use 0.0, 0.25, 0.5, 0.7, 1.0 for full range #TODO: make this load from a config file
 
 # dictionary to store the symbol error rates
@@ -52,7 +56,7 @@ for rate in rate_list:
         train_set, val_set = random_split(dataset, [int(0.8*len(dataset)), len(dataset) - int(0.8*len(dataset))]) # 80-20 split
         
         train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
-        val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=True)
+        val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False)
         
         # define the model
         #model = IQCNN(M).to(device)
@@ -71,7 +75,7 @@ for rate in rate_list:
             raise ValueError("Only cross entropy loss is supported")
         
         # train the model
-        ser = train(model, train_loader, val_loader, epochs, criterion, optimizer, device, logger)
+        ser = train(model, train_loader, val_loader, epochs, criterion, optimizer, device, logger, writer)
         
         # Save model and optimizer
         torch.save(model.state_dict(), os.path.join(output_dir, f'model_snr_{snr}_rate_{rate}.pth'))
@@ -85,3 +89,31 @@ for rate in rate_list:
             json.dump(symbol_error_rates, f)
         
 logger.info("All SER values have been calculated.")
+writer.close()
+
+# def debugging_stuff():
+#     # Checking data/label alignment in validation set
+#         for batch_idx, (inputs, labels) in enumerate(val_loader):
+#             print(f"Batch {batch_idx + 1} - Eval Data")
+#             print(f"Inputs shape: {inputs.shape}")
+#             print(f"First input: {inputs[0][0]}")
+#             print(f"Labels: {labels[:10]}")
+#             break
+        
+#         # check label distribution across train and val set
+#         from collections import Counter
+        
+#         ################################################################
+        
+#         # Check label distribution
+#         train_labels = [dataset[i][1].item() for i in train_set.indices]
+#         val_labels = [dataset[i][1].item() for i in val_set.indices]
+
+#         import matplotlib.pyplot as plt
+#         plt.subplot(1, 2, 1)
+#         plt.hist(train_labels, bins=128)
+#         plt.title("Train Label Distribution")
+#         plt.subplot(1, 2, 2)
+#         plt.hist(val_labels, bins=128)
+#         plt.title("Validation Label Distribution")
+#         plt.show()
