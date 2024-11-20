@@ -29,7 +29,7 @@ if __name__ == "__main__":
         SF = 7  # Spreading factor
         BW = 250e3  # Bandwidth [Hz] (EU863-870 DR0 channel)
         M = int(2**SF)  # Number of symbols per chirp
-        SIR_tuple = (-10, 25, True)  # Set to min=max for constant SIR
+        SIR_tuple = (200, 1000, True)  # Set to min=max for constant SIR
 
         # Create the basic chirp
         basic_chirp = lora.create_basechirp(M)
@@ -48,7 +48,7 @@ if __name__ == "__main__":
         basic_dechirp = tf.math.conj(basic_chirp)
 
         # Simulation parameters
-        n_symbols = int(1e6)
+        n_symbols = int(4e6)
         batch_size = int(100e3)  # Number of symbols per batch
         nr_of_batches = int(n_symbols / batch_size)
             # NB: n_symbols must be divisible by batch_size

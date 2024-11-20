@@ -1,5 +1,7 @@
 import tensorflow as tf
 from math import pi
+import numpy as np
+import matplotlib.pyplot as plt
 
 
 @tf.function
@@ -33,18 +35,18 @@ def upchirp_lut(M, basic_chirp):
         tf.complex64: A [M, M] tensor of complex64 values representing the upchirps
     """
     # Sets up a tensor array with datatype of the basic chirp and size of M
-    lut_array = tf.TensorArray(dtype=basic_chirp.dtype, size=M, dynamic_size=False)
+    lut_array = tf.TensorArray(dtype=basic_chirp.dtype, size=M+1, dynamic_size=False)
     lut_array = lut_array.write(0, basic_chirp)  # Write the basic chirp
 
     for i in tf.range(1, M):
         rolled_chirp = tf.roll(basic_chirp, -i, axis=0)
         lut_array = lut_array.write(i, rolled_chirp)
-
+    lut_array = lut_array.write(M, tf.zeros_like(basic_chirp))
     return lut_array.stack()
 
 
 @tf.function
-def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut, user_amp, SIR_tuple):
+def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut, Pt, Pj, SIR_tuple):
     """
     Generate symbols for interferers based on a Poisson distribution.
 
@@ -59,16 +61,42 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut, user_amp
     Returns:
         tf.Tensor: Tensor of interferer power scaled by specified SIR.
     """
-    (SIR_min_dB, SIR_max_dB, random) = SIR_tuple
+    (rmin, rmax, random) = SIR_tuple
 
     # Draw interferers from Poisson distribution
     if random:
         n_interferers = tf.random.poisson([batch_size], rate_param, dtype=tf.int32)
+        max_interferers = tf.reduce_max(n_interferers)
+            
+        # Sample distances from a uniform distribution, and calculate uniform dist. over circle
+        uniform_dist = tf.random.uniform([batch_size, max_interferers])
+        dist = tf.sqrt(uniform_dist)*(rmax-rmin) + rmin
+        #print(f"Distance limits: {rmin}, {rmax}")
+        #print(f"Distance max value: {tf.reduce_max(dist)}, Distance min value: {tf.reduce_min(dist)}")
+
+        # Generate Rayleigh fading coefficients
+        real = tf.random.normal([batch_size, max_interferers], mean=0.0, stddev=1.0, dtype=tf.float32)
+        imag = tf.random.normal([batch_size, max_interferers], mean=0.0, stddev=1.0, dtype=tf.float32)
+        complex_gauss = tf.cast((1/tf.sqrt(tf.constant(2.0))), tf.complex64)*tf.complex(real, imag)
+        ray = tf.abs(complex_gauss)
+
+        eta = tf.constant(3.5, dtype=tf.float32)
+        dist_loss = tf.pow(dist, -(eta/2.0))
+        hi = dist_loss * ray
+    
+        # Calculate interferer amplitudes based on SIR
+        Pt = tf.cast(Pt, tf.float32)
+        interferer_amp = tf.cast(hi * tf.sqrt(Pt), tf.complex64)
     else:
         n_interferers = tf.fill([batch_size], 1)
         n_interferers = tf.cast(n_interferers, dtype=tf.int32)
+        max_interferers = tf.reduce_max(n_interferers)
 
-    max_interferers = tf.reduce_max(n_interferers)
+        SIRdB = tf.constant(rmax, dtype=tf.float64)
+        SIR = tf.pow(tf.cast(10.0,tf.float64), SIRdB / 10.0)
+        Pi = tf.cast(Pj / SIR, tf.complex64)
+        interferer_amp = tf.fill([batch_size, 1], tf.sqrt(Pi))
+
     # Sequence mask creates an array of True and False based on how many interferers were drawn
     mask = tf.sequence_mask(n_interferers, max_interferers, dtype=tf.bool)
 
@@ -93,14 +121,6 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut, user_amp
         [batch_size, max_interferers], minval=1, maxval=M - 1, dtype=tf.int32
     )
 
-    # A random SIR value between min and max is sampled uniformly
-    SIR_dB = tf.random.uniform([batch_size, max_interferers], SIR_min_dB, SIR_max_dB)
-    SIR_lin = tf.pow(10.0, SIR_dB / 10.0)
-
-    # Calculate interferer amplitudes based on SIR
-    interferer_amp = tf.cast(user_amp, tf.complex64) / tf.sqrt(tf.cast(SIR_lin, tf.complex64))
-
-    # Initialize the output tensor
     half_shifted_inter = tf.zeros([batch_size, M], dtype=tf.complex64)
 
     # Scale and combine the interferer symbols
@@ -116,7 +136,7 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut, user_amp
 
 @tf.function
 def process_batch(
-    upchirp_lut, rate_param, snr, msg_tx, batch_size, M, noise_power, SIR_tuple
+    upchirp_lut, rate_param, snr, msg_tx, batch_size, M, PN, SIR_tuple
 ):
     """
     Processes a batch of LoRa symbols by adding noise and potential interference.
@@ -135,25 +155,32 @@ def process_batch(
 
     # Pick the contents of each symbol from the look up table
     user_chirp_tx = tf.gather(upchirp_lut, msg_tx, axis=0)
-    
-    complex_noise = generate_noise(tf.shape(user_chirp_tx), noise_power)
+
+    complex_noise = generate_noise(tf.shape(user_chirp_tx), PN)
  
+     # Transmission power - Adjusted to 62 dB - Change this value to adjust SIR curve.
+    # Note that there are limits for which the model works
+    Pt_dB = tf.constant(10.0**(-64.0/10.0))
+    Pt = tf.cast(Pt_dB, dtype=tf.float64)
+
     # Channel coefficients
-    snr = tf.cast(snr, dtype=tf.float64)
-    snr_linear = tf.pow(tf.cast(10.0, dtype=tf.float64), snr / 10.0)
-    user_amp = tf.sqrt(snr_linear * noise_power)
+    snr = tf.cast(snr, dtype=tf.float32)
+    snr_lin = tf.pow(10.0, snr / 10.0)
+    # hj = sqrt((snr_lin * PN) / Pt)
+    hj = tf.sqrt((tf.cast(snr_lin, tf.float64) * PN) / Pt)
+    Pj = tf.pow(hj, 2.0) * Pt
 
     # Generate the interfering users symbols and their distances
     if rate_param > 0:
         inter_symbols_scaled = generate_interferer_symbols(
-            batch_size, rate_param, M, upchirp_lut, user_amp, SIR_tuple
+            batch_size, rate_param, M, upchirp_lut, Pt, Pj, SIR_tuple
         )
     else:
         inter_symbols_scaled = tf.zeros((batch_size, M), dtype=tf.complex64)
 
     # Combine the signals and add noise
     upchirp_tx = (
-        tf.cast(user_amp, dtype=tf.complex64) * user_chirp_tx
+        tf.cast(hj, dtype=tf.complex64) * tf.cast(tf.sqrt(Pt),dtype=tf.complex64) * user_chirp_tx
         + inter_symbols_scaled
         + complex_noise
     )
@@ -189,3 +216,24 @@ def generate_noise(shape, noise_power):
     complex_noise = tf.complex(noise_real, noise_imag)
     return complex_noise
 
+if __name__ == "__main__":
+    M = 128
+    basic_chirp = create_basechirp(M)
+    upchirp_lutt = upchirp_lut(M, basic_chirp)
+    rate_param = 1
+    snr = -16
+    batch_size = 50
+    msg_tx = tf.random.uniform((batch_size,), minval=0, maxval=M, dtype=tf.int32)
+    B = 250e3
+    T = 298.16
+    k = 1.38e-23
+    noise_power = B*T*k
+    #print(f"Noise power in dB: {10*np.log10(noise_power)}")
+    SIR_tuple = (200, 1000, True)
+
+    batch = process_batch(upchirp_lutt, rate_param, snr, msg_tx, batch_size, M, noise_power, SIR_tuple)
+    basic_dechirp = tf.math.conj(basic_chirp)
+    dechirped_bacth = dechirp(batch, basic_dechirp)
+    plt.plot(np.abs(np.fft.fft(dechirped_bacth[0])))
+    plt.show()
+    #print("Done")
