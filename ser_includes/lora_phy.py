@@ -79,6 +79,7 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut, Pt, Pj, 
         imag = tf.random.normal([batch_size, max_interferers], mean=0.0, stddev=1.0, dtype=tf.float32)
         complex_gauss = tf.cast((1/tf.sqrt(tf.constant(2.0))), tf.complex64)*tf.complex(real, imag)
         ray = tf.abs(complex_gauss)
+        #print(f"Ray min: {tf.reduce_min(ray)}, Ray max: {tf.reduce_max(ray)}, Ray mean: {tf.reduce_mean(ray)}, Ray sq mean: {tf.reduce_mean(tf.pow(ray, 2))}")
 
         eta = tf.constant(3.5, dtype=tf.float32)
         dist_loss = tf.pow(dist, -(eta/2.0))
@@ -160,7 +161,7 @@ def process_batch(
  
      # Transmission power - Adjusted to 62 dB - Change this value to adjust SIR curve.
     # Note that there are limits for which the model works
-    Pt_dB = tf.constant(10.0**(-64.0/10.0))
+    Pt_dB = tf.constant(10.0**(-62.0/10.0))
     Pt = tf.cast(Pt_dB, dtype=tf.float64)
 
     # Channel coefficients
