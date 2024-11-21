@@ -15,10 +15,6 @@
         128
     ],
     "model": "LoRaCNN",
-<<<<<<< HEAD:cnn_bash/train_ML_config.json
-=======
-    "trained_model_folder": "cnn_output",
->>>>>>> origin/main:cnn_bash/ML_config.json
     "batch_size": 25,
     "optimizer": "SGD",
     "num_epochs": 3,
