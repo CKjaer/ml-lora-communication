@@ -8,8 +8,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
 from model_includes.load_data import load_data
 from model_includes.ML_models import *
-from model_includes.train import train
-from model_includes.evaluate_and_calculate_ser import evaluate_and_calculate_ser
+from model_includes.train_model import train
 
 def find_model(model: str):
     """
