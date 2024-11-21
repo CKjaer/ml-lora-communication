@@ -4,8 +4,7 @@ import sys
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
-from model_includes.ML_models.LoRaCNN import LoRaCNN
-from model_includes.ML_models.IQ_cnn import IQ_cnn
+from model_includes.ML_models import *
 import torch
 
 

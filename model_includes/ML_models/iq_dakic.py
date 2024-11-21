@@ -2,9 +2,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class IQ_cnn(nn.Module):
+class iq_dakic(nn.Module):
     def __init__(self, M):
-        super(IQ_cnn, self).__init__()
+        super(iq_dakic, self).__init__()
 
         # Convolutional layers
         self.conv1 = nn.Conv2d(

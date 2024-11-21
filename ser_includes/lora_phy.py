@@ -71,16 +71,13 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut, Pt, Pj, 
         # Sample distances from a uniform distribution, and calculate uniform dist. over circle
         uniform_dist = tf.random.uniform([batch_size, max_interferers])
         dist = tf.sqrt(uniform_dist)*(rmax-rmin) + rmin
-        #print(f"Distance limits: {rmin}, {rmax}")
-        #print(f"Distance max value: {tf.reduce_max(dist)}, Distance min value: {tf.reduce_min(dist)}")
 
         # Generate Rayleigh fading coefficients
         real = tf.random.normal([batch_size, max_interferers], mean=0.0, stddev=1.0, dtype=tf.float32)
         imag = tf.random.normal([batch_size, max_interferers], mean=0.0, stddev=1.0, dtype=tf.float32)
         complex_gauss = tf.cast((1/tf.sqrt(tf.constant(2.0))), tf.complex64)*tf.complex(real, imag)
         ray = tf.abs(complex_gauss)
-        #print(f"Ray min: {tf.reduce_min(ray)}, Ray max: {tf.reduce_max(ray)}, Ray mean: {tf.reduce_mean(ray)}, Ray sq mean: {tf.reduce_mean(tf.pow(ray, 2))}")
-
+        
         eta = tf.constant(3.5, dtype=tf.float32)
         power_dist_loss = tf.pow(dist, -(eta))
         Pi = power_dist_loss * tf.pow(ray, 2.0)
@@ -168,7 +165,6 @@ def process_batch(
     # Channel coefficients
     snr = tf.cast(snr, dtype=tf.float32)
     snr_lin = tf.pow(10.0, snr / 10.0)
-    # hj = sqrt((snr_lin * PN) / Pt)
     hj = tf.sqrt((tf.cast(snr_lin, tf.float64) * PN) / Pt)
     Pj = tf.pow(hj, 2.0) * Pt
 

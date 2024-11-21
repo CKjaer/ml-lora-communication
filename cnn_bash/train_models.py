@@ -1,3 +1,32 @@
+
+"""
+This script trains CNN models using parameters specified in a configuration file (train_cnn_config.json).
+The trained models and related data are saved in an output directory named with a unique test ID.
+1. Edit the train_cnn_config.json file with the desired training parameters.
+2. Run the train_models.sh script which calls this file.
+3. The trained models and related data will be saved in the ~/cnn_output directory with a unique test ID.
+Configuration Parameters (train_cnn_config.json):
+- test_id: A unique identifier for the test run. If empty, a timestamp will be used.
+- train_dir: Directory containing the training data.
+- img_size: Size of the input images.
+- batch_size: Batch size for training.
+- snr_values: List of Signal-to-Noise Ratio (SNR) values for training.
+- rate: List of rates for training.
+- model: Base model to be used for training.
+- spreading_factor: Spreading factor for the model.
+- optimizer: Optimizer choice for training.
+- num_epochs: Number of epochs for training.
+- learning_rate: Learning rate for training.
+- patience: Patience parameter for early stopping.
+- min_delta: Minimum change to qualify as an improvement for early stopping.
+Output:
+- A directory named with the test ID containing:
+    - Trained models in the "models" subdirectory.
+    - Training data in the "data" subdirectory.
+    - A log file with training details.
+    - A copy of the configuration file used for training.
+    - A CSV file with the estimated Symbol Error Rates (SERs).
+"""
 import sys
 import json
 import os
@@ -10,10 +39,22 @@ import pandas as pd
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
 from model_includes.ModelTrainAndEval import ModelTrainAndEval
+<<<<<<< HEAD
+=======
+
+"""
+Description:
+    Trains CNN models with parameters given in train_cnn_config.json
+Usage:
+    Edit the train_cnn_config.json file and run the train_models.sh
+    script calling this file. The trained models will be saved in 
+    the ~/cnn_output with the test_id.
+"""
+>>>>>>> origin/main
 
 if __name__=="__main__":
-    #generate unique folder
-    with open("cnn_bash/train_ML_config.json") as f: #fix so dont have to be in root?
+    # Load config file and create output folders
+    with open("cnn_bash/train_cnn_config.json") as f: #fix so dont have to be in root?
         config=json.load(f)
     if config["test_id"]!="":
         test_id = config["test_id"]+"_"+time.strftime("%Y%m%d-%H%M%S")
@@ -26,7 +67,12 @@ if __name__=="__main__":
     data_dir = os.path.join(output_dir, "data")
     os.makedirs(model_dir, exist_ok=True)
     os.makedirs(data_dir, exist_ok=True)
+<<<<<<< HEAD
     #initiate log file
+=======
+
+    # Set up logging
+>>>>>>> origin/main
     logfilename=test_id+".log"
     log_path=os.path.join(output_dir, logfilename)
     logger=logging.getLogger(__name__)
@@ -37,13 +83,14 @@ if __name__=="__main__":
         encoding="utf-8",
         level=logging.INFO,
     )
-    
+    # Save config file
     logger.info("save config file")
     config["test_id"] = test_id
     with open(os.path.join(output_dir, "config.json"), "w") as f:
         json.dump(config, f)
-
-    logger.info("Training models")
+    
+    # Train model with config parameters
+    logger.info("Training CNN models...")
     SERs=ModelTrainAndEval(logger=logger,
                         train_dir=config["train_dir"],
                         img_size=config["img_size"],
@@ -59,7 +106,7 @@ if __name__=="__main__":
                         patience=config["patience"],
                         min_delta=config["min_delta"])
     pd.DataFrame(SERs, columns=config["snr_values"], index=config["rate"]).to_csv(os.path.join(data_dir, f"estimate_SER.csv"))
-    logger.info("script done")
+    logger.info("Finished training CNN models")
                         
     
     
