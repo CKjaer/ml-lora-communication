@@ -1,32 +1,30 @@
-
 """
 This script trains CNN models using parameters specified in a configuration file (train_cnn_config.json).
 The trained models and related data are saved in an output directory named with a unique test ID.
-1. Edit the train_cnn_config.json file with the desired training parameters.
-2. Run the train_models.sh script which calls this file.
-3. The trained models and related data will be saved in the ~/cnn_output directory with a unique test ID.
+Usage:
+    1. Edit the train_cnn_config.json file with the desired training parameters.
+    2. Run the train_models.sh script which calls this file.
+    3. The trained models and related data will be saved in the ~/cnn_output directory with a unique test ID.
 Configuration:
     The script reads a configuration file (~/cnn_bash/train_cnn_config.json) with the following parameters:
     - test_id: A unique identifier for the test run. If empty, a timestamp will be used.
+    - spreading_factor: Spreading factor of LoRa modulation.
     - train_dir: Directory containing the training data.
     - img_size: Size of the input images.
     - batch_size: Batch size for training.
     - snr_values: List of SNR values to use.
-    - rate: List of rates for training.
+    - rate: List of arrival rates for interfering users.
     - model: Base model to be used for training.
-    - spreading_factor: Spreading factor for the model.
     - optimizer: Optimizer choice for training.
     - num_epochs: Number of epochs for training.
     - learning_rate: Learning rate for training.
     - patience: Patience parameter for early stopping.
     - min_delta: Minimum change to qualify as an improvement for early stopping.
 Output:
-- A directory named with the test ID containing:
     - Trained models in the "models" subdirectory.
-    - Training data in the "data" subdirectory.
     - A log file with training details.
     - A copy of the configuration file used for training.
-    - A CSV file with the estimated Symbol Error Rates (SERs).
+    - A .csv file with the estimated SER.
 """
 import sys
 import json
@@ -40,15 +38,6 @@ import pandas as pd
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
 from model_includes.ModelTrainAndEval import ModelTrainAndEval
-
-"""
-Description:
-    Trains CNN models with parameters given in train_cnn_config.json
-Usage:
-    Edit the train_cnn_config.json file and run the train_models.sh
-    script calling this file. The trained models will be saved in 
-    the ~/cnn_output with the test_id.
-"""
 
 if __name__=="__main__":
     # Load config file and create output folders
