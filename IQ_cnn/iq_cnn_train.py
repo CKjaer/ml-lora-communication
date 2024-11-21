@@ -8,10 +8,6 @@ import logging
 import os
 import time
 import json
-from torch.utils.tensorboard import SummaryWriter
-# ignore warnings
-import warnings
-warnings.filterwarnings("ignore")
 
 # load config file
 with open("cnn_bash/iq_config.json", "r") as f:
@@ -33,8 +29,6 @@ os.makedirs(output_dir) # make a new folder for the current run
 with open(os.path.join(output_dir, "config.json"), "w") as f:
     json.dump(config, f)
 
-# Initialize TensorBoard writer
-writer = SummaryWriter(log_dir=os.path.join(output_dir, "tensorboard"))
 
 # create a logger
 logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S', filename=os.path.join(output_dir, "iq_cnn_train.log"), encoding='utf-8', level=logging.INFO)
@@ -95,7 +89,7 @@ for rate in rate_list:
             raise ValueError("Only cross entropy loss is supported")
         
         # train the model
-        ser = train(model, train_loader, val_loader, epochs, criterion, optimizer, device, logger, writer)
+        ser = train(model, train_loader, val_loader, epochs, criterion, optimizer, device, logger)
         
         # Save model and optimizer
         torch.save(model.state_dict(), os.path.join(output_dir, f'model_snr_{snr}_rate_{rate}.pth'))
@@ -109,7 +103,7 @@ for rate in rate_list:
             json.dump(symbol_error_rates, f)
         
 logger.info("All SER values have been calculated.")
-writer.close()
+
 
 # def debugging_stuff():
 #     # Checking data/label alignment in validation set
