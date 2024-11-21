@@ -12,7 +12,7 @@ def load_data(directory, logger: logging.Logger, header="iq"):
 
     # Iterate through all files in the given directory
     try:
-        for filename in tqdm(os.listdir(directory), desc="Loading data"):
+        for filename in tqdm(os.listdir(directory//2), desc="Loading data"): # divide by 2 as only half of files are IQ data
             if filename.endswith(".csv") and filename.startswith(header):
                 try:
                     parts = filename.split('_')
