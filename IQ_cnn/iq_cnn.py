@@ -46,9 +46,9 @@ class IQCNN(nn.Module):
         x = self.output_layer(x)
         return x
 
-class otherArticleIQCNN(nn.Module):
+class RealValuedCNN(nn.Module):
     def __init__(self, M): # M is number of symbols
-        super(otherArticleIQCNN, self).__init__()
+        super(RealValuedCNN, self).__init__()
         self.conv1 = nn.Sequential(
             nn.Conv1d(in_channels=2, out_channels=64, kernel_size=7, stride=1, padding=3),
             nn.BatchNorm1d(64),
@@ -178,7 +178,7 @@ if __name__ == "__main__":
 
     # Define the model
     M = 128
-    model = otherArticleIQCNN(M).to(device)
+    model = RealValuedCNN(M).to(device)
     logger.info(summary(model, (2, 128)))
 
     dataset = IQDataset("output/20241114-115337/csv", transform=CustomIQTransform(), logger=logger)
