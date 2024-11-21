@@ -10,7 +10,24 @@ from model_includes.loadData import loadData
 from model_includes.ML_models import *
 from model_includes.trainModel import train
 from model_includes.evalModel import evaluate_and_calculate_ser
-from model_includes.find_model import find_model
+
+def find_model(model: str):
+    """
+    Searches for a machine learning model file in the "ML_models" directory and returns the model name if found.
+    Args:
+        model (str): The name of the model to search for.
+    Returns:
+        str: The name of the model if found, otherwise None.
+    """
+
+    ML_model_files = os.listdir(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "ML_models")
+    )
+    ML_models = [modeler.replace(".py", "", -1) for modeler in ML_model_files]
+
+    for i in ML_models:
+        if i == model:
+            return i
 
 def ModelTrainAndEval(logger:logging.Logger, train_dir, img_size, output_folder, snr_list:list, rates:list, batch_size: int, base_model:str, M=128, optimizer_choice="SGD", num_epochs=3, learning_rate=0.01, patience=5, min_delta=0.05):
     criterion=nn.CrossEntropyLoss()
