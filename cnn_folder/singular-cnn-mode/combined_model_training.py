@@ -154,4 +154,4 @@ print(f"Model Accuracy: {accuracy:.2f}%")
 print(f"Model SER: {ser:.4f}")
 
 #plot SER
-plt.plot(ser)
+#plt.plot(ser)
