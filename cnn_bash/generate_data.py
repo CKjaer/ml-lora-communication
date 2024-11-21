@@ -1,18 +1,42 @@
+"""
+This script generates symbol data for CNN training and testing, creating .csv files for both IQ data and FFT data.
+Optionally, it can also generate and save FFT plots as .png files.
+Configuration:
+    The script reads a configuration file (cnn_bash/generate_data_config.json) with the following parameters:
+    - number_of_samples: List of the number of samples to generate.
+    - snr_values: List of SNR values to use.
+    - spreading_factor: Spreading factor for the data generation.
+    - rate: Rate parameter for the data generation.
+    - SIR_random: Flag to indicate whether to use random SIR values.
+    - SIR_span_and_steps: Span and steps for the SIR values.
+    - plot_data: Flag to indicate whether to generate plots.
+    - line_plot: Flag to indicate whether to generate line plots.
+Output:
+    - .csv files with IQ and FFT data.
+    - A log file with details of the data generation.
+    - A copy of the configuration file used for data generation.
+    - If plot_data is True, .png plots of the FFT data.
+Logging:
+    The script sets up logging to record the details of the data generation process. The log file is saved in the output directory with the name 'test_log.log'.
+Exceptions:
+    The script handles exceptions during data creation and plot generation, logging the errors and printing error messages to the console.
+"""
 import os
 import sys
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
-import json
 from ser_includes.generate_plots import generate_plots, find_max
 from ser_includes.load_files import load_data
 from ser_includes.create_data_csv import create_data_csvs
-
+import json
 import logging
 import time
 
-def main(plot_data=False):  
-    # Generate a unique test ID and create the output directory
-    with open("cnn_bash/config.json") as f:
+
+if __name__ == "__main__":
+ 
+    # Open .json config file with directory and parameters
+    with open("cnn_bash/generate_data_config.json") as f:
         config = json.load(f)
     test_id = time.strftime("%Y%m%d-%H%M%S")
     output_dir = os.path.join("output")
@@ -20,7 +44,7 @@ def main(plot_data=False):
     csv_dir = os.path.join(output_dir, test_id, "csv")
     os.makedirs(csv_dir, exist_ok=True)
 
-    # setup logging
+    # Set up logging
     logfilename = "test_log.log"
     log_path = os.path.join(output_dir, test_id, logfilename)
     logger = logging.getLogger(__name__)
@@ -33,6 +57,7 @@ def main(plot_data=False):
     )
     logger.info("Starting the program")
 
+    # Check if the number of samples is the same as the number of SNR values
     N_samples = config["number_of_samples"]
     snr_values = config["snr_values"]
     if len(N_samples) == 1:
@@ -46,7 +71,7 @@ def main(plot_data=False):
         print(f"GOOD SIZE: {len(N_samples)}!")
         N_samp_array = N_samples
 
-    # Simulate data
+    # Simulate with config parameters
     try:
         create_data_csvs(
             logger,
@@ -63,8 +88,7 @@ def main(plot_data=False):
         print(f"Error creating data: {e}")
 
     # Create image plot if the flag is set
-    # otherwise only the IQ data is used
-    if plot_data:
+    if config['plot_data']:
         try:
             plot_data = load_data(csv_dir, logger, header="snr")
         except Exception as e:
@@ -87,13 +111,7 @@ def main(plot_data=False):
             logger.error(f"Error generating plots: {e}")
             print(f"Error generating plots: {e}")
 
-    # Train the model
-    # FUNCTION TO TRAIN THE MODEL
-
     # Save config file
     config["test_id"] = test_id
     with open(os.path.join(output_dir, test_id, "config.json"), "w") as f:
         json.dump(config, f)
-
-if __name__ == "__main__":
-    main()   

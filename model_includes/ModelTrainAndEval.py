@@ -12,7 +12,7 @@ from model_includes.trainModel import train
 from model_includes.evalModel import evaluate_and_calculate_ser
 from model_includes.find_model import find_model
 
-def ModelTrainAndEval(logger:logging.Logger, train_dir, test_dir, img_size, output_folder, snr_list:list, rates:list, batch_size: int, base_model:str, M=128, optimizer_choice="SGD", num_epochs=3, learning_rate=0.01, patience=5, min_delta=0.05):
+def ModelTrainAndEval(logger:logging.Logger, train_dir, img_size, output_folder, snr_list:list, rates:list, batch_size: int, base_model:str, M=128, optimizer_choice="SGD", num_epochs=3, learning_rate=0.01, patience=5, min_delta=0.05):
     criterion=nn.CrossEntropyLoss()
 
     saveModelFolder=os.path.join(output_folder, "models")
@@ -23,7 +23,7 @@ def ModelTrainAndEval(logger:logging.Logger, train_dir, test_dir, img_size, outp
         os.makedirs(saveModelFolder)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    SERs=[[[None]*len(snr_list) for _ in range(len(rates))]]
+    SERs=[[None]*len(rates) for _ in range(len(snr_list))]
 
     str_model=find_model(base_model)
     if str_model!=None:
@@ -53,8 +53,8 @@ def ModelTrainAndEval(logger:logging.Logger, train_dir, test_dir, img_size, outp
                 break
 
 
-            train_loader, test_loader=loadData(train_dir=train_dir, 
-                                               test_dir=test_dir, 
+            train_loader, test_loader=loadData(data_dir=train_dir,
+                                               training=True,
                                                batch_size=batch_size, 
                                                SNR=snr_list[snr], 
                                                rate_param=rates[rate], 
@@ -62,10 +62,10 @@ def ModelTrainAndEval(logger:logging.Logger, train_dir, test_dir, img_size, outp
                                                img_size=img_size)
 
             ser=train(model, train_loader, num_epochs, optimizer, criterion, test_loader=test_loader, logger=logger, patience=patience, min_delta=min_delta)
-            torch.save(model.state_dict(), os.path.join(saveModelFolder, f"{str_model}_snr_{snr_list[snr]}_rate{rates[rate]}.pth"))
+            torch.save(model.state_dict(), os.path.join(saveModelFolder, f"{str_model}_snr_{snr_list[snr]}_rate_{rates[rate]}.pth"))
             logger.info(f"Trained and evalulated model for SNR: {snr_list[snr]} and rate:{rates[rate]}. SER is {ser}")
-            SERs[0][rate][snr]=ser 
-    return SERs, [base_model]
+            SERs[snr][rate]=ser 
+    return SERs
 
 
 

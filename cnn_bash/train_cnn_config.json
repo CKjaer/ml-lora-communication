@@ -9,26 +9,16 @@
         0.7,
         1
     ],
-    "SIR_random": true,
-    "SIR_span_and_steps": [
-        0,
-        7.5,
-        10
-    ],
-    "line_plot": true,
     "train_dir": "C:/Users/lukas/Desktop/AAU/EIT7/output/20241030-093008/plots",
-    "test_dir": "C:/Users/lukas/Desktop/AAU/EIT7/output/20241030-093008/plots",
     "img_size": [
         128,
         128
     ],
     "model": "LoRaCNN",
-    "trained_model_folder": "cnn_output",
     "batch_size": 25,
     "optimizer": "SGD",
     "num_epochs": 3,
     "learning_rate": 0.01,
-    "seed": 0,
     "patience": 5,
     "min_delta": 0.05
 }
