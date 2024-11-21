@@ -12,7 +12,7 @@ def validation_loss_and_ser(model, val_loader, criterion):
         criterion (torch.nn.Module): Loss function used to calculate the loss.
     Returns:
         ser (float): Symbol Error Rate, calculated as the ratio of incorrect predictions to total predictions.
-        validation_loss (float): The average loss over the validation
+        validation_loss (float): The average loss over the validation dataset
     """
     model.eval()  # Set model to evaluation mode
     correct_predictions = 0
@@ -36,7 +36,7 @@ def validation_loss_and_ser(model, val_loader, criterion):
             incorrect_predictions += (predicted != labels).sum().item()
             total_predictions += labels.size(0)
 
-    accuracy = 100 * correct_predictions / total_predictions
+    # accuracy = 100 * correct_predictions / total_predictions
     ser = incorrect_predictions / total_predictions
     validation_loss = total_loss / len(val_loader)
     
@@ -83,10 +83,10 @@ def train(model, train_loader, num_epochs, optimizer, criterion, val_loader, log
         num_epochs (int): Number of epochs to train the model.
         optimizer (torch.optim.Optimizer): Optimizer for updating the model's parameters.
         criterion (torch.nn.Module): Loss function to be used for training.
-        val_loader (torch.utils.data.DataLoader): DataLoader for the test dataset.
+        val_loader (torch.utils.data.DataLoader): DataLoader for the validation dataset.
         logger (logging.Logger): Logger for logging training information.
     Returns:
-        float: The final SER (Symbol Error Rate) after training.
+        float: The final SER after training.
     """
     for x in range(num_epochs):
         model.train()
