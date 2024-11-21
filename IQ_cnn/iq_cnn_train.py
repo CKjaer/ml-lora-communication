@@ -14,7 +14,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # load config file
-with open("cnn_bash/IQ_config.json", "r") as f:
+with open("cnn_bash/iq_config.json", "r") as f:
     config = json.load(f)
 
 
