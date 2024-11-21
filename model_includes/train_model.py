@@ -1,13 +1,46 @@
 import logging
 import torch
-import sys
-import os
-script_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
-from model_includes.evaluate_and_calculate_ser import evaluate_and_calculate_ser
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
+def validation_loss_and_ser(model, val_loader, criterion):
+    """
+    Calculates the SER and validation loss for the given model and validation dataset.
+    Args:
+        model (torch.nn.Module): The neural network model to be evaluated.
+        val_loader (torch.utils.data.DataLoader): DataLoader for the validation dataset.
+        criterion (torch.nn.Module): Loss function used to calculate the loss.
+    Returns:
+        ser (float): Symbol Error Rate, calculated as the ratio of incorrect predictions to total predictions.
+        validation_loss (float): The average loss over the validation dataset
+    """
+    model.eval()  # Set model to evaluation mode
+    correct_predictions = 0
+    total_predictions = 0
+    total_loss = 0.0
+    incorrect_predictions = 0
+    
+    with torch.no_grad(): # Disable gradient calculation
+        # Iterate over the validation dataset
+        for data in val_loader:
+            inputs, labels = data
+            inputs, labels = inputs.to(device), labels.to(device)
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            total_loss += loss.item()
+
+            _, predicted = torch.max(outputs.data, 1) # Get the predicted labels
+
+            # Calculate prediction statistics
+            correct_predictions += (predicted == labels).sum().item()
+            incorrect_predictions += (predicted != labels).sum().item()
+            total_predictions += labels.size(0)
+
+    # accuracy = 100 * correct_predictions / total_predictions
+    ser = incorrect_predictions / total_predictions
+    validation_loss = total_loss / len(val_loader)
+    
+    return ser, validation_loss
 
 class EarlyStopper:
     """
@@ -17,13 +50,6 @@ class EarlyStopper:
         min_delta (float): Minimum change in validation loss.
         counter (int): Counter for the number of epochs with no improvement.
         min_validation_loss (float): The minimum validation loss observed so far.
-    Methods:
-        early_stop(validation_loss):
-            Checks if training should be stopped early based on the validation loss.
-            Args:
-                validation_loss (float): The current epoch's validation loss.
-            Returns:
-                bool: True if training should be stopped, False otherwise.
     """
     def __init__(self, patience=5, min_delta=0):
         self.patience = patience
@@ -32,6 +58,13 @@ class EarlyStopper:
         self.min_validation_loss = float('inf')
 
     def early_stop(self, validation_loss):
+        """
+        Checks if training should be stopped early based on the validation loss.
+        Args:
+            validation_loss (float): The current epoch's validation loss.
+        Returns:
+            bool: True if training should be stopped, False otherwise.
+        """
         if validation_loss < self.min_validation_loss:
             self.min_validation_loss = validation_loss
             self.counter = 0
@@ -41,7 +74,7 @@ class EarlyStopper:
                 return True
         return False
 
-def train(model, train_loader, num_epochs, optimizer, criterion, test_loader, logger:logging.Logger, patience, min_delta):
+def train(model, train_loader, num_epochs, optimizer, criterion, val_loader, logger:logging.Logger, patience, min_delta):
     """
     Trains the given model using the provided training data loader, optimizer, and loss criterion.
     Args:
@@ -50,12 +83,11 @@ def train(model, train_loader, num_epochs, optimizer, criterion, test_loader, lo
         num_epochs (int): Number of epochs to train the model.
         optimizer (torch.optim.Optimizer): Optimizer for updating the model's parameters.
         criterion (torch.nn.Module): Loss function to be used for training.
-        test_loader (torch.utils.data.DataLoader): DataLoader for the test dataset.
+        val_loader (torch.utils.data.DataLoader): DataLoader for the validation dataset.
         logger (logging.Logger): Logger for logging training information.
     Returns:
-        float: The final SER (Symbol Error Rate) after training.
+        float: The final SER after training.
     """
-    
     for x in range(num_epochs):
         model.train()
         running_loss = 0.0
@@ -78,13 +110,11 @@ def train(model, train_loader, num_epochs, optimizer, criterion, test_loader, lo
                 running_loss = 0.0
 
         # Evaluate and calculate SER after each epoch
-        ser, validation_loss = evaluate_and_calculate_ser(model=model, test_loader=test_loader, criterion=criterion)
+        ser, validation_loss = validation_loss_and_ser(model=model, val_loader=val_loader, criterion=criterion)
         logger.info(f"SER for epoch {x}: {ser}, Validation loss: {validation_loss}")
-
 
         # Check if early stopping is triggered
         early_stopper = EarlyStopper(patience, min_delta)
-
         if early_stopper.early_stop(validation_loss):
             logger.info(f"Early stopping activated after epoch {x}")
             break

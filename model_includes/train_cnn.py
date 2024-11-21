@@ -8,8 +8,7 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
 from model_includes.load_data import load_data
 from model_includes.ML_models import *
-from model_includes.train import train
-from model_includes.evaluate_and_calculate_ser import evaluate_and_calculate_ser
+from model_includes.train_model import train
 
 def find_model(model: str):
     """
@@ -47,7 +46,7 @@ def train_cnn(logger:logging.Logger, train_dir, img_size, output_folder, snr_lis
         try:
             model_class=getattr(sys.modules[__name__], str_model)
         except Exception as e:
-            logger.error(f"no such model is found: {e}")
+            logger.error(f"No such model is found: {e}")
             return
     else:
         logger.error("no such class is found")
@@ -80,7 +79,7 @@ def train_cnn(logger:logging.Logger, train_dir, img_size, output_folder, snr_lis
 
             ser=train(model, train_loader, num_epochs, optimizer, criterion, test_loader=test_loader, logger=logger, patience=patience, min_delta=min_delta)
             torch.save(model.state_dict(), os.path.join(saveModelFolder, f"{str_model}_snr_{snr_list[snr]}_rate_{rates[rate]}.pth"))
-            logger.info(f"Trained and evalulated model for SNR: {snr_list[snr]} and rate:{rates[rate]}. SER is {ser}")
+            logger.info(f"Trained and evaluated model for SNR: {snr_list[snr]} and rate:{rates[rate]}. SER is {ser}")
             SERs[snr][rate]=ser 
     return SERs
 
