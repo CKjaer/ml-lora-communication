@@ -28,7 +28,6 @@ import json
 import os
 import time
 import logging
-from numpy import savetxt
 import numpy as np
 import pandas as pd
 import sys
