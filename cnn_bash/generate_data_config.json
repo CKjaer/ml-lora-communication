@@ -20,10 +20,10 @@
         1
     ],
     "plot_data": true,
-    "SIR_random": true,
-    "SIR_span_and_steps": [
+    "random_dist": true,
+    "interf_dist": [
         200,
-        800,
+        1000,
         10
     ],
     "line_plot": true

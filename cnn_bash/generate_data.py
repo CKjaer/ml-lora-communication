@@ -6,8 +6,8 @@ Configuration:
     - number_of_samples: List of the number of samples to generate.
     - snr_values: List of SNR values to use.
     - rate: Rate parameter for interfering users.
-    - SIR_random: Flag to indicate whether to use random SIR values.
-    - SIR_span_and_steps: Span and steps for the SIR values.
+    - random_dist: Flag to indicate whether to use random SIR values.
+    - interf_dist: Span and steps for the SIR values.
     - plot_data: Flag to indicate whether to generate plots.
     - line_plot: Flag to indicate whether to generate line plots.
 Output:
@@ -79,8 +79,8 @@ if __name__ == "__main__":
             config["spreading_factor"],
             csv_dir,
             config["rate"],
-            config["SIR_random"],
-            config["SIR_span_and_steps"],
+            config["random_dist"],
+            config["interf_dist"],
         )
     except Exception as e:
         logger.error(f"Error creating data: {e}")
