@@ -6,18 +6,18 @@ import logging
 from load_iq_data import load_data
 
 class IQDataset(Dataset):
-    def __init__(self, data_dir, transform=None, logger: logging.Logger = None):
+    def __init__(self, data_dir: str, transform=None, logger: logging.Logger = None):
         self.data = load_data(data_dir, logger)
         self.data_subset = None # subset of data based on snr and rate_param
         self.transform = transform
-        self.snr = None
-        self.rate_param = None
     
-    def subset_data(self, snr, rate_param):
+    def subset_data(self, snr=None, rate_param=None):
         self.snr = snr
         self.rate_param = rate_param
         if self.snr is not None and self.rate_param is not None:
             self.data_subset = self.data.loc[(self.data['snr'] == self.snr) & (self.data['rate'] == self.rate_param)] # filter to load only current snr and rate
+        else:
+            self.data_subset = self.data # load all data (useful for testing)
         
         self.data_subset.reset_index(drop=True, inplace=True)
         self.labels = self.data_subset['symbol'].values
@@ -35,7 +35,7 @@ class IQDataset(Dataset):
         return data_subset, label
         
 class CustomIQTransform:
-    def __call__(self, data):
+    def __call__(self, data): # runs when class is called
         data = torch.tensor([complex(value) for value in data], dtype=torch.cfloat)
         data = (data - data.mean(dim=0)) / data.std(dim=0) # normalize
         
