@@ -20,12 +20,14 @@ if __name__=="__main__":
         test_id = config["test_id"]+"_"+time.strftime("%Y%m%d-%H%M%S")
     else:
         test_id = time.strftime("%Y%m%d-%H%M%S")
-    output_dir = os.path.join("cnn_output", test_id)
+    output_dir=os.path.join("cnn_output", "train_ML_models")
+    os.makedirs(output_dir, exist_ok=True)
+    output_dir = os.path.join(output_dir, test_id)
     model_dir = os.path.join(output_dir, "models")
     data_dir = os.path.join(output_dir, "data")
     os.makedirs(model_dir, exist_ok=True)
     os.makedirs(data_dir, exist_ok=True)
-
+    #initiate log file
     logfilename=test_id+".log"
     log_path=os.path.join(output_dir, logfilename)
     logger=logging.getLogger(__name__)

@@ -3,6 +3,11 @@ import torch
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def evaluate_and_calculate_ser(model, test_loader, criterion):
+    """
+    Evalulate the model on the test data, 
+    returns:
+        symbol error rate and the average loss
+    """
     model.eval()  # Set model to evaluation mode
     correct_predictions = 0
     total_predictions = 0
