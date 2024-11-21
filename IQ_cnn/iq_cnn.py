@@ -6,7 +6,14 @@ import logging
 from tqdm import tqdm
 from iq_dataset import IQDataset, CustomIQTransform
 
+
 class IQCNN(nn.Module):
+    """
+    A Convolutional Neural Network (CNN) for processing IQ data.
+
+    Args:
+        M (int): Number of symbols.
+    """
     def __init__(self, M): # M is number of symbols
         super(IQCNN, self).__init__()
         self.conv1 = nn.Sequential(
@@ -45,9 +52,16 @@ class IQCNN(nn.Module):
         x = self.output_layer(x)
         return x
 
-class otherArticleIQCNN(nn.Module):
+class RealValuedCNN(nn.Module):
+    """
+    A Convolutional Neural Network (CNN) for processing real-valued IQ data.
+
+    Args:
+        M (int): Number of symbols.
+    """
+    
     def __init__(self, M): # M is number of symbols
-        super(otherArticleIQCNN, self).__init__()
+        super(RealValuedCNN, self).__init__()
         self.conv1 = nn.Sequential(
             nn.Conv1d(in_channels=2, out_channels=64, kernel_size=7, stride=1, padding=3),
             nn.BatchNorm1d(64),
@@ -81,8 +95,8 @@ class otherArticleIQCNN(nn.Module):
 
 def train(model: nn.Module, train_loader: DataLoader, evaluation_loader: DataLoader, num_epochs: int, criterion: nn.Module, optimizer: nn.Module, device, logger: logging.Logger):
     """
-    Loop function to train the model for given amount of epochs\n
-    Function evaluates the model after each epoch and logs the results\n
+    Loop function to train the model for given amount of epochs
+    Function evaluates the model after each epoch and logs the results
 
     Args:
         model (nn.Module): The model to train
@@ -94,10 +108,10 @@ def train(model: nn.Module, train_loader: DataLoader, evaluation_loader: DataLoa
         device (_type_): GPU or CPU
         logger (logging.Logger): Logger object
 
-    Returns:
-        float: Symbol error rate after training. Note that this only returns the final SER, as the function is a loop funcion that runs until num_epochs.
-    """
 
+    Returns:
+        float: Symbol error rate after training. Note that this only returns the final SER, as the function is a loop function that runs until num_epochs.
+    """
     
     for epoch in range(num_epochs):
         model.train()
@@ -107,7 +121,7 @@ def train(model: nn.Module, train_loader: DataLoader, evaluation_loader: DataLoa
             data = data.to(device)
             labels = labels.to(device)
             
-            optimizer.zero_grad()
+            optimizer.zero_grad() # reset gradients for every batch
             outputs = model(data)
             loss = criterion(outputs, labels)
             loss.backward()
@@ -115,21 +129,35 @@ def train(model: nn.Module, train_loader: DataLoader, evaluation_loader: DataLoa
             
             running_loss += loss.item()
             
-            if i % 100 == 99:
-                avg_loss = running_loss / 100
+            if i % 100 == 0:
+                avg_loss = running_loss / 10
                 progress_bar.set_postfix(loss=avg_loss)
                 logger.info(f"Epoch: {epoch+1}, Step: {i+1}, Loss: {avg_loss:.4f}")
                 running_loss = 0.0
         
         # Evaluate the model after each epoch
-        ser = evaluate_and_calculate_ser(model, evaluation_loader, criterion, device, logger)
-        logger.info(f"SER after epoch {epoch+1}: {ser:.6f}")
+        ser = evaluate_and_calculate_ser(model, evaluation_loader, criterion, device, logger, epoch)
     
     # Return the SER of the final epoch
     return ser
 
 # Evaluation function (called inside the training loop)
-def evaluate_and_calculate_ser(model, evaluation_loader, criterion, device, logger):
+def evaluate_and_calculate_ser(model, evaluation_loader, criterion, device, logger, epoch):
+    """
+    Evaluates the model and calculates the Symbol Error Rate (SER).
+
+    Args:
+        model (nn.Module): The model to evaluate.
+        evaluation_loader (DataLoader): Data loader feeding batches of evaluation data.
+        criterion (nn.Module): Loss function.
+        device (_type_): GPU or CPU.
+        logger (logging.Logger): Logger object.
+        epoch (int): Current epoch number.
+
+    Returns:
+        float: Symbol error rate after evaluation.
+    """
+    
     model.eval()  # Set model to evaluation mode
     correct_predictions = 0
     total_predictions = 0
@@ -153,9 +181,11 @@ def evaluate_and_calculate_ser(model, evaluation_loader, criterion, device, logg
     ser = incorrect_predictions / total_predictions
     average_loss = total_loss / len(evaluation_loader)
 
+    logger.info(f"########## EVALUATION AFTER EPOCH {epoch+1} ##########")
     logger.info(f'Validation/Test Loss: {average_loss:.4f}')
     logger.info(f'Validation/Test Accuracy: {accuracy:.2f}%')
     logger.info(f'Symbol Error Rate (SER): {ser:.6f}')
+    
     return ser
 
 if __name__ == "__main__":
@@ -170,7 +200,7 @@ if __name__ == "__main__":
 
     # Define the model
     M = 128
-    model = otherArticleIQCNN(M).to(device)
+    model = RealValuedCNN(M).to(device)
     logger.info(summary(model, (2, 128)))
 
     dataset = IQDataset("output/20241114-115337/csv", transform=CustomIQTransform(), logger=logger)
@@ -183,4 +213,5 @@ if __name__ == "__main__":
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     
+
     train(model, train_loader, val_loader, 10, criterion, optimizer, device, logger)

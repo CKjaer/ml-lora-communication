@@ -9,7 +9,7 @@
         0.7,
         1
     ],
-    "train_dir": "C:/Users/lukas/Desktop/AAU/EIT7/output/20241030-093008/plots",
+    "train_dir": "/ceph/project/LoRa_Symbol_Detection/ml-lora-communication/??",
     "img_size": [
         128,
         128

@@ -4,7 +4,7 @@ import sys
 import os
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
-from model_includes.evalModel import evaluate_and_calculate_ser
+from model_includes.evaluate_and_calculate_ser import evaluate_and_calculate_ser
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

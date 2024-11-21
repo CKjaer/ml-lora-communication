@@ -6,13 +6,30 @@ import logging
 import sys
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
-from model_includes.loadData import loadData
+from model_includes.load_data import load_data
 from model_includes.ML_models import *
-from model_includes.trainModel import train
-from model_includes.evalModel import evaluate_and_calculate_ser
-from model_includes.find_model import find_model
+from model_includes.train import train
+from model_includes.evaluate_and_calculate_ser import evaluate_and_calculate_ser
 
-def ModelTrainAndEval(logger:logging.Logger, train_dir, img_size, output_folder, snr_list:list, rates:list, batch_size: int, base_model:str, M=128, optimizer_choice="SGD", num_epochs=3, learning_rate=0.01, patience=5, min_delta=0.05):
+def find_model(model: str):
+    """
+    Searches for a machine learning model file in the "ML_models" directory and returns the model name if found.
+    Args:
+        model (str): The name of the model to search for.
+    Returns:
+        str: The name of the model if found, otherwise None.
+    """
+
+    ML_model_files = os.listdir(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "ML_models")
+    )
+    ML_models = [modeler.replace(".py", "", -1) for modeler in ML_model_files]
+
+    for i in ML_models:
+        if i == model:
+            return i
+
+def train_cnn(logger:logging.Logger, train_dir, img_size, output_folder, snr_list:list, rates:list, batch_size: int, base_model:str, M=128, optimizer_choice="SGD", num_epochs=3, learning_rate=0.01, patience=5, min_delta=0.05):
     criterion=nn.CrossEntropyLoss()
 
     saveModelFolder=os.path.join(output_folder, "models")
@@ -53,7 +70,7 @@ def ModelTrainAndEval(logger:logging.Logger, train_dir, img_size, output_folder,
                 break
 
 
-            train_loader, test_loader=loadData(data_dir=train_dir,
+            train_loader, test_loader=load_data(data_dir=train_dir,
                                                training=True,
                                                batch_size=batch_size, 
                                                SNR=snr_list[snr], 
@@ -70,7 +87,7 @@ def ModelTrainAndEval(logger:logging.Logger, train_dir, img_size, output_folder,
 
 
 if __name__=="__main__":
-    logfilename="./ModelTrainAndEval.log"
+    logfilename="./train_cnn.log"
     logger=logging.getLogger(__name__)
     logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S', 
@@ -89,7 +106,7 @@ if __name__=="__main__":
     rates=[0,0.25]
     img_dir="C:/Users/lukas/Desktop/AAU/EIT7/output/20241030-093008/plots"
     output_folder="output/"
-    ModelTrainAndEval(logger=logger, 
+    train_cnn(logger=logger, 
                       test_dir=img_dir,
                       train_dir=img_dir,
                       img_size=[128,128],

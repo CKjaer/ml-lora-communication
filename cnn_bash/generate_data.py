@@ -1,26 +1,28 @@
 """
 This script generates symbol data for CNN training and testing, creating .csv files for both IQ data and FFT data.
 Optionally, it can also generate and save FFT plots as .png files.
+Usage:
+    1. Edit the generate_data_config.json file with the desired parameters.
+    2. Run the generate_data.sh script, which calls this file.
+    3. The generated data will be saved in the ~/output directory with a unique test ID.
 Configuration:
-    The script reads a configuration file (cnn_bash/generate_data_config.json) with the following parameters:
+    The script reads a configuration file (~/cnn_bash/generate_data_config.json) with the following parameters:
+    - test_id: Identifier for the test run. If empty, the current date and time will be used.
+    - spreading_factor: Spreading factor of LoRa modulation.
     - number_of_samples: List of the number of samples to generate.
     - snr_values: List of SNR values to use.
-    - spreading_factor: Spreading factor for the data generation.
-    - rate: Rate parameter for the data generation.
-    - SIR_random: Flag to indicate whether to use random SIR values.
-    - SIR_span_and_steps: Span and steps for the SIR values.
+    - rate: Rate parameter for interfering users.
     - plot_data: Flag to indicate whether to generate plots.
-    - line_plot: Flag to indicate whether to generate line plots.
+    - random_dist: Flag to indicate whether to use random distances for interfering users.
+    - interf_dist: Span and steps for the interfering users distances in meters.
+    - line_plot: Flag to indicate whether to generate line plot or stem plot.
 Output:
     - .csv files with IQ and FFT data.
     - A log file with details of the data generation.
     - A copy of the configuration file used for data generation.
     - If plot_data is True, .png plots of the FFT data.
-Logging:
-    The script sets up logging to record the details of the data generation process. The log file is saved in the output directory with the name 'test_log.log'.
-Exceptions:
-    The script handles exceptions during data creation and plot generation, logging the errors and printing error messages to the console.
 """
+
 import os
 import sys
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -80,8 +82,8 @@ if __name__ == "__main__":
             config["spreading_factor"],
             csv_dir,
             config["rate"],
-            config["SIR_random"],
-            config["SIR_span_and_steps"],
+            config["random_dist"],
+            config["interf_dist"],
         )
     except Exception as e:
         logger.error(f"Error creating data: {e}")
