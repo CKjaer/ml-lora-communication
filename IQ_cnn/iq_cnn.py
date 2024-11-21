@@ -8,6 +8,12 @@ from iq_dataset import IQDataset, CustomIQTransform
 from torch.utils.tensorboard import SummaryWriter
 
 class IQCNN(nn.Module):
+    """
+    A Convolutional Neural Network (CNN) for processing IQ data.
+
+    Args:
+        M (int): Number of symbols.
+    """
     def __init__(self, M): # M is number of symbols
         super(IQCNN, self).__init__()
         self.conv1 = nn.Sequential(
@@ -47,6 +53,13 @@ class IQCNN(nn.Module):
         return x
 
 class RealValuedCNN(nn.Module):
+    """
+    A Convolutional Neural Network (CNN) for processing real-valued IQ data.
+
+    Args:
+        M (int): Number of symbols.
+    """
+    
     def __init__(self, M): # M is number of symbols
         super(RealValuedCNN, self).__init__()
         self.conv1 = nn.Sequential(
@@ -108,7 +121,7 @@ def train(model: nn.Module, train_loader: DataLoader, evaluation_loader: DataLoa
             data = data.to(device)
             labels = labels.to(device)
             
-            optimizer.zero_grad()
+            optimizer.zero_grad() # reset gradients for every batch
             outputs = model(data)
             loss = criterion(outputs, labels)
             loss.backward()
@@ -131,6 +144,22 @@ def train(model: nn.Module, train_loader: DataLoader, evaluation_loader: DataLoa
 
 # Evaluation function (called inside the training loop)
 def evaluate_and_calculate_ser(model, evaluation_loader, criterion, device, logger, writer, epoch):
+    """
+    Evaluates the model and calculates the Symbol Error Rate (SER).
+
+    Args:
+        model (nn.Module): The model to evaluate.
+        evaluation_loader (DataLoader): Data loader feeding batches of evaluation data.
+        criterion (nn.Module): Loss function.
+        device (_type_): GPU or CPU.
+        logger (logging.Logger): Logger object.
+        writer (SummaryWriter): TensorBoard writer object.
+        epoch (int): Current epoch number.
+
+    Returns:
+        float: Symbol error rate after evaluation.
+    """
+    
     model.eval()  # Set model to evaluation mode
     correct_predictions = 0
     total_predictions = 0
