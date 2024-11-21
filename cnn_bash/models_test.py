@@ -1,29 +1,28 @@
 """
 This script tests CNN models with parameters specified in the test_cnn_config.json file.
 The trained models will be saved in the ~/cnn_output directory with the test_id.
-1. Edit the test_cnn_config.json file with the desired parameters.
-2. Run the test_models.sh script, which calls this file.
+Usage:
+    1. Edit the test_cnn_config.json file with the desired parameters.
+    2. Run the test_models.sh script, which calls this file.
+    3. The test results will be saved in the ~/cnn_output directory with the test_id.
 Configuration:
 The configuration file (test_cnn_config.json) should contain the following keys:
     - test_id: A unique identifier for the test. If empty, a timestamp will be used.
-    - trained_model_folder: The folder containing the trained models.
+    - spreading_factor: Spreading factor of LoRa modulation.
+    - snr_values: List of SNR values to test against (used if mixed_test is True).
+    - rate: List of arrival rate values for interfering users to test against (used if mixed_test is True).
+    - test_dir: Directory containing the test data.
+    - output_dir: Directory to save the test results.
+    - img_size: Size of the images used for testing.
+    - model: The base model to use for testing.
+    - trained_model_folder: Folder containing the trained models.
     - trained_model: A specific model or list of models to test. If empty, all models in the folder will be tested.
     - mixed_test:  indicating whether to test models across all SNR and rate combinations (True) or only on their own data (False).
-    - test_dir: Directory containing the test data.
-    - img_size: Size of the images used for testing.
-    - snr_values: List of SNR values to test against (used if mixed_test is True).
-    - rate: List of rate values to test against (used if mixed_test is True).
-    - model: The base model to use for testing.
-    - spreading_factor: The spreading factor for the model.
 Outputs:
 The script generates the following outputs:
     - A log file containing the details of the test run.
     - A config.json file saved in the output directory with the test configuration.
     - CSV files containing the SERs (Symbol Error Rates) for each model tested.
-If mixed_test is False:
-    - The output CSV file will contain SERs for models tested on their intended dataset.
-If mixed_test is True:
-    - The output CSV files will contain SERs for each trained model tested on all SNR and rate values.
 """
 import json
 import os
@@ -33,15 +32,18 @@ from numpy import savetxt
 import numpy as np
 import pandas as pd
 import sys
+import torch
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
-from model_includes.LoadAndEval import loadAndevalModel
+from model_includes.cnn_test import test_model
 
 
 if __name__=="__main__":
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     # Load config file and create output folders
-    with open("cnn_bash/cnn_test_config.json") as f: #fix so dont have to be in root?
+    with open("cnn_bash/cnn_test_config.json") as f: 
         config=json.load(f)
     if config["test_id"]!="":
         test_id = config["test_id"]+"_"+time.strftime("%Y%m%d-%H%M%S")
@@ -98,14 +100,16 @@ if __name__=="__main__":
             snr=[int(trained_models[Tmodel].split("_")[2])] #find snr value from name
             rate=[float(trained_models[Tmodel].split("_")[4].replace(".pth", ""))] #find rate value from name
             print(snr, rate)
-            SERs=loadAndevalModel(logger=logger,
+            SERs=test_model(logger=logger,
                                   test_dir=config["test_dir"],
                                   img_size=config["img_size"],
                                   trained_model=os.path.join(trained_model_folder, trained_models[Tmodel]),
                                   snr_list=snr,
                                   rates=rate,
                                   base_model=config["model"],
-                                  M=2**config["spreading_factor"])
+                                  M=2**config["spreading_factor"],
+                                  device=device)
+                        
             # Sort the SERs into the model_SERs list
             model_SERs[np.where(uniqe_snr==snr[0])[0][0]][np.where(uniqe_rate==np.float64(rate[0]))[0][0]]=SERs[0][0] 
         print(model_SERs)
@@ -113,7 +117,7 @@ if __name__=="__main__":
 
     elif config["mixed_test"]==True: 
         for Tmodel in trained_models:
-            SERs=loadAndevalModel(logger=logger, 
+            SERs=test_model(logger=logger, 
                     test_dir=config["test_dir"],
                     img_size=config["img_size"],
                     trained_model=os.path.join(trained_model_folder, Tmodel),
