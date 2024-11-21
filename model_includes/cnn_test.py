@@ -5,8 +5,8 @@ import logging
 import sys
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
-from model_includes.evalModel import evaluate_and_calculate_ser
-from model_includes.loadData import loadData
+from model_includes.evaluate_and_calculate_ser import evaluate_and_calculate_ser
+from model_includes.load_data import load_data
 from model_includes.ML_models import *
 
 def find_model(model: str):
@@ -59,7 +59,7 @@ def loadAndevalModel(logger:logging.Logger, test_dir, img_size:list, trained_mod
             except Exception as e:
                 logger.error(f"error loading model: {e}")
                 return
-            test_loader=loadData(data_dir=test_dir, training=False, batch_size=None, SNR=snr_list[snr], rate_param=rates[rate], M=M, img_size=img_size)
+            test_loader=load_data(data_dir=test_dir, training=False, batch_size=None, SNR=snr_list[snr], rate_param=rates[rate], M=M, img_size=img_size)
             ser, _=evaluate_and_calculate_ser(model, test_loader, criterion)
             SERs[snr][rate]=ser
             logger.info(f"Evalulated {trained_model} for SNR: {snr_list[snr]} and rate:{rates[rate]}. SER is {ser}")
