@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, random_split
-from torchsummary import summary
+#from torchsummary import summary
 import logging
 from tqdm import tqdm
 from iq_dataset import IQDataset, CustomIQTransform
@@ -201,7 +201,7 @@ if __name__ == "__main__":
     # Define the model
     M = 128
     model = RealValuedCNN(M).to(device)
-    logger.info(summary(model, (2, 128)))
+    #logger.info(summary(model, (2, 128)))
 
     dataset = IQDataset("output/20241114-115337/csv", transform=CustomIQTransform(), logger=logger)
     dataset.subset_data(snr=-6, rate_param=0.0)
