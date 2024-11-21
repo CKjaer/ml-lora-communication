@@ -1,29 +1,28 @@
 """
 This script tests CNN models with parameters specified in the test_cnn_config.json file.
 The trained models will be saved in the ~/cnn_output directory with the test_id.
-1. Edit the test_cnn_config.json file with the desired parameters.
-2. Run the test_models.sh script, which calls this file.
+Usage:
+    1. Edit the test_cnn_config.json file with the desired parameters.
+    2. Run the test_models.sh script, which calls this file.
+    3. The test results will be saved in the ~/cnn_output directory with the test_id.
 Configuration:
 The configuration file (test_cnn_config.json) should contain the following keys:
     - test_id: A unique identifier for the test. If empty, a timestamp will be used.
-    - trained_model_folder: The folder containing the trained models.
+    - spreading_factor: Spreading factor of LoRa modulation.
+    - snr_values: List of SNR values to test against (used if mixed_test is True).
+    - rate: List of arrival rate values for interfering users to test against (used if mixed_test is True).
+    - test_dir: Directory containing the test data.
+    - output_dir: Directory to save the test results.
+    - img_size: Size of the images used for testing.
+    - model: The base model to use for testing.
+    - trained_model_folder: Folder containing the trained models.
     - trained_model: A specific model or list of models to test. If empty, all models in the folder will be tested.
     - mixed_test:  indicating whether to test models across all SNR and rate combinations (True) or only on their own data (False).
-    - test_dir: Directory containing the test data.
-    - img_size: Size of the images used for testing.
-    - snr_values: List of SNR values to test against (used if mixed_test is True).
-    - rate: List of rate values to test against (used if mixed_test is True).
-    - model: The base model to use for testing.
-    - spreading_factor: The spreading factor for the model.
 Outputs:
 The script generates the following outputs:
     - A log file containing the details of the test run.
     - A config.json file saved in the output directory with the test configuration.
     - CSV files containing the SERs (Symbol Error Rates) for each model tested.
-If mixed_test is False:
-    - The output CSV file will contain SERs for models tested on their intended dataset.
-If mixed_test is True:
-    - The output CSV files will contain SERs for each trained model tested on all SNR and rate values.
 """
 import json
 import os

@@ -8,7 +8,24 @@ sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
 from model_includes.evalModel import evaluate_and_calculate_ser
 from model_includes.loadData import loadData
 from model_includes.ML_models import *
-from model_includes.find_model import find_model
+
+def find_model(model: str):
+    """
+    Searches for a machine learning model file in the "ML_models" directory and returns the model name if found.
+    Args:
+        model (str): The name of the model to search for.
+    Returns:
+        str: The name of the model if found, otherwise None.
+    """
+
+    ML_model_files = os.listdir(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "ML_models")
+    )
+    ML_models = [modeler.replace(".py", "", -1) for modeler in ML_model_files]
+
+    for i in ML_models:
+        if i == model:
+            return i
 
 
 def loadAndevalModel(logger:logging.Logger, test_dir, img_size:list, trained_model, snr_list:list, rates:list, base_model, M=128):

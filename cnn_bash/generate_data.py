@@ -1,6 +1,10 @@
 """
 This script generates symbol data for CNN training and testing, creating .csv files for both IQ data and FFT data.
 Optionally, it can also generate and save FFT plots as .png files.
+Usage:
+    1. Edit the generate_data_config.json file with the desired parameters.
+    2. Run the generate_data.sh script, which calls this file.
+    3. The generated data will be saved in the ~/output directory with a unique test ID.
 Configuration:
     The script reads a configuration file (~/cnn_bash/generate_data_config.json) with the following parameters:
     - test_id: Identifier for the test run. If empty, the current date and time will be used.
