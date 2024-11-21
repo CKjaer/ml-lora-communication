@@ -129,7 +129,7 @@ def train(model: nn.Module, train_loader: DataLoader, evaluation_loader: DataLoa
             
             running_loss += loss.item()
             
-            if i % 100 == 0:
+            if i % 10 == 0:
                 avg_loss = running_loss / 10
                 progress_bar.set_postfix(loss=avg_loss)
                 logger.info(f"Epoch: {epoch+1}, Step: {i+1}, Loss: {avg_loss:.4f}")
