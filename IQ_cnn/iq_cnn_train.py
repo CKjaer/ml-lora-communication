@@ -1,4 +1,4 @@
-from iq_cnn import IQCNN, otherArticleIQCNN, train
+from iq_cnn import IQCNN, RealValuedCNN, train
 from iq_dataset import IQDataset, CustomIQTransform
 import torch
 import torch.nn as nn
@@ -9,12 +9,29 @@ import os
 import time
 import json
 from torch.utils.tensorboard import SummaryWriter
+# ignore warnings
+import warnings
+warnings.filterwarnings("ignore")
+
+# load config file
+with open("cnn_bash/IQ_config.json", "r") as f:
+    config = json.load(f)
+
 
 # create output directory
+name = config['test_id']
 output_dir = "iq_cnn_output"
 os.makedirs(output_dir, exist_ok=True) # make general output folder if it doesn't exist
-output_dir = os.path.join(output_dir, time.strftime("%Y%m%d-%H%M%S"))
+try:
+    output_dir = os.path.join(output_dir, name + "_" + time.strftime("%Y%m%d-%H%M%S"))
+except TypeError:
+    output_dir = os.path.join(output_dir, time.strftime("%Y%m%d-%H%M%S"))
+
 os.makedirs(output_dir) # make a new folder for the current run
+
+# dump the config file to the output directory
+with open(os.path.join(output_dir, "config.json"), "w") as f:
+    json.dump(config, f)
 
 # Initialize TensorBoard writer
 writer = SummaryWriter(log_dir=os.path.join(output_dir, "tensorboard"))
@@ -29,20 +46,19 @@ print(f"Using device: {device}")
 logger.info(f"Using device: {device}")
 
 # create dataset
-dataset = IQDataset("output/20241120-085757/csv", transform=CustomIQTransform(), logger=logger)
+dataset = IQDataset(config['input_dir'], transform=CustomIQTransform(), logger=logger)
 
 # define hyperparameters
-M = 128
-learning_rate = 0.01
-batch_size = 10
-epochs = 50
-optimizer_choice = "Adam"
-criterion_choice = "cross_entropy"
+M = 2**config['spreading_factor']
+learning_rate = config['learning_rate']
+batch_size = config['batch_size']
+epochs = config['num_epochs']
+optimizer_choice = config['optimizer']
+criterion_choice = config['criterion']
 
 # define data parameters
-# snr_list =[-8]
-snr_list = [i for i in range(-12, -6, 2)] # NOTE: use -16 to -4 for full range #TODO: make this load from a config file
-rate_list = [0.0, 0.25] # NOTE: use 0.0, 0.25, 0.5, 0.7, 1.0 for full range #TODO: make this load from a config file
+snr_list = config['snr_values']
+rate_list = config['rate_values']
 
 # dictionary to store the symbol error rates
 symbol_error_rates = {rate: {} for rate in rate_list}
@@ -55,12 +71,16 @@ for rate in rate_list:
         dataset.subset_data(snr=snr, rate_param=rate) # filter the dataset based on snr and rate
         train_set, val_set = random_split(dataset, [int(0.8*len(dataset)), len(dataset) - int(0.8*len(dataset))]) # 80-20 split
         
-        train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
-        val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False)
+        try:
+            train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
+            val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False)
+        except ValueError:
+            logger.error(f"No samples found for snr: {snr}, rate: {rate}. Skipping...")
+            continue
         
         # define the model
         #model = IQCNN(M).to(device)
-        model = otherArticleIQCNN(M).to(device)
+        model = RealValuedCNN(M).to(device)
         
         # define the optimizer and criterion
         if optimizer_choice == 'Adam':
@@ -82,7 +102,7 @@ for rate in rate_list:
         torch.save(optimizer.state_dict(), os.path.join(output_dir, f'optimizer_snr_{snr}_rate_{rate}.pth'))
         
         # store the symbol error rate
-        symbol_error_rates[rate][snr] = ser
+        symbol_error_rates[rate][snr] = ser # create nested dictionary inside current rate key
         
         # dump the symbol error rates to a JSON file
         with open(os.path.join(output_dir, "symbol_error_rates.json"), "w") as f:
