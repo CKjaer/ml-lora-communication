@@ -125,7 +125,6 @@ def train(model: nn.Module, train_loader: DataLoader, evaluation_loader: DataLoa
         
         # Evaluate the model after each epoch
         ser = evaluate_and_calculate_ser(model, evaluation_loader, criterion, device, logger, writer, epoch)
-        logger.info(f"SER after epoch {epoch+1}: {ser:.6f}")
     
     # Return the SER of the final epoch
     return ser
@@ -155,6 +154,7 @@ def evaluate_and_calculate_ser(model, evaluation_loader, criterion, device, logg
     ser = incorrect_predictions / total_predictions
     average_loss = total_loss / len(evaluation_loader)
 
+    logger.info(f"########## EVALUATION AFTER EPOCH {epoch+1} ##########")
     logger.info(f'Validation/Test Loss: {average_loss:.4f}')
     logger.info(f'Validation/Test Accuracy: {accuracy:.2f}%')
     logger.info(f'Symbol Error Rate (SER): {ser:.6f}')
