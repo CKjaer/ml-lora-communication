@@ -37,7 +37,7 @@ import pandas as pd
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
-from model_includes.ModelTrainAndEval import ModelTrainAndEval
+from model_includes.train_cnn import train_cnn
 
 if __name__=="__main__":
     # Load config file and create output folders
@@ -72,7 +72,7 @@ if __name__=="__main__":
     
     # Train model with config parameters
     logger.info("Training CNN models...")
-    SERs=ModelTrainAndEval(logger=logger,
+    SERs=train_cnn(logger=logger,
                         train_dir=config["train_dir"],
                         img_size=config["img_size"],
                         output_folder=output_dir,
