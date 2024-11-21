@@ -5,8 +5,7 @@ Configuration:
     The script reads a configuration file (cnn_bash/generate_data_config.json) with the following parameters:
     - number_of_samples: List of the number of samples to generate.
     - snr_values: List of SNR values to use.
-    - spreading_factor: Spreading factor for the data generation.
-    - rate: Rate parameter for the data generation.
+    - rate: Rate parameter for interfering users.
     - SIR_random: Flag to indicate whether to use random SIR values.
     - SIR_span_and_steps: Span and steps for the SIR values.
     - plot_data: Flag to indicate whether to generate plots.
