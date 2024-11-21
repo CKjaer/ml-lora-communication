@@ -5,20 +5,21 @@ The trained models and related data are saved in an output directory named with 
 1. Edit the train_cnn_config.json file with the desired training parameters.
 2. Run the train_models.sh script which calls this file.
 3. The trained models and related data will be saved in the ~/cnn_output directory with a unique test ID.
-Configuration Parameters (train_cnn_config.json):
-- test_id: A unique identifier for the test run. If empty, a timestamp will be used.
-- train_dir: Directory containing the training data.
-- img_size: Size of the input images.
-- batch_size: Batch size for training.
-- snr_values: List of Signal-to-Noise Ratio (SNR) values for training.
-- rate: List of rates for training.
-- model: Base model to be used for training.
-- spreading_factor: Spreading factor for the model.
-- optimizer: Optimizer choice for training.
-- num_epochs: Number of epochs for training.
-- learning_rate: Learning rate for training.
-- patience: Patience parameter for early stopping.
-- min_delta: Minimum change to qualify as an improvement for early stopping.
+Configuration:
+    The script reads a configuration file (~/cnn_bash/train_cnn_config.json) with the following parameters:
+    - test_id: A unique identifier for the test run. If empty, a timestamp will be used.
+    - train_dir: Directory containing the training data.
+    - img_size: Size of the input images.
+    - batch_size: Batch size for training.
+    - snr_values: List of SNR values to use.
+    - rate: List of rates for training.
+    - model: Base model to be used for training.
+    - spreading_factor: Spreading factor for the model.
+    - optimizer: Optimizer choice for training.
+    - num_epochs: Number of epochs for training.
+    - learning_rate: Learning rate for training.
+    - patience: Patience parameter for early stopping.
+    - min_delta: Minimum change to qualify as an improvement for early stopping.
 Output:
 - A directory named with the test ID containing:
     - Trained models in the "models" subdirectory.
