@@ -4,6 +4,8 @@ import torch.optim as optim
 import torch.nn as nn
 import logging
 import sys
+import wandb
+import numpy as np
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
 from model_includes.load_data import load_data
@@ -28,7 +30,7 @@ def find_model(model: str):
         if i == model:
             return i
 
-def train_cnn(logger:logging.Logger, train_dir, img_size, output_folder, snr_list:list, rates:list, batch_size: int, base_model:str, M=128, optimizer_choice="SGD", num_epochs=3, learning_rate=0.01, patience=5, min_delta=0.05):
+def train_cnn(logger:logging.Logger, train_dir, img_size, output_folder, snr_list:list, rates:list, batch_size: int, base_model:str, M=128, optimizer_choice="SGD", num_epochs=3, learning_rate=0.01, patience=5, min_delta=0.05, sweep=False):
     criterion=nn.CrossEntropyLoss()
 
     saveModelFolder=os.path.join(output_folder, "models")
@@ -77,9 +79,13 @@ def train_cnn(logger:logging.Logger, train_dir, img_size, output_folder, snr_lis
                                                M=M, 
                                                img_size=img_size)
 
-            ser=train(model, train_loader, num_epochs, optimizer, criterion, test_loader=test_loader, logger=logger, patience=patience, min_delta=min_delta)
+            ser=train(model, train_loader, num_epochs, optimizer, criterion, test_loader=test_loader, logger=logger, patience=patience, min_delta=min_delta, sweep=sweep)
             torch.save(model.state_dict(), os.path.join(saveModelFolder, f"{str_model}_snr_{snr_list[snr]}_rate_{rates[rate]}.pth"))
             logger.info(f"Trained and evaluated model for SNR: {snr_list[snr]} and rate:{rates[rate]}. SER is {ser}")
+            
+            if sweep:
+                wandb.log({"final_accuracy": (1 - ser) * 100})
+            
             SERs[snr][rate]=ser 
     return SERs
 

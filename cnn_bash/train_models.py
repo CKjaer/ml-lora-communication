@@ -34,19 +34,66 @@ import logging
 from numpy import savetxt
 import numpy as np
 import pandas as pd
+import wandb
+import yaml
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
 from model_includes.train_cnn import train_cnn
+    
+    
+def sweep():
+    wandb.init()
+    logger.info(f"Starting sweep with config: {wandb.config}")
 
+    # define hyperparameters
+    num_symbols= wandb.config.num_symbols
+    learning_rate = wandb.config.lr
+    batch_size = wandb.config.batch_size
+    num_epochs = wandb.config.num_epochs
+    optimizer = wandb.config.optimizer
+    
+    # define data parameters
+    snr = "-10"
+    rate = "0"
+    
+    # train model
+    SERs=train_cnn(logger=logger,
+                    train_dir=config["train_dir"],
+                    img_size=config["img_size"],
+                    output_folder=output_dir,
+                    batch_size=batch_size,
+                    snr_list=snr,
+                    rates=rate,
+                    base_model=config["model"],
+                    M=num_symbols,
+                    optimizer_choice=optimizer,
+                    num_epochs=num_epochs,
+                    learning_rate=learning_rate,
+                    patience=config["patience"],
+                    min_delta=config["min_delta"],
+                    sweep=config["sweep"])
+    
+    pd.DataFrame(SERs, columns=config["snr_values"], index=config["rate"]).to_csv(os.path.join(data_dir, f"estimate_SER.csv"))
+    logger.info("Finished training CNN models")
+    
+    
+    
 if __name__=="__main__":
     # Load config file and create output folders
     with open("cnn_bash/train_cnn_config.json") as f: #fix so dont have to be in root?
         config=json.load(f)
-    if config["test_id"]!="":
+        
+    
+    if config["test_id"]!="" and config["sweep"] == False:
         test_id = config["test_id"]+"_"+time.strftime("%Y%m%d-%H%M%S")
-    else:
+    elif config["test_id"]=="" and config["sweep"] == False:
         test_id = time.strftime("%Y%m%d-%H%M%S")
+    elif config["test_id"]!="" and config["sweep"] == True:
+        test_id = "sweep_" + config["test_id"] + "_" + time.strftime("%Y%m%d-%H%M%S")
+    elif config["test_id"]=="" and config["sweep"] == True:
+        test_id = "sweep_" + time.strftime("%Y%m%d-%H%M%S") # cursed af
+    
     output_dir = os.path.join("cnn_output", test_id)
     model_dir = os.path.join(output_dir, "models")
     data_dir = os.path.join(output_dir, "data")
@@ -70,24 +117,37 @@ if __name__=="__main__":
     with open(os.path.join(output_dir, "config.json"), "w") as f:
         json.dump(config, f)
     
-    # Train model with config parameters
-    logger.info("Training CNN models...")
-    SERs=train_cnn(logger=logger,
-                        train_dir=config["train_dir"],
-                        img_size=config["img_size"],
-                        output_folder=output_dir,
-                        batch_size=config["batch_size"],
-                        snr_list=config["snr_values"],
-                        rates=config["rate"],
-                        base_model=config["model"],
-                        M=2**config["spreading_factor"],
-                        optimizer_choice=config["optimizer"],
-                        num_epochs=config["num_epochs"],
-                        learning_rate=config["learning_rate"],
-                        patience=config["patience"],
-                        min_delta=config["min_delta"])
-    pd.DataFrame(SERs, columns=config["snr_values"], index=config["rate"]).to_csv(os.path.join(data_dir, f"estimate_SER.csv"))
-    logger.info("Finished training CNN models")
+    if config["sweep"] == False:
+        # Train model with config parameters
+        logger.info("Training CNN models...")
+        SERs=train_cnn(logger=logger,
+                            train_dir=config["train_dir"],
+                            img_size=config["img_size"],
+                            output_folder=output_dir,
+                            batch_size=config["batch_size"],
+                            snr_list=config["snr_values"],
+                            rates=config["rate"],
+                            base_model=config["model"],
+                            M=2**config["spreading_factor"],
+                            optimizer_choice=config["optimizer"],
+                            num_epochs=config["num_epochs"],
+                            learning_rate=config["learning_rate"],
+                            patience=config["patience"],
+                            min_delta=config["min_delta"],
+                            sweep=config["sweep"])
+        pd.DataFrame(SERs, columns=config["snr_values"], index=config["rate"]).to_csv(os.path.join(data_dir, f"estimate_SER.csv"))
+        logger.info("Finished training CNN models")
+        
+    else:
+        with open("cnn_bash/sweep_config.yaml") as f:
+            sweep_config = yaml.safe_load(f)
+            
+        # dump config to output folder
+        with open(os.path.join(output_dir, "sweep_config.yaml"), "w") as f:
+            yaml.dump(sweep_config, f)
+        
+        sweep_id = wandb.sweep(sweep_config, project="CNN")
+        wandb.agent(sweep_id, function=sweep)
                         
     
     
