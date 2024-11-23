@@ -54,7 +54,7 @@ def sweep():
     optimizer = wandb.config.optimizer
     
     # define data parameters
-    snr = "-10"
+    snr = "-10.0"
     rate = "0.0"
     
     # train model
