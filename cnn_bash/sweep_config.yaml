@@ -32,3 +32,5 @@ parameters:
 
     kernel_size:
         value: 4
+
+count: 10 # Number of runs

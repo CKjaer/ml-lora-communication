@@ -146,10 +146,10 @@ if __name__=="__main__":
         with open(os.path.join(output_dir, "sweep_config.yaml"), "w") as f:
             yaml.dump(sweep_config, f)
         
-        #sweep_id = wandb.sweep(sweep_config, project="CNN")
-        sweep_id = "zriwdki1"
+        sweep_id = wandb.sweep(sweep_config, project="CNN")
+        #sweep_id = "zriwdki1"
         
-        wandb.agent(sweep_id, function=sweep, count=10) # 10 sweeps
+        wandb.agent(sweep_id, function=sweep) # 10 sweeps
                         
     
     
