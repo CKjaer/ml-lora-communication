@@ -53,9 +53,9 @@ def sweep():
     num_epochs = wandb.config.num_epochs
     optimizer = wandb.config.optimizer
     
-    # define data parameters
-    snr = "-10.0"
-    rate = "0.0"
+    # # define data parameters
+    # snr = "-10.0"
+    # rate = "0.0"
     
     # train model
     SERs=train_cnn(logger=logger,
@@ -63,8 +63,8 @@ def sweep():
                     img_size=config["img_size"],
                     output_folder=output_dir,
                     batch_size=batch_size,
-                    snr_list=snr,
-                    rates=rate,
+                    snr_list=config['snr_values'],
+                    rates=config['rate'],
                     base_model=config["model"],
                     M=num_symbols,
                     optimizer_choice=optimizer,
