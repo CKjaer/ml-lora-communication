@@ -55,7 +55,7 @@ def sweep():
     
     # define data parameters
     snr = "-10"
-    rate = "0"
+    rate = "0.0"
     
     # train model
     SERs=train_cnn(logger=logger,

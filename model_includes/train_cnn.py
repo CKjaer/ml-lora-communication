@@ -76,7 +76,7 @@ def train_cnn(logger:logging.Logger, train_dir, img_size, output_folder, snr_lis
                                                batch_size=batch_size, 
                                                SNR=snr_list[snr], 
                                                rate_param=rates[rate], 
-                                               M=M, 
+                                               #M=M, # I guess this parameter has been removed? 
                                                img_size=img_size)
 
             ser=train(model, train_loader, num_epochs, optimizer, criterion, test_loader=test_loader, logger=logger, patience=patience, min_delta=min_delta, sweep=sweep)
