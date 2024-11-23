@@ -71,7 +71,7 @@ def train_cnn(logger:logging.Logger, train_dir, img_size, output_folder, snr_lis
                 break
 
 
-            train_loader, test_loader=load_data(data_dir=train_dir,
+            train_loader, val_loader=load_data(data_dir=train_dir,
                                                training=True,
                                                batch_size=batch_size, 
                                                SNR=snr_list[snr], 
@@ -79,7 +79,7 @@ def train_cnn(logger:logging.Logger, train_dir, img_size, output_folder, snr_lis
                                                #M=M, # I guess this parameter has been removed? 
                                                img_size=img_size)
 
-            ser=train(model, train_loader, num_epochs, optimizer, criterion, test_loader=test_loader, logger=logger, patience=patience, min_delta=min_delta, sweep=sweep)
+            ser=train(model, train_loader, num_epochs, optimizer, criterion, val_loader==val_loader, logger=logger, patience=patience, min_delta=min_delta, sweep=sweep)
             torch.save(model.state_dict(), os.path.join(saveModelFolder, f"{str_model}_snr_{snr_list[snr]}_rate_{rates[rate]}.pth"))
             logger.info(f"Trained and evaluated model for SNR: {snr_list[snr]} and rate:{rates[rate]}. SER is {ser}")
             
