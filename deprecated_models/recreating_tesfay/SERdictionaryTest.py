@@ -6,59 +6,20 @@ import numpy as np
 from scipy import stats
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 import os
+import json
 
-# Sample data
-ser_data = {
-    0.0: {
-        -16.0: 0.749844,
-        -14.0: 0.512969,
-        -12.0: 0.211875,
-        -10.0: 0.042656,
-        -8.0: 0.001563,
-        -6.0: 0.000156,
-        -4.0: 0.0,
-    },
-    0.25: {
-        -16.0: 0.758437,
-        -14.0: 0.504062,
-        -12.0: 0.234844,
-        -10.0: 0.061406,
-        -8.0: 0.017656,
-        -6.0: 0.0125,
-        -4.0: 0.007812,
-    },
-    0.5: {
-        -16.0: 0.745156,
-        -14.0: 0.523594,
-        -12.0: 0.254688,
-        -10.0: 0.088594,
-        -8.0: 0.042031,
-        -6.0: 0.030625,
-        -4.0: 0.01875,
-    },
-    0.7: {
-        -16.0: 0.749219,
-        -14.0: 0.529219,
-        -12.0: 0.27,
-        -10.0: 0.104375,
-        -8.0: 0.060156,
-        -6.0: 0.030625,
-        -4.0: 0.029531,
-    },
-    1.0: {
-        -16.0: 0.750938,
-        -14.0: 0.528906,
-        -12.0: 0.287656,
-        -10.0: 0.13625,
-        -8.0: 0.075938,
-        -6.0: 0.059375,
-        -4.0: 0.037187,
-    },
-}
+
+
+# Load the JSON data
+with open("IQ_cnn/symbol_error_rates.json", "r") as f:
+    ser_data = json.load(f)
+
+# Convert the keys of the outer dictionary to floats and the keys of the inner dictionaries to ints
+ser_data = {float(outer_key): {int(inner_key): float(value) for inner_key, value in inner_dict.items()} for outer_key, inner_dict in ser_data.items()}
 
 
 if __name__ == "__main__":
-    outputpath = "cnn_models/SERplots/no_scaling"
+    outputpath = "cnn_models/SERplots/IQ_stuff"
     os.makedirs(outputpath, exist_ok=True)
     # plt.rcParams['mathtext.fontset'] = 'custom'
     # plt.rcParams['mathtext.rm'] = 'TeX Gyre Pagella'
@@ -70,7 +31,7 @@ if __name__ == "__main__":
         snr_values = sorted(values.keys())  # Just sort the keys directly
         ser_values = [values[snr] for snr in snr_values]  # loop through to not mix up the order
         
-        savetxt(os.path.join(outputpath,f'snr_vs_ser_rate_{rate}.csv'), np.array([snr_values, ser_values]).T, delimiter=';', fmt='%d;%.6f')
+        #savetxt(os.path.join(outputpath,f'snr_vs_ser_rate_{rate}.csv'), np.array([snr_values, ser_values]).T, delimiter=';', fmt='%d;%.6f')
 
         if rate == 0:
             zero_ser_values = ser_values
@@ -96,7 +57,7 @@ if __name__ == "__main__":
         ax.set_ylabel('SER')
         ax.set_yscale('log')
         ax.set_ylim(1e-5, 1)
-        ax.set_xlim(-16, -4)
+        ax.set_xlim(-16, -6)
         ax.grid(True, which="both", alpha=0.5)
         ax.legend(loc='upper right')
         
