@@ -147,9 +147,9 @@ if __name__=="__main__":
             yaml.dump(sweep_config, f)
         
         #sweep_id = wandb.sweep(sweep_config, project="CNN")
-        sweep_id = "zriwdki1"
+        sweep_id = "k5bgo607"
         
-        wandb.agent(sweep_id, function=sweep, count=10) # 10 sweeps
+        wandb.agent(sweep_id, function=sweep, project="CNN", count=10) # 10 sweeps
                         
     
     
