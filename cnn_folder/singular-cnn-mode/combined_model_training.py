@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from tqdm import tqdm
@@ -141,6 +142,12 @@ def evaluate_model_by_snr(model, data_loader):
             labels = labels.to(device)
             outputs = model(inputs)
             _, predicted = torch.max(outputs.data, 1)
+            # Obtain accuracy
+            total = labels.size(0)
+            correct = (predicted == labels).sum().item()
+            accuracy = correct / total
+            logger.info(f"Accuracy: {accuracy:.4f}")
+            print(f"Accuracy: {accuracy:.4f}")
             
             # Extract SNR from filenames
             for filename, label, pred in zip(filenames, labels, predicted):
@@ -161,10 +168,16 @@ snrs, ser = evaluate_model_by_snr(model, data_loader)
 
 # Plot SER vs SNR
 plt.figure(figsize=(8, 6))
-plt.plot(snrs, ser, marker='o')
-plt.title('SER vs SNR')
+plt.semilogy(snrs, ser, 'b-o')  # Eje Y logarítmico
+plt.title('SER vs SNR for singular CNN')
 plt.xlabel('SNR (dB)')
 plt.ylabel('Symbol Error Rate (SER)')
-plt.grid(True)
-plt.savefig('ser_vs_snr.png')
+plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+
+# Configurar etiquetas logarítmicas en formato 10^x
+ax = plt.gca()
+ax.yaxis.set_major_formatter(ticker.LogFormatterMathtext(base=10))
+
+# Guardar y mostrar la gráfica
+plt.savefig('singular_cnn_ser_vs_snr.png')
 plt.show()
