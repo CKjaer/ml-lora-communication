@@ -54,6 +54,10 @@ criterion_choice = config['criterion']
 snr_list = config['snr_values']
 rate_list = config['rate_values']
 
+# define model architecture
+model_choice = config['model_name']
+logger.info(f"Using model: {model_choice}")
+
 # dictionary to store the symbol error rates
 symbol_error_rates = {rate: {} for rate in rate_list}
 
@@ -73,8 +77,10 @@ for rate in rate_list:
             continue
         
         # define the model
-        #model = IQCNN(M).to(device)
-        model = RealValuedCNN(M).to(device)
+        if model_choice == 'IQCNN':
+            model = IQCNN(M).to(device)
+        elif model_choice == 'RealValuedCNN':
+            model = RealValuedCNN(M).to(device)
         
         # define the optimizer and criterion
         if optimizer_choice == 'Adam':
