@@ -1,4 +1,4 @@
-from iq_cnn import IQCNN, RealValuedCNN, train
+from iq_cnn import IQCNN, RealValuedCNN, ComplexValuedCNN, train
 from iq_dataset import IQDataset, CustomIQTransform
 import torch
 import torch.nn as nn
@@ -77,10 +77,13 @@ for rate in rate_list:
             continue
         
         # define the model
-        if model_choice == 'IQCNN':
-            model = IQCNN(M).to(device)
-        elif model_choice == 'RealValuedCNN':
-            model = RealValuedCNN(M).to(device)
+        match model_choice:
+            case 'IQCNN':
+                model = IQCNN(M).to(device)
+            case 'RealValuedCNN':
+                model = RealValuedCNN(M).to(device)
+            case 'ComplexValuedCNN':
+                model = ComplexValuedCNN(M).to(device)
         
         # define the optimizer and criterion
         if optimizer_choice == 'Adam':
