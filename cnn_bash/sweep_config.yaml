@@ -1,0 +1,34 @@
+program: cnn_v3.py
+method: random
+metric:
+    name: accuracy_val
+    goal: maximize
+
+# Parameters which are mentioned in the paper, are kept constant
+# Parameters regarding architecture are excluded and defined in the program
+parameters:
+    lr:
+        distribution: uniform
+        min: 0.005
+        max: 0.05
+
+    batch_size:
+        values: [16, 32, 48, 64]
+
+    num_epochs:
+        values: [10, 20, 30, 50, 80]
+
+    optimizer:
+        values: ["Adam", "SGD"]
+
+    num_symbols:
+        value: 128
+
+    activation:
+        value: "ReLU"
+
+    pooling_layer:
+        value: "avgpool"
+
+    kernel_size:
+        value: 4
