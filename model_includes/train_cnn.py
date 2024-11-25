@@ -32,20 +32,21 @@ def find_model(model: str):
 
 def train_cnn(logger:logging.Logger, train_dir, img_size, output_folder, snr_list:list, rates:list, batch_size: int, base_model:str, M=128, optimizer_choice="SGD", num_epochs=3, learning_rate=0.01, patience=5, min_delta=0.05, sweep=False):
     criterion=nn.CrossEntropyLoss()
-
+    #ensure the output directories exist
     saveModelFolder=os.path.join(output_folder, "models")
-
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
     if not os.path.exists(saveModelFolder):
         os.makedirs(saveModelFolder)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    #initiate symbol error rate nested list
     SERs=[[None]*len(rates) for _ in range(len(snr_list))]
-
+    #find the model architecture in the ML_models folder
     str_model=find_model(base_model)
     if str_model!=None:
         try:
+            #get the model architecture for the given model
             model_class=getattr(sys.modules[__name__], str_model)
         except Exception as e:
             logger.error(f"No such model is found: {e}")
@@ -54,10 +55,11 @@ def train_cnn(logger:logging.Logger, train_dir, img_size, output_folder, snr_lis
         logger.error("no such class is found")
         print("error finding model")
         return
-
+    # loop through all SNR and interferer rate combinations
     for snr in range(len(snr_list)):
         for rate in range(len(rates)):
             try:
+                #initiate new model
                 model=model_class(M).to(device)
             except Exception as e:
                 logger.error(f"error loading model: {e}")

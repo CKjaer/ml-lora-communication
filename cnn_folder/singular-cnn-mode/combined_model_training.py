@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from tqdm import tqdm
@@ -85,22 +86,21 @@ class BinaryImageDataset(Dataset):
         else:
             raise ValueError(f"The file {filename} has no 'symbol_' in naming.")
         
-        
         label = torch.tensor(label, dtype=torch.long)
-        return image, label
+        return image, label, filename
 
 
 current_folder = os.path.dirname(os.path.abspath(__file__))
 data_dir = os.path.join(current_folder, 'plots')  
 transform = transforms.Compose([
-    transforms.Resize((128, 128)),  # 128x128 size 
+    transforms.Resize((128, 128)),  # Resize to 128x128
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.5], std=[0.5])  # weNormaliz data
+    transforms.Normalize(mean=[0.5], std=[0.5])  # Normalize data
 ])
 dataset = BinaryImageDataset(data_dir, transform=transform)
 data_loader = DataLoader(dataset, batch_size=64, shuffle=True)
 
-# Combined model inicialization
+# Combined model initialization
 model = LoRaCNN().to(device)
 
 # Loss function and optimizer
@@ -108,11 +108,11 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 criterion = nn.CrossEntropyLoss()
 
 # Training
-num_epochs = 5
+num_epochs = 1
 for epoch in range(num_epochs):
     model.train()
     running_loss = 0.0
-    for i, (inputs, labels) in enumerate(tqdm(data_loader, desc=f"Epoch {epoch+1}/{num_epochs}")):
+    for i, (inputs, labels, _) in enumerate(tqdm(data_loader, desc=f"Epoch {epoch+1}/{num_epochs}")):
         inputs = inputs.to(device)
         labels = labels.to(device)
 
@@ -132,26 +132,51 @@ trained_combined_model_path = os.path.join(current_folder, 'trained_combined_mod
 torch.save(model.state_dict(), trained_combined_model_path)
 logger.info(f"Trained model saved at {trained_combined_model_path}")
 
-# Evaluate model
-def evaluate_model(model, data_loader):
+# Evaluate model with SER vs SNR calculation
+def evaluate_model_by_snr(model, data_loader):
     model.eval()
-    correct = 0
-    total = 0
+    ser_per_snr = {}
     with torch.no_grad():
-        for inputs, labels in data_loader:
+        for inputs, labels, filenames in data_loader:
             inputs = inputs.to(device)
             labels = labels.to(device)
             outputs = model(inputs)
             _, predicted = torch.max(outputs.data, 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-    accuracy = 100 * correct / total
-    ser = (total - correct) / total
-    return accuracy, ser
+            # Obtain accuracy
+            total = labels.size(0)
+            correct = (predicted == labels).sum().item()
+            accuracy = correct / total
+            logger.info(f"Accuracy: {accuracy:.4f}")
+            print(f"Accuracy: {accuracy:.4f}")
+            
+            # Extract SNR from filenames
+            for filename, label, pred in zip(filenames, labels, predicted):
+                snr = float(filename.split('snr_')[1].split('_')[0])  # Extract SNR value
+                if snr not in ser_per_snr:
+                    ser_per_snr[snr] = {"total": 0, "incorrect": 0}
+                ser_per_snr[snr]["total"] += 1
+                if label != pred:
+                    ser_per_snr[snr]["incorrect"] += 1
 
-accuracy, ser = evaluate_model(model, data_loader)
-print(f"Model Accuracy: {accuracy:.2f}%")
-print(f"Model SER: {ser:.4f}")
+    # Calculate SER for each SNR
+    snrs = sorted(ser_per_snr.keys())
+    ser = [ser_per_snr[snr]["incorrect"] / ser_per_snr[snr]["total"] for snr in snrs]
+    return snrs, ser
 
-#plot SER
-#plt.plot(ser)
+# Evaluate model and get SER vs SNR
+snrs, ser = evaluate_model_by_snr(model, data_loader)
+
+# Plot SER vs SNR
+plt.figure(figsize=(8, 6))
+plt.semilogy(snrs, ser, 'b-o')  
+plt.title('SER vs SNR for singular CNN')
+plt.xlabel('SNR (dB)')
+plt.ylabel('Symbol Error Rate (SER)')
+plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+
+ax = plt.gca()
+ax.yaxis.set_major_formatter(ticker.LogFormatterMathtext(base=10))
+
+
+plt.savefig('singular_cnn_ser_vs_snr.png')
+plt.show()
