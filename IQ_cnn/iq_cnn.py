@@ -239,17 +239,17 @@ if __name__ == "__main__":
     # Define the model
     M = 128
     model = IQCNN(M).to(device)
-    # logger.info(summary(model, (1, 2, 128)))
+    logger.info(summary(model, (2, 128)))
 
-    dataset = IQDataset("output/20241120-085757/csv", transform=CustomIQTransform(), logger=logger)
-    dataset.subset_data(snr=-8, rate_param=0.0)
-    train_set, val_set = random_split(dataset, [int(0.8*len(dataset)), len(dataset) - int(0.8*len(dataset))]) # 80-20 split
+    # dataset = IQDataset("output/20241120-085757/csv", transform=CustomIQTransform(), logger=logger)
+    # dataset.subset_data(snr=-8, rate_param=0.0)
+    # train_set, val_set = random_split(dataset, [int(0.8*len(dataset)), len(dataset) - int(0.8*len(dataset))]) # 80-20 split
     
-    train_loader = DataLoader(train_set, batch_size=32, shuffle=True)
-    val_loader = DataLoader(val_set, batch_size=32, shuffle=True)
+    # train_loader = DataLoader(train_set, batch_size=32, shuffle=True)
+    # val_loader = DataLoader(val_set, batch_size=32, shuffle=True)
     
-    criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    # criterion = nn.CrossEntropyLoss()
+    # optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     
 
-    train(model, train_loader, val_loader, 10, criterion, optimizer, device, logger)
+    # train(model, train_loader, val_loader, 10, criterion, optimizer, device, logger)
