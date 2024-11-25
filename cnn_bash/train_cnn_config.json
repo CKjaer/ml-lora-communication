@@ -1,9 +1,9 @@
 {
-    "test_id": "Test",
+    "test_id": "buh",
     "spreading_factor": 7,
-    "snr_values": [-8, -6],
-    "rate": [0.7, 1],
-    "train_dir": "/ceph/project/LoRa_Symbol_Detection/ml-lora-communication/??",
+    "snr_values": [-10],
+    "rate": [0.0],
+    "train_dir": "/ceph/project/LoRa_Symbol_Detection/ml-lora-communication/output/20241121-134229/plots",
     "img_size": [128, 128],
     "model": "LoRaCNN",
     "batch_size": 25,
@@ -12,5 +12,5 @@
     "learning_rate": 0.01,
     "patience": 5,
     "min_delta": 0.05,
-    "sweep": false
+    "sweep": true
 }
