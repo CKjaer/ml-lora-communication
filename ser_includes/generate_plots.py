@@ -7,7 +7,7 @@ from tqdm import tqdm
 import logging
 import time
 
-def generate_plots(data, logger, spreading_factor: int, num_samples: int, directory: str, max_vals: dict = None, line_plot: bool = True):
+def generate_plots(data, logger, spreading_factor: int, num_samples: int, directory: str, max_vals: dict = None, line_plot: bool = True, is_ser: bool = True):
     sample_idx = 0
     start_time = time.time()
     num_symbols = 2**spreading_factor
@@ -87,7 +87,10 @@ def generate_plots(data, logger, spreading_factor: int, num_samples: int, direct
         try:
             # removes padding
             plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
-            filename = f"snr_{snr}_symbol_{symbol}_rate_{rate}_{sample_idx}.png"
+            if is_ser:
+                filename = f"snr_{snr}_symbol_{symbol}_rate_{rate}_{sample_idx}.png"
+            else:
+                filename = f"sir_{snr}_symbol_{symbol}_rate_{rate}_{sample_idx}.png"
             plt.savefig(os.path.join(
                             plots_dir,
                             filename

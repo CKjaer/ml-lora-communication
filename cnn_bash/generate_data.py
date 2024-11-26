@@ -30,6 +30,7 @@ sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
 from ser_includes.generate_plots import generate_plots, find_max
 from ser_includes.load_files import load_data
 from ser_includes.create_data_csv import create_data_csvs
+from ser_includes.create_sir_csv import create_sir_csvs
 import json
 import logging
 import time
@@ -75,16 +76,12 @@ if __name__ == "__main__":
 
     # Simulate with config parameters
     try:
-        create_data_csvs(
-            logger,
-            N_samp_array,
-            config["snr_values"],
-            config["spreading_factor"],
-            csv_dir,
-            config["rate"],
-            config["random_dist"],
-            config["interf_dist"],
-        )
+        if config["random_dist"]:
+            logger.info("Using random distances for interfering users")
+            create_data_csvs(logger,N_samp_array,config["snr_values"],config["spreading_factor"],csv_dir,config["rate"],config["random_dist"],config["interf_dist"],)
+        else: 
+            logger.info("Using fixed distances for interfering users")
+            create_sir_csvs(logger,N_samp_array,config["snr_values"],config["spreading_factor"],csv_dir,config["rate"],config["random_dist"],config["interf_dist"],)
     except Exception as e:
         logger.error(f"Error creating data: {e}")
         print(f"Error creating data: {e}")
@@ -108,6 +105,7 @@ if __name__ == "__main__":
                 directory=os.path.join(output_dir, test_id),
                 max_vals=max_vals,
                 line_plot=config["line_plot"],
+                is_ser = config["random_dist"],
             )
         except Exception as e:
             logger.error(f"Error generating plots: {e}")
