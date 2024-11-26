@@ -4,12 +4,13 @@ import torch.optim as optim
 import torch.nn as nn
 import logging
 import sys
+import wandb
+import numpy as np
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
 from model_includes.load_data import load_data
 from model_includes.ML_models import *
-from model_includes.train import train
-from model_includes.evaluate_and_calculate_ser import evaluate_and_calculate_ser
+from model_includes.train_model import train
 
 def find_model(model: str):
     """
@@ -29,34 +30,36 @@ def find_model(model: str):
         if i == model:
             return i
 
-def train_cnn(logger:logging.Logger, train_dir, img_size, output_folder, snr_list:list, rates:list, batch_size: int, base_model:str, M=128, optimizer_choice="SGD", num_epochs=3, learning_rate=0.01, patience=5, min_delta=0.05):
+def train_cnn(logger:logging.Logger, train_dir, img_size, output_folder, snr_list:list, rates:list, batch_size: int, base_model:str, M=128, optimizer_choice="SGD", num_epochs=3, learning_rate=0.01, patience=5, min_delta=0.05, sweep=False):
     criterion=nn.CrossEntropyLoss()
-
+    #ensure the output directories exist
     saveModelFolder=os.path.join(output_folder, "models")
-
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
     if not os.path.exists(saveModelFolder):
         os.makedirs(saveModelFolder)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    #initiate symbol error rate nested list
     SERs=[[None]*len(rates) for _ in range(len(snr_list))]
-
+    #find the model architecture in the ML_models folder
     str_model=find_model(base_model)
     if str_model!=None:
         try:
+            #get the model architecture for the given model
             model_class=getattr(sys.modules[__name__], str_model)
         except Exception as e:
-            logger.error(f"no such model is found: {e}")
+            logger.error(f"No such model is found: {e}")
             return
     else:
         logger.error("no such class is found")
         print("error finding model")
         return
-
+    # loop through all SNR and interferer rate combinations
     for snr in range(len(snr_list)):
         for rate in range(len(rates)):
             try:
+                #initiate new model
                 model=model_class(M).to(device)
             except Exception as e:
                 logger.error(f"error loading model: {e}")
@@ -70,17 +73,21 @@ def train_cnn(logger:logging.Logger, train_dir, img_size, output_folder, snr_lis
                 break
 
 
-            train_loader, test_loader=load_data(data_dir=train_dir,
+            train_loader, val_loader=load_data(data_dir=train_dir,
                                                training=True,
                                                batch_size=batch_size, 
                                                SNR=snr_list[snr], 
                                                rate_param=rates[rate], 
-                                               M=M, 
+                                               #M=M, # I guess this parameter has been removed? 
                                                img_size=img_size)
 
-            ser=train(model, train_loader, num_epochs, optimizer, criterion, test_loader=test_loader, logger=logger, patience=patience, min_delta=min_delta)
+            ser=train(model, train_loader, num_epochs, optimizer, criterion, val_loader, logger=logger, patience=patience, min_delta=min_delta, sweep=sweep)
             torch.save(model.state_dict(), os.path.join(saveModelFolder, f"{str_model}_snr_{snr_list[snr]}_rate_{rates[rate]}.pth"))
-            logger.info(f"Trained and evalulated model for SNR: {snr_list[snr]} and rate:{rates[rate]}. SER is {ser}")
+            logger.info(f"Trained and evaluated model for SNR: {snr_list[snr]} and rate:{rates[rate]}. SER is {ser}")
+            
+            if sweep:
+                wandb.log({"final_accuracy": (1 - ser) * 100})
+            
             SERs[snr][rate]=ser 
     return SERs
 

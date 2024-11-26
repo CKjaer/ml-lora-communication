@@ -11,7 +11,7 @@ import random
 
 class CustomImageDataset(Dataset):
     """
-    A custom dataset class for loading images from a directory, with optional filtering and sampling.
+    A custom dataset class for loading images from a directory, filtering and grouping by label.
     Args:
         img_dir (str): Directory containing the images.
         specific_label (float, optional): Specific label to filter images by. Defaults to None.
@@ -25,16 +25,14 @@ class CustomImageDataset(Dataset):
         transform (callable): A function/transform to apply to the images.
         specific_label (float): Specific label to filter images by.
         rate_param (float): Specific rate parameter to filter images by.
-        samples_per_label (int): Number of samples to take per label.
     """
 
-    def __init__(self, img_dir, specific_label=None, rate_param=None, transform=None, samples_per_label=1000000, seed=None):
+    def __init__(self, img_dir, specific_label=None, rate_param=None, transform=None, seed=None):
         self.img_dir = img_dir
         self.img_list = os.listdir(img_dir)
         self.transform = transform
         self.specific_label = specific_label
         self.rate_param = rate_param
-        self.samples_per_label = samples_per_label
 
         # Filter images based on specific label (if provided)
         if specific_label is not None:
@@ -56,7 +54,7 @@ class CustomImageDataset(Dataset):
         for label, images in label_image_dict.items():
             if seed!=None:
                 random.seed(0)
-            sampled_images = random.sample(images, min(self.samples_per_label, len(images)))
+            sampled_images = random.sample(images, len(images))
             self.img_list.extend(sampled_images)
 
     def __len__(self):
@@ -74,7 +72,7 @@ class CustomImageDataset(Dataset):
             # Apply transformations
             if self.transform:
                 image = self.transform(image)
-
+            # Convert label to tensor
             label = torch.tensor(label, dtype=torch.long)
 
             return image, label
@@ -83,9 +81,10 @@ class CustomImageDataset(Dataset):
             return None, None
 
 
-def load_data(data_dir, training:bool, batch_size, SNR, rate_param, img_size:list, M=2**7):
+def load_data(data_dir, training:bool, batch_size, SNR, rate_param, img_size:list):
     """
-    Load data for training and perform 80/20 validation split.
+    Load data for training and perform 80/20 validation split or load for entire dataset
+    for testing. 
     Args:
         data_dir (str): Directory containing the data.
         training (bool): Flag indicating whether to load data for training or testing.
@@ -93,9 +92,8 @@ def load_data(data_dir, training:bool, batch_size, SNR, rate_param, img_size:lis
         SNR (int): Signal-to-noise ratio label for filtering the dataset.
         rate_param (float): Rate arrival parameter
         img_size (list): List containing the desired image size [height, width].
-        M (int, optional): Modulation order, default is 2^7.
     Returns:
-        DataLoader: DataLoader object for training and testing datasets if training is True.
+        DataLoader: DataLoader object for training and validation datasets if training is True.
         DataLoader: DataLoader object for the entire dataset if training is False.
     """
 
@@ -106,6 +104,7 @@ def load_data(data_dir, training:bool, batch_size, SNR, rate_param, img_size:lis
         transforms.Normalize(mean=[0.5], std=[0.5])  # Normalize with mean and std
     ])
 
+    # Create custom dataset
     dataset = CustomImageDataset(img_dir=data_dir, specific_label=SNR, rate_param=rate_param, transform=transform)
     
     # Load data for either training or testing

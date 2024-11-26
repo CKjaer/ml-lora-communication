@@ -28,19 +28,21 @@ import json
 import os
 import time
 import logging
-from numpy import savetxt
 import numpy as np
 import pandas as pd
 import sys
+import torch
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
-from model_includes.cnn_test import loadAndevalModel
+from model_includes.cnn_test import test_model
 
 
 if __name__=="__main__":
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     # Load config file and create output folders
-    with open("cnn_bash/cnn_test_config.json") as f: #fix so dont have to be in root?
+    with open("cnn_bash/cnn_test_config.json") as f: 
         config=json.load(f)
     if config["test_id"]!="":
         test_id = config["test_id"]+"_"+time.strftime("%Y%m%d-%H%M%S")
@@ -97,14 +99,16 @@ if __name__=="__main__":
             snr=[int(trained_models[Tmodel].split("_")[2])] #find snr value from name
             rate=[float(trained_models[Tmodel].split("_")[4].replace(".pth", ""))] #find rate value from name
             print(snr, rate)
-            SERs=loadAndevalModel(logger=logger,
+            SERs=test_model(logger=logger,
                                   test_dir=config["test_dir"],
                                   img_size=config["img_size"],
                                   trained_model=os.path.join(trained_model_folder, trained_models[Tmodel]),
                                   snr_list=snr,
                                   rates=rate,
                                   base_model=config["model"],
-                                  M=2**config["spreading_factor"])
+                                  M=2**config["spreading_factor"],
+                                  device=device)
+                        
             # Sort the SERs into the model_SERs list
             model_SERs[np.where(uniqe_snr==snr[0])[0][0]][np.where(uniqe_rate==np.float64(rate[0]))[0][0]]=SERs[0][0] 
         print(model_SERs)
@@ -112,7 +116,7 @@ if __name__=="__main__":
 
     elif config["mixed_test"]==True: 
         for Tmodel in trained_models:
-            SERs=loadAndevalModel(logger=logger, 
+            SERs=test_model(logger=logger, 
                     test_dir=config["test_dir"],
                     img_size=config["img_size"],
                     trained_model=os.path.join(trained_model_folder, Tmodel),
