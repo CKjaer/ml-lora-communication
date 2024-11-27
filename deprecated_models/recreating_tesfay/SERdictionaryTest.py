@@ -11,7 +11,7 @@ import json
 
 
 # Load the JSON data
-with open("IQ_cnn/symbol_error_rates.json", "r") as f:
+with open("iq_cnn_output/IQCNN/symbol_error_rates.json", "r") as f:
     ser_data = json.load(f)
 
 # Convert the keys of the outer dictionary to floats and the keys of the inner dictionaries to ints
@@ -19,7 +19,7 @@ ser_data = {float(outer_key): {int(inner_key): float(value) for inner_key, value
 
 
 if __name__ == "__main__":
-    outputpath = "cnn_models/SERplots/IQ_stuff"
+    outputpath = "iq_cnn_output/RealValuedCNN/plots"
     os.makedirs(outputpath, exist_ok=True)
     # plt.rcParams['mathtext.fontset'] = 'custom'
     # plt.rcParams['mathtext.rm'] = 'TeX Gyre Pagella'
@@ -97,5 +97,5 @@ if __name__ == "__main__":
             bbox_inches = "tight"
         )
 
-        plt.tight_layout()
+        #plt.tight_layout()
         plt.show()
