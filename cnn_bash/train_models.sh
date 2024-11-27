@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --job-name=train_models
-#SBATCH --output=./job_results/result_%j.out
-#SBATCH --error=./job_results/error_%j.err
+#SBATCH --job-name=train_exp
+#SBATCH --output=./job_results/train_result_%j.out
+#SBATCH --error=./job_results/train_error_%j.err
 #SBATCH --time=12:00:00
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1
