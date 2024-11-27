@@ -1,0 +1,75 @@
+Started from /ceph/project/LoRa_Symbol_Detection/ml-lora-communication - should be started from ml-lora-communication folder
+Found GPU, using that
+tf.Tensor(1.0291357646000002e-15, shape=(), dtype=float64)
+Running sim for a total of 10000000 symbols per SNR
+Rate: 0.0, SNR: -4.0 dB, error count: [0.] SER: 0.000000E+00
+SNR time: 18.73917055130005
+Rate: 0.0, SNR: -6.0 dB, error count: [68.] SER: 6.800000E-06
+SNR time: 1.1737182140350342
+Rate: 0.0, SNR: -8.0 dB, error count: [16090.] SER: 1.609000E-03
+SNR time: 1.1664230823516846
+Rate: 0.0, SNR: -10.0 dB, error count: [378946.] SER: 3.789460E-02
+SNR time: 1.160618782043457
+Rate: 0.0, SNR: -12.0 dB, error count: [2028646.] SER: 2.028646E-01
+SNR time: 1.162074089050293
+Rate: 0.0, SNR: -14.0 dB, error count: [4685599.] SER: 4.685599E-01
+SNR time: 1.1709964275360107
+Rate: 0.0, SNR: -16.0 dB, error count: [6980615.] SER: 6.980615E-01
+SNR time: 1.1624064445495605
+Rate: 0.25, SNR: -4.0 dB, error count: [112807.] SER: 1.128070E-02
+SNR time: 6.104279041290283
+Rate: 0.25, SNR: -6.0 dB, error count: [187543.] SER: 1.875430E-02
+SNR time: 5.7390501499176025
+Rate: 0.25, SNR: -8.0 dB, error count: [326277.] SER: 3.262770E-02
+SNR time: 5.746797323226929
+Rate: 0.25, SNR: -10.0 dB, error count: [803063.] SER: 8.030630E-02
+SNR time: 6.000582933425903
+Rate: 0.25, SNR: -12.0 dB, error count: [2517520.] SER: 2.517520E-01
+SNR time: 5.8054423332214355
+Rate: 0.25, SNR: -14.0 dB, error count: [5055325.] SER: 5.055325E-01
+SNR time: 5.808059930801392
+Rate: 0.25, SNR: -16.0 dB, error count: [7203328.] SER: 7.203328E-01
+SNR time: 5.896596670150757
+Rate: 0.5, SNR: -4.0 dB, error count: [207828.] SER: 2.078280E-02
+SNR time: 7.22688627243042
+Rate: 0.5, SNR: -6.0 dB, error count: [349787.] SER: 3.497870E-02
+SNR time: 7.236297130584717
+Rate: 0.5, SNR: -8.0 dB, error count: [568907.] SER: 5.689070E-02
+SNR time: 7.27712869644165
+Rate: 0.5, SNR: -10.0 dB, error count: [1202130.] SER: 1.202130E-01
+SNR time: 7.272979021072388
+Rate: 0.5, SNR: -12.0 dB, error count: [2947622.] SER: 2.947622E-01
+SNR time: 7.269683837890625
+Rate: 0.5, SNR: -14.0 dB, error count: [5417250.] SER: 5.417250E-01
+SNR time: 7.245010852813721
+Rate: 0.5, SNR: -16.0 dB, error count: [7404942.] SER: 7.404942E-01
+SNR time: 7.249684572219849
+Rate: 0.7, SNR: -4.0 dB, error count: [292535.] SER: 2.925350E-02
+SNR time: 8.05712103843689
+Rate: 0.7, SNR: -6.0 dB, error count: [512810.] SER: 5.128100E-02
+SNR time: 7.865625381469727
+Rate: 0.7, SNR: -8.0 dB, error count: [857055.] SER: 8.570550E-02
+SNR time: 7.895710229873657
+Rate: 0.7, SNR: -10.0 dB, error count: [1551453.] SER: 1.551453E-01
+SNR time: 8.058589696884155
+Rate: 0.7, SNR: -12.0 dB, error count: [3312928.] SER: 3.312928E-01
+SNR time: 7.914880275726318
+Rate: 0.7, SNR: -14.0 dB, error count: [5638048.] SER: 5.638048E-01
+SNR time: 8.058783531188965
+Rate: 0.7, SNR: -16.0 dB, error count: [7563907.] SER: 7.563907E-01
+SNR time: 7.911729574203491
+Rate: 1.0, SNR: -4.0 dB, error count: [424288.] SER: 4.242880E-02
+SNR time: 8.967275381088257
+Rate: 1.0, SNR: -6.0 dB, error count: [697501.] SER: 6.975010E-02
+SNR time: 9.137065887451172
+Rate: 1.0, SNR: -8.0 dB, error count: [1134254.] SER: 1.134254E-01
+SNR time: 9.092684507369995
+Rate: 1.0, SNR: -10.0 dB, error count: [1946021.] SER: 1.946021E-01
+SNR time: 9.118731021881104
+Rate: 1.0, SNR: -12.0 dB, error count: [3673265.] SER: 3.673265E-01
+SNR time: 9.143503904342651
+Rate: 1.0, SNR: -14.0 dB, error count: [6000034.] SER: 6.000034E-01
+SNR time: 9.143633842468262
+Rate: 1.0, SNR: -16.0 dB, error count: [7778109.] SER: 7.778109E-01
+SNR time: 9.107389688491821
+Simulation duration: 237.1118152141571

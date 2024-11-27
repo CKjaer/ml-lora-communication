@@ -49,9 +49,9 @@ if __name__ == "__main__":
         relative_error = 0.01
         max_ser = 1e-5
         n_symbols = int(tf.math.ceil(1 / (relative_error * max_ser)))
-        batch_size = int(50e3)  # Number of symbols per batch
+        batch_size = int(100e3)  # Number of symbols per batch
         nr_of_batches = int(n_symbols // batch_size)
-        snr_val = tf.constant(-6.6, dtype=tf.float64)  # dB
+        snr_val = tf.constant(-6, dtype=tf.float64)  # dB
         rate_param = tf.constant(0.25, dtype=tf.float64)  #
         sir_vals = tf.cast(tf.linspace(-10, 10, 11), dtype=tf.float64)  # dB
         result_list = tf.zeros(sir_vals.shape, dtype=tf.float64)

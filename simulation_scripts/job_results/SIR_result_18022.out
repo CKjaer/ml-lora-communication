@@ -1,0 +1,15 @@
+In /ceph/project/LoRa_Symbol_Detection/ml-lora-communication - Should be started from simulation_scripts folder
+Found GPU, using that
+Running sim for a total of 10000000 symbols per SIR
+SIR: -10.0 dB, error count: 9883144.0 SER: 9.883144E-01, time: 0.01531982421875
+SIR: -8.0 dB, error count: 9814812.0 SER: 9.814812E-01, time: 0.012958765029907227
+SIR: -6.0 dB, error count: 9212338.0 SER: 9.212338E-01, time: 0.013474464416503906
+SIR: -4.0 dB, error count: 7455174.0 SER: 7.455174E-01, time: 0.014403820037841797
+SIR: -2.0 dB, error count: 4339061.0 SER: 4.339061E-01, time: 0.015452146530151367
+SIR: 0.0 dB, error count: 1591205.0 SER: 1.591205E-01, time: 0.013877391815185547
+SIR: 2.0 dB, error count: 351433.0 SER: 3.514330E-02, time: 0.015927553176879883
+SIR: 4.0 dB, error count: 66459.0 SER: 6.645900E-03, time: 0.013863563537597656
+SIR: 6.0 dB, error count: 11645.0 SER: 1.164500E-03, time: 0.015173673629760742
+SIR: 8.0 dB, error count: 2737.0 SER: 2.737000E-04, time: 0.0151824951171875
+SIR: 10.0 dB, error count: 1022.0 SER: 1.022000E-04, time: 0.018207073211669922
+Simulation duration: 81.09 s
