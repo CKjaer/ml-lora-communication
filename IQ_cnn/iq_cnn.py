@@ -161,7 +161,7 @@ def train(model: nn.Module, train_loader: DataLoader, evaluation_loader: DataLoa
 
 
 # Evaluation function (called inside the training loop)
-def evaluate_and_calculate_ser(model, evaluation_loader, criterion, device, logger, epoch):
+def evaluate_and_calculate_ser(model: nn.Module, evaluation_loader: DataLoader, criterion: nn.Module, device, logger: logging, epoch: int=None):
     """
     Evaluates the model and calculates the Symbol Error Rate (SER).
 
@@ -200,11 +200,17 @@ def evaluate_and_calculate_ser(model, evaluation_loader, criterion, device, logg
     ser = incorrect_predictions / total_predictions
     average_loss = total_loss / len(evaluation_loader)
 
-    logger.info(f"########## EVALUATION AFTER EPOCH {epoch+1} ##########")
-    logger.info(f'Validation/Test Loss: {average_loss:.4f}')
-    logger.info(f'Validation/Test Accuracy: {accuracy:.2f}%')
-    logger.info(f'Symbol Error Rate (SER): {ser:.6f}')
-    
+    if epoch is not None: # used for training
+        logger.info(f"########## EVALUATION AFTER EPOCH {epoch+1} ##########")
+        logger.info(f'Validation/Test Loss: {average_loss:.4f}')
+        logger.info(f'Validation/Test Accuracy: {accuracy:.2f}%')
+        logger.info(f'Symbol Error Rate (SER): {ser:.6f}')
+    else: # used for testing
+        logger.info(f"########## FINAL EVALUATION ##########")
+        logger.info(f'Final Loss: {average_loss:.4f}')
+        logger.info(f'Final Accuracy: {accuracy:.2f}%')
+        logger.info(f'Final Symbol Error Rate (SER): {ser:.6f}')
+        
     return ser
 
 if __name__ == "__main__":
