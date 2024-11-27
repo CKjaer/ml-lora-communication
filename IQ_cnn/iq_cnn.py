@@ -210,6 +210,7 @@ def evaluate_and_calculate_ser(model: nn.Module, evaluation_loader: DataLoader, 
         logger.info(f'Final Loss: {average_loss:.4f}')
         logger.info(f'Final Accuracy: {accuracy:.2f}%')
         logger.info(f'Final Symbol Error Rate (SER): {ser:.6f}')
+        logger.info("########################################")
         
     return ser
 
