@@ -49,7 +49,7 @@ if __name__ == "__main__":
         relative_error = 0.01
         max_ser = 1e-5
         n_symbols = int(tf.math.ceil(1 / (relative_error * max_ser)))
-        batch_size = int(100e3)  # Number of symbols per batch
+        batch_size = int(50e3)  # Number of symbols per batch
         nr_of_batches = int(n_symbols // batch_size)
         snr_val = tf.constant(-6, dtype=tf.float64)  # dB
         rate_param = tf.constant(0.25, dtype=tf.float64)  #
@@ -66,8 +66,8 @@ if __name__ == "__main__":
         start_time = time.time()
 
         for i in tf.range(len(sir_vals)):
+            sir_start_time = time.time()
             for batch in tf.range(nr_of_batches):
-                sir_start_time = time.time()
                 # Generate the user message and look up the upchirps
                 msg_tx = tf.random.uniform(
                     (batch_size,), minval=0, maxval=M, dtype=tf.int32
