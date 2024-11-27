@@ -124,7 +124,7 @@ if __name__=="__main__":
                     rates=config["rate"],
                     base_model=config["model"],
                     M=2**config["spreading_factor"])
-            pd.DataFrame(SERs, columns=config["snr_values"], index=config["rate"]).to_csv(os.path.join(data_dir, f"mixed_test_{Tmodel.replace(".pth", "", -1)}.csv"))
+            pd.DataFrame(SERs, columns=config["snr_values"], index=config["rate"]).to_csv(os.path.join(data_dir, f"mixed_test_{Tmodel.replace('.pth', '', -1)}.csv"))
             logger.info(f'saved mixed_test_{Tmodel.replace(".pth", "", -1)}.csv')           
     else:
         logger.error("No test option chosen: mixtest")

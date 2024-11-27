@@ -122,5 +122,5 @@ def load_data(data_dir, training:bool, batch_size, SNR, rate_param, img_size:lis
         return train_loader, val_loader
     else:
         # Load the entire dataset for testing
-        test_loader = DataLoader(dataset, shuffle=True)
+        test_loader = DataLoader(dataset, shuffle=True, batch_size=10000)
         return test_loader
