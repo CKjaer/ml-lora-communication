@@ -132,25 +132,6 @@ class RealValuedCNN(nn.Module):
         return x
 
 def train(model: nn.Module, train_loader: DataLoader, evaluation_loader: DataLoader, num_epochs: int, criterion: nn.Module, optimizer: nn.Module, device, logger: logging.Logger):
-    """
-    Loop function to train the model for given amount of epochs
-    Function evaluates the model after each epoch and logs the results
-
-    Args:
-        model (nn.Module): The model to train
-        train_loader (DataLoader): Data loader feeding batches of training data
-        evaluation_loader (DataLoader): Data loader feeding batches of evaluation data
-        num_epochs (int): Number of epochs to train
-        criterion (nn.Module): Loss function
-        optimizer (nn.Module): Optimizer function
-        device (_type_): GPU or CPU
-        logger (logging.Logger): Logger object
-
-
-    Returns:
-        float: Symbol error rate after training. Note that this only returns the final SER, as the function is a loop function that runs until num_epochs.
-    """
-    
     for epoch in range(num_epochs):
         model.train()
         running_loss = 0.0
@@ -159,7 +140,7 @@ def train(model: nn.Module, train_loader: DataLoader, evaluation_loader: DataLoa
             data = data.to(device)
             labels = labels.to(device)
             
-            optimizer.zero_grad() # reset gradients for every batch
+            optimizer.zero_grad()
             outputs = model(data)
             loss = criterion(outputs, labels)
             loss.backward()
@@ -167,20 +148,20 @@ def train(model: nn.Module, train_loader: DataLoader, evaluation_loader: DataLoa
             
             running_loss += loss.item()
             
-            if i % 10 == 0:
-                avg_loss = running_loss / 10
+            if (i + 1) % 10 == 0:  # Log every 10 steps
+                avg_loss = running_loss / (i + 1)
                 progress_bar.set_postfix(loss=avg_loss)
                 logger.info(f"Epoch: {epoch+1}, Step: {i+1}, Loss: {avg_loss:.4f}")
-                running_loss = 0.0
         
-        # Evaluate the model after each epoch
+        logger.info(f"Epoch: {epoch+1}, Average Loss: {running_loss / len(train_loader):.4f}")
+        running_loss = 0.0  # reset running loss
         ser = evaluate_and_calculate_ser(model, evaluation_loader, criterion, device, logger, epoch)
-    
-    # Return the SER of the final epoch
+
     return ser
 
+
 # Evaluation function (called inside the training loop)
-def evaluate_and_calculate_ser(model, evaluation_loader, criterion, device, logger, epoch):
+def evaluate_and_calculate_ser(model: nn.Module, evaluation_loader: DataLoader, criterion: nn.Module, device, logger: logging, epoch: int=None):
     """
     Evaluates the model and calculates the Symbol Error Rate (SER).
 
@@ -219,11 +200,18 @@ def evaluate_and_calculate_ser(model, evaluation_loader, criterion, device, logg
     ser = incorrect_predictions / total_predictions
     average_loss = total_loss / len(evaluation_loader)
 
-    logger.info(f"########## EVALUATION AFTER EPOCH {epoch+1} ##########")
-    logger.info(f'Validation/Test Loss: {average_loss:.4f}')
-    logger.info(f'Validation/Test Accuracy: {accuracy:.2f}%')
-    logger.info(f'Symbol Error Rate (SER): {ser:.6f}')
-    
+    if epoch is not None: # used for training
+        logger.info(f"########## EVALUATION AFTER EPOCH {epoch+1} ##########")
+        logger.info(f'Validation/Test Loss: {average_loss:.4f}')
+        logger.info(f'Validation/Test Accuracy: {accuracy:.2f}%')
+        logger.info(f'Symbol Error Rate (SER): {ser:.6f}')
+    else: # used for testing
+        logger.info(f"########## FINAL EVALUATION ##########")
+        logger.info(f'Final Loss: {average_loss:.4f}')
+        logger.info(f'Final Accuracy: {accuracy:.2f}%')
+        logger.info(f'Final Symbol Error Rate (SER): {ser:.6f}')
+        logger.info("########################################")
+        
     return ser
 
 if __name__ == "__main__":
