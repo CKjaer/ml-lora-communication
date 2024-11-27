@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/ceph/project/LoRa_Symbol_Detection/ml-lora-communication/simulation_scripts/simulate_sir_values.py", line 7, in <module>
-    import lora_phy as lora
-ModuleNotFoundError: No module named 'lora_phy'
