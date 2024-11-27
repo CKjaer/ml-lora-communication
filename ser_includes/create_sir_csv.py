@@ -64,8 +64,9 @@ def create_sir_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_d
         start_time = time.time()
         for i, sir in enumerate(sir_values):
             tf_snr = tf.constant(snr, dtype=tf.int32)
+            tf_sir = tf.constant(sir, dtype=tf.float64)
             log_and_print(log,f"Processing SIR {sir} ({i + 1}/{SIR_setup[2]})")
-            SIR_tuple = (sir, sir, False)
+            SIR_tuple = (tf_sir, tf_sir, False)
             for j in tf.range(M):
                 # Setup - Start the timer - mostly for fun
                 tf_symbol = tf.constant(j, dtype=tf.int32)
