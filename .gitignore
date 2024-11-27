@@ -1,5 +1,5 @@
 test_data_*
-test*
+test*.py
 .vscode
 
 snr_estimate_output/
