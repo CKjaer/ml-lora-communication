@@ -36,10 +36,9 @@ import logging
 import time
 
 
-if __name__ == "__main__":
- 
+if __name__ == "__main__": 
     # Open .json config file with directory and parameters
-    with open("cnn_bash/generate_data_config.json") as f:
+    with open("generate_scripts/config.json") as f:
         config = json.load(f)
     test_id = time.strftime("%Y%m%d-%H%M%S")
     output_dir = os.path.join("output")
