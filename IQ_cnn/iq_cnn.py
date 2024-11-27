@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, random_split
-#from torchsummary import summary
+from torchsummary import summary
 import logging
 from tqdm import tqdm
 from iq_dataset import IQDataset, CustomIQTransform

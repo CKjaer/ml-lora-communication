@@ -1,0 +1,26 @@
+Currently in directory: /ceph/project/LoRa_Symbol_Detection/ml-lora-communication - Should start from ml-lora-communication
+Starting the sir csv generation
+Available logical devices: [LogicalDevice(name='/device:GPU:0', device_type='GPU')]
+Found GPU, using that
+Processing SIR -10.0 (1/11)
+Total CSV creation time: 29.56952404975891
+Processing SIR -8.0 (2/11)
+Total CSV creation time: 57.901081562042236
+Processing SIR -6.0 (3/11)
+Total CSV creation time: 85.2028694152832
+Processing SIR -4.0 (4/11)
+Total CSV creation time: 113.97436571121216
+Processing SIR -2.0 (5/11)
+Total CSV creation time: 138.59361290931702
+Processing SIR 0.0 (6/11)
+Total CSV creation time: 151.7271716594696
+Processing SIR 2.0 (7/11)
+Total CSV creation time: 176.7067472934723
+Processing SIR 4.0 (8/11)
+Total CSV creation time: 202.17463278770447
+Processing SIR 6.0 (9/11)
+Total CSV creation time: 228.39995861053467
+Processing SIR 8.0 (10/11)
+Total CSV creation time: 252.71027278900146
+Processing SIR 10.0 (11/11)
+Total CSV creation time: 263.7038605213165
