@@ -89,7 +89,7 @@ def test_model(logger:logging.Logger, test_dir, img_size:list, trained_model, sn
                 logger.error(f"error loading model: {e}")
                 return
             # prepare the data to be tested on
-            test_loader=load_data(data_dir=test_dir, training=False, batch_size=None, SNR=snr_list[snr], rate_param=rates[rate], M=M, img_size=img_size)
+            test_loader=load_data(data_dir=test_dir, training=False, batch_size=None, SNR=snr_list[snr], rate_param=rates[rate], img_size=img_size)
             # test model on the data and get the SER
             ser= calculate_ser(device, model, test_loader)
             # save the SER in the given slot

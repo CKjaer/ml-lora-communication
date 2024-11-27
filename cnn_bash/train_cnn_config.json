@@ -1,5 +1,5 @@
 {
-    "test_id": "buh",
+    "test_id": "Test",
     "spreading_factor": 7,
     "snr_values": [-10],
     "rate": [0.0],
