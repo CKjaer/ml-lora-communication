@@ -8,5 +8,8 @@
     "model": "LoRaCNN",
     "trained_model_folder": "cnn_output/train_ML_models/FinalTesfeyModels/models/",
     "trained_model": "",
-    "mixed_test": false
+    "mixed_test": false,
+
+    "resume": false,
+    "resume_path": ""
 }

@@ -87,13 +87,13 @@ if __name__=="__main__":
         for Tmodel in trained_models: 
             ser_count.append(int(Tmodel.split("_")[2]))
             rate_count.append(float(Tmodel.split("_")[4].replace(".pth", "")))
-        uniqe_snr=[]
-        uniqe_rate=[]
-        [uniqe_snr.append(i) for i in ser_count if i not in uniqe_snr]
-        [uniqe_rate.append(i) for i in rate_count if i not in uniqe_rate]
-        uniqe_snr=np.sort(uniqe_snr)
-        unique_rate= np.sort(uniqe_rate)
-        model_SERs=[[None] *len(uniqe_rate) for _ in range(len(uniqe_snr))]
+        unique_snr=[]
+        unique_rate=[]
+        [unique_snr.append(i) for i in ser_count if i not in unique_snr]
+        [unique_rate.append(i) for i in rate_count if i not in unique_rate]
+        unique_snr=np.sort(unique_snr)
+        unique_rate= np.sort(unique_rate)
+        model_SERs=[[None] *len(unique_rate) for _ in range(len(unique_snr))]
 
         # Test models on their given snr and rate
         for Tmodel in range(len(trained_models)):
@@ -111,11 +111,11 @@ if __name__=="__main__":
                                   device=device)
                         
             # Sort the SERs into the model_SERs list
-            model_SERs[np.where(uniqe_snr==snr[0])[0][0]][np.where(uniqe_rate==np.float64(rate[0]))[0][0]]=SERs[0][0]
+            model_SERs[np.where(unique_snr==snr[0])[0][0]][np.where(unique_rate==np.float64(rate[0]))[0][0]]=SERs[0][0]
             print(f"Tested model snr:{snr} rate:{rate} Result SER:{SERs[0][0]}")
             logger.info(f"Tested model snr:{snr} rate:{rate} Result SER:{SERs[0][0]}")
         print(model_SERs)
-        pd.DataFrame(model_SERs, columns=uniqe_snr, index=uniqe_rate).to_csv(os.path.join(data_dir, f"{test_id}.csv"))
+        pd.DataFrame(model_SERs, columns=unique_snr, index=unique_rate).to_csv(os.path.join(data_dir, f"{test_id}.csv"))
 
     elif config["mixed_test"]==True: 
         for Tmodel in trained_models:
