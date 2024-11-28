@@ -82,23 +82,31 @@ def sweep():
 if __name__=="__main__":
     # Load config file and create output folders
     with open("cnn_bash/train_cnn_config.json") as f: #fix so dont have to be in root?
-        config=json.load(f)
-        
+        init_config=json.load(f)
+    resume=init_config["resume"]
+    if resume:
+        resume_dir=init_config["resume_dir"]
+        with open(os.path.join(resume_dir, "config.json")) as file: 
+            config=json.load(file)
+        test_id="resume_"+time.strftime("%Y%m%d-%H%M%S")
+        output_dir=resume_dir
+        data_dir = os.path.join(output_dir, "data")
+    else:
+        config=init_config
+        if config["test_id"]!="" and config["sweep"] == False:
+            test_id = config["test_id"]+"_"+time.strftime("%Y%m%d-%H%M%S")
+        elif config["test_id"]=="" and config["sweep"] == False:
+            test_id = time.strftime("%Y%m%d-%H%M%S")
+        elif config["test_id"]!="" and config["sweep"] == True:
+            test_id = "sweep_" + config["test_id"] + "_" + time.strftime("%Y%m%d-%H%M%S")
+        elif config["test_id"]=="" and config["sweep"] == True:
+            test_id = "sweep_" + time.strftime("%Y%m%d-%H%M%S") # cursed af
     
-    if config["test_id"]!="" and config["sweep"] == False:
-        test_id = config["test_id"]+"_"+time.strftime("%Y%m%d-%H%M%S")
-    elif config["test_id"]=="" and config["sweep"] == False:
-        test_id = time.strftime("%Y%m%d-%H%M%S")
-    elif config["test_id"]!="" and config["sweep"] == True:
-        test_id = "sweep_" + config["test_id"] + "_" + time.strftime("%Y%m%d-%H%M%S")
-    elif config["test_id"]=="" and config["sweep"] == True:
-        test_id = "sweep_" + time.strftime("%Y%m%d-%H%M%S") # cursed af
-    
-    output_dir = os.path.join("cnn_output", test_id)
-    model_dir = os.path.join(output_dir, "models")
-    data_dir = os.path.join(output_dir, "data")
-    os.makedirs(model_dir, exist_ok=True)
-    os.makedirs(data_dir, exist_ok=True)
+        output_dir = os.path.join("cnn_output", test_id)
+        model_dir = os.path.join(output_dir, "models")
+        data_dir = os.path.join(output_dir, "data")
+        os.makedirs(model_dir, exist_ok=True)
+        os.makedirs(data_dir, exist_ok=True)
 
     # Set up logging
     logfilename=test_id+".log"
@@ -112,14 +120,16 @@ if __name__=="__main__":
         level=logging.INFO,
     )
     # Save config file
-    logger.info("save config file")
-    config["test_id"] = test_id
-    with open(os.path.join(output_dir, "config.json"), "w") as f:
-        json.dump(config, f)
+    if not resume:
+        logger.info("save config file")
+        config["test_id"] = test_id
+        with open(os.path.join(output_dir, "config.json"), "w") as f:
+            json.dump(config, f)
     
     if config["sweep"] == False:
         # Train model with config parameters
         logger.info("Training CNN models...")
+
         SERs=train_cnn(logger=logger,
                             train_dir=config["train_dir"],
                             img_size=config["img_size"],
@@ -134,7 +144,8 @@ if __name__=="__main__":
                             learning_rate=config["learning_rate"],
                             patience=config["patience"],
                             min_delta=config["min_delta"],
-                            sweep=config["sweep"])
+                            sweep=config["sweep"],
+                            resume=init_config["resume"])
         pd.DataFrame(SERs, columns=config["snr_values"], index=config["rate"]).to_csv(os.path.join(data_dir, f"estimate_SER.csv"))
         logger.info("Finished training CNN models")
         
