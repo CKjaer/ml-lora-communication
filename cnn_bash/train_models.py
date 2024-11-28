@@ -54,12 +54,8 @@ if __name__=="__main__":
     data_dir = os.path.join(output_dir, "data")
     os.makedirs(model_dir, exist_ok=True)
     os.makedirs(data_dir, exist_ok=True)
-<<<<<<< HEAD
-    #initiate log file
-=======
 
     # Set up logging
->>>>>>> origin/main
     logfilename=test_id+".log"
     log_path=os.path.join(output_dir, logfilename)
     logger=logging.getLogger(__name__)

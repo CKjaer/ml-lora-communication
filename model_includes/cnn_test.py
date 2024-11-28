@@ -48,7 +48,7 @@ def find_model(model: str):
             return i
 
 
-def test_model(logger:logging.Logger, test_dir, img_size:list, trained_model, snr_list:list, rates:list, base_model, M=128, device=device):
+def test_model(logger:logging.Logger, test_dir, img_size:list, trained_model, snr_list:list, rates:list, base_model, device, M=128):
    
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -74,7 +74,7 @@ def test_model(logger:logging.Logger, test_dir, img_size:list, trained_model, sn
             except Exception as e:
                 logger.error(f"error loading model: {e}")
                 return
-            test_loader=load_data(data_dir=test_dir, training=False, batch_size=None, SNR=snr_list[snr], rate_param=rates[rate], M=M, img_size=img_size)
+            test_loader=load_data(data_dir=test_dir, training=False, batch_size=None, SNR=snr_list[snr], rate_param=rates[rate], img_size=img_size)
             ser, _= calculate_ser(device, model, test_loader)
             SERs[snr][rate]=ser
             logger.info(f"Evalulated {trained_model} for SNR: {snr_list[snr]} and rate:{rates[rate]}. SER is {ser}")
