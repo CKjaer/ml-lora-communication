@@ -166,3 +166,4 @@ noScaling/
 rate_0_run/
 fftplot.py
 ML_output/
+*_dummy

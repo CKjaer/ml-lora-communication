@@ -35,9 +35,9 @@ class IQCNN(nn.Module):
         )
     
     def forward(self, x):
-        print(x.shape)
+        #print(x.shape)
         x = x.unsqueeze(1) # add channel dimension
-        print(x.shape)
+        #print(x.shape)
         x = self.conv1(x)
         x = self.conv2(x)
         x = self.conv3(x)
@@ -205,6 +205,7 @@ def evaluate_and_calculate_ser(model: nn.Module, evaluation_loader: DataLoader, 
         logger.info(f'Validation/Test Loss: {average_loss:.4f}')
         logger.info(f'Validation/Test Accuracy: {accuracy:.2f}%')
         logger.info(f'Symbol Error Rate (SER): {ser:.6f}')
+        logger.info("########################################")
     else: # used for testing
         logger.info(f"########## FINAL EVALUATION ##########")
         logger.info(f'Final Loss: {average_loss:.4f}')
