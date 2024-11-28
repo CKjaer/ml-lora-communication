@@ -50,6 +50,7 @@ if __name__=="__main__":
         test_id = time.strftime("%Y%m%d-%H%M%S")
     output_dir = os.path.join("cnn_output", test_id)
     data_dir = os.path.join(output_dir, "data")
+    os.makedirs(output_dir, exist_ok=True)
     os.makedirs(data_dir, exist_ok=True)
 
     # Set up logging
@@ -110,7 +111,9 @@ if __name__=="__main__":
                                   device=device)
                         
             # Sort the SERs into the model_SERs list
-            model_SERs[np.where(uniqe_snr==snr[0])[0][0]][np.where(uniqe_rate==np.float64(rate[0]))[0][0]]=SERs[0][0] 
+            model_SERs[np.where(uniqe_snr==snr[0])[0][0]][np.where(uniqe_rate==np.float64(rate[0]))[0][0]]=SERs[0][0]
+            print(f"Tested model snr:{snr} rate:{rate} Result SER:{SERs[0][0]}")
+            logger.info(f"Tested model snr:{snr} rate:{rate} Result SER:{SERs[0][0]}")
         print(model_SERs)
         pd.DataFrame(model_SERs, columns=uniqe_snr, index=uniqe_rate).to_csv(os.path.join(data_dir, f"{test_id}.csv"))
 
