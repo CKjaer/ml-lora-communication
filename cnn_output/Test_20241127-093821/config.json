@@ -1,1 +1,0 @@
-{"test_id": "Test_20241127-093821", "spreading_factor": 7, "snr_values": [-8, -6], "rate": [0.7, 1], "test_dir": "C:/Users/lukas/Desktop/AAU/EIT7/output/20241030-093008/plots", "img_size": [128, 128], "model": "LoRaCNN", "trained_model_folder": "C:/Users/lukas/Desktop/AAU/EIT7/Project/git/ml-lora-communication/output/models", "trained_model": "", "mixed_test": false}

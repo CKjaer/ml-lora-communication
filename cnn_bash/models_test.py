@@ -42,16 +42,26 @@ if __name__=="__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     # Load config file and create output folders
-    with open("cnn_bash/cnn_test_config.json") as f: 
-        config=json.load(f)
-    if config["test_id"]!="":
-        test_id = config["test_id"]+"_"+time.strftime("%Y%m%d-%H%M%S")
+    with open("cnn_bash/cnn_test_config.json") as f:
+        init_config=json.load(f)
+    resume=init_config["resume"] #if resume from previous run
+    if resume:
+        resume_dir=init_config["resume_dir"]
+        with open(os.path.join(resume_dir, "config.json")) as file: 
+            config=json.load(file)
+        test_id="resume"+"_"+time.strftime("%Y%m%d-%H%M%S")
+        output_dir=resume_dir
+        data_dir = os.path.join(output_dir, "data")
     else:
-        test_id = time.strftime("%Y%m%d-%H%M%S")
-    output_dir = os.path.join("cnn_output", test_id)
-    data_dir = os.path.join(output_dir, "data")
-    os.makedirs(output_dir, exist_ok=True)
-    os.makedirs(data_dir, exist_ok=True)
+        config=init_config
+        if config["test_id"]!="":
+            test_id = config["test_id"]+"_"+time.strftime("%Y%m%d-%H%M%S")
+        else:
+            test_id = time.strftime("%Y%m%d-%H%M%S")
+        output_dir = os.path.join("cnn_output", test_id)
+        data_dir = os.path.join(output_dir, "data")
+        os.makedirs(output_dir, exist_ok=True)
+        os.makedirs(data_dir, exist_ok=True)
 
     # Set up logging
     logfilename=test_id+".log"
@@ -65,10 +75,11 @@ if __name__=="__main__":
         level=logging.INFO,
     )
     # Save config file
-    logger.info("save config file")
-    config["test_id"] = test_id
-    with open(os.path.join(output_dir, "config.json"), "w") as f:
-        json.dump(config, f)
+    if not resume:
+        logger.info("save config file")
+        config["test_id"] = test_id
+        with open(os.path.join(output_dir, "config.json"), "w") as f:
+            json.dump(config, f)
     
     # Models to be tested, if empty all models in the folder will be tested
     logger.info("Evaluating CNN models with test data...")
@@ -78,6 +89,19 @@ if __name__=="__main__":
     else:
         trained_models=os.listdir(trained_model_folder)
 
+    #initiate progress txt
+    
+    if resume and os.path.exists(os.path.join(output_dir, "progress.txt")):
+        progress_txt=open(os.path.join(output_dir, "progress.txt"), "a")
+        tested_models=open(os.path.join(output_dir, "progress.txt"), "r")
+        tested_models=tested_models.readlines()
+        data_txt=open(os.path.join(output_dir, "data.txt"), "a")
+    else:
+        progress_txt=open(os.path.join(output_dir, "progress.txt"), "w")
+        data_txt=open(os.path.join(output_dir, "data.txt"), "w")
+    
+
+    
     # Test models only on trained SNR 
     if config["mixed_test"]==False: 
         ser_count=[]
@@ -87,18 +111,21 @@ if __name__=="__main__":
         for Tmodel in trained_models: 
             ser_count.append(int(Tmodel.split("_")[2]))
             rate_count.append(float(Tmodel.split("_")[4].replace(".pth", "")))
-        uniqe_snr=[]
-        uniqe_rate=[]
-        [uniqe_snr.append(i) for i in ser_count if i not in uniqe_snr]
-        [uniqe_rate.append(i) for i in rate_count if i not in uniqe_rate]
-        uniqe_snr=np.sort(uniqe_snr)
-        unique_rate= np.sort(uniqe_rate)
-        model_SERs=[[None] *len(uniqe_rate) for _ in range(len(uniqe_snr))]
+        unique_snr=[]
+        unique_rate=[]
+        [unique_snr.append(i) for i in ser_count if i not in unique_snr]
+        [unique_rate.append(i) for i in rate_count if i not in unique_rate]
+        unique_snr=np.sort(unique_snr)
+        unique_rate= np.sort(unique_rate)
+        model_SERs=[[None] *len(unique_rate) for _ in range(len(unique_snr))]
 
         # Test models on their given snr and rate
         for Tmodel in range(len(trained_models)):
             snr=[int(trained_models[Tmodel].split("_")[2])] #find snr value from name
             rate=[float(trained_models[Tmodel].split("_")[4].replace(".pth", ""))] #find rate value from name
+            if resume:
+                if f"{snr}_{rate}\n" in tested_models:
+                    continue
             print(snr, rate)
             SERs=test_model(logger=logger,
                                   test_dir=config["test_dir"],
@@ -109,16 +136,22 @@ if __name__=="__main__":
                                   base_model=config["model"],
                                   M=2**config["spreading_factor"],
                                   device=device)
-                        
+
             # Sort the SERs into the model_SERs list
-            model_SERs[np.where(uniqe_snr==snr[0])[0][0]][np.where(uniqe_rate==np.float64(rate[0]))[0][0]]=SERs[0][0]
+            data_txt.write(f"{snr}_{rate}_SER_{SERs[0][0]}\n")
+            progress_txt.write(f"{snr}_{rate}\n")
+            model_SERs[np.where(unique_snr==snr[0])[0][0]][np.where(unique_rate==np.float64(rate[0]))[0][0]]=SERs[0][0]
             print(f"Tested model snr:{snr} rate:{rate} Result SER:{SERs[0][0]}")
             logger.info(f"Tested model snr:{snr} rate:{rate} Result SER:{SERs[0][0]}")
         print(model_SERs)
-        pd.DataFrame(model_SERs, columns=uniqe_snr, index=uniqe_rate).to_csv(os.path.join(data_dir, f"{test_id}.csv"))
+        progress_txt.write("done\n")
+        pd.DataFrame(model_SERs, columns=unique_snr, index=unique_rate).to_csv(os.path.join(data_dir, f"{test_id}.csv"))
 
     elif config["mixed_test"]==True: 
         for Tmodel in trained_models:
+            if resume:
+                if Tmodel+"\n" in tested_models:
+                    continue
             SERs=test_model(logger=logger, 
                     test_dir=config["test_dir"],
                     img_size=config["img_size"],
@@ -128,6 +161,7 @@ if __name__=="__main__":
                     base_model=config["model"],
                     M=2**config["spreading_factor"])
             pd.DataFrame(SERs, columns=config["snr_values"], index=config["rate"]).to_csv(os.path.join(data_dir, f"mixed_test_{Tmodel.replace('.pth', '', -1)}.csv"))
+            progress_txt.write(Tmodel+"\n")
             logger.info(f'saved mixed_test_{Tmodel.replace(".pth", "", -1)}.csv')           
     else:
         logger.error("No test option chosen: mixtest")
