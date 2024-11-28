@@ -14,6 +14,6 @@
     "min_delta": 0.05,
     "sweep": false,
 
-    "resume": true,
-    "resume_dir":"cnn_output/train_20241128-152039"
+    "resume": false,
+    "resume_dir":""
 }

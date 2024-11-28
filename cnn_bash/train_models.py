@@ -84,6 +84,7 @@ if __name__=="__main__":
     with open("cnn_bash/train_cnn_config.json") as f: #fix so dont have to be in root?
         init_config=json.load(f)
     resume=init_config["resume"]
+    #Check if going to resume a previous run
     if resume:
         resume_dir=init_config["resume_dir"]
         with open(os.path.join(resume_dir, "config.json")) as file: 

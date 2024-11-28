@@ -70,7 +70,7 @@ def train_cnn(logger:logging.Logger, train_dir, img_size, output_folder, snr_lis
     # loop through all SNR and interferer rate combinations
     for snr in range(len(snr_list)):
         for rate in range(len(rates)):
-            if resume:
+            if resume: #if model has already been trained, continue
                 if f"{snr_list[snr]}_{rates[rate]}\n" in tested_models:
                     continue
             try:
@@ -99,7 +99,7 @@ def train_cnn(logger:logging.Logger, train_dir, img_size, output_folder, snr_lis
             ser=train(model, train_loader, num_epochs, optimizer, criterion, val_loader, logger=logger, patience=patience, min_delta=min_delta, sweep=sweep)
             torch.save(model.state_dict(), os.path.join(saveModelFolder, f"{str_model}_snr_{snr_list[snr]}_rate_{rates[rate]}.pth"))
             data_txt.write(f"{snr_list[snr]}_{rates[rate]}_SER_{ser}\n")
-            progress_txt.write(f"{snr_list[snr]}_{rates[rate]}\n")
+            progress_txt.write(f"{snr_list[snr]}_{rates[rate]}\n") # update progress file
             logger.info(f"Trained and evaluated model for SNR: {snr_list[snr]} and rate:{rates[rate]}. SER is {ser}")
             
             if sweep:
