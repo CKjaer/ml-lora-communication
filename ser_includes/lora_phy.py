@@ -91,10 +91,9 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut, Pt, Pj, 
         n_interferers = tf.cast(n_interferers, dtype=tf.int32)
         max_interferers = tf.reduce_max(n_interferers)
 
-        SIRdB = tf.constant(rmax, dtype=tf.float64)
-        SIR = tf.pow(tf.cast(10.0,tf.float64), SIRdB / 10.0)
-        Pi = tf.cast(Pj / SIR, tf.complex64)
-        interferer_amp = tf.fill([batch_size, 1], tf.sqrt(Pi))
+        SIR = tf.pow(tf.cast(10.0,tf.float64), rmax / 10.0)
+        Pi = tf.squeeze(tf.cast(Pj / SIR, tf.complex64))
+        interferer_amp = tf.fill((batch_size,1), tf.sqrt(Pi))
 
     # Sequence mask creates an array of True and False based on how many interferers were drawn
     mask = tf.sequence_mask(n_interferers, max_interferers, dtype=tf.bool)

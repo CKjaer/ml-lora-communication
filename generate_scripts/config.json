@@ -1,0 +1,11 @@
+{
+    "test_id": "Test",
+    "spreading_factor": 7,
+    "number_of_samples": [250],
+    "snr_values": [-6],
+    "rate": [0.25],
+    "plot_data": true,
+    "random_dist": false,
+    "interf_dist": [-10,10,11],
+    "line_plot": true
+}

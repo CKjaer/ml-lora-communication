@@ -1,0 +1,1 @@
+{"test_id": "sweep_buh_20241127-093416", "spreading_factor": 7, "snr_values": [-10], "rate": [0.0], "train_dir": "/ceph/project/LoRa_Symbol_Detection/ml-lora-communication/output/20241121-134229/plots", "img_size": [128, 128], "model": "LoRaCNN", "batch_size": 25, "optimizer": "SGD", "num_epochs": 3, "learning_rate": 0.01, "patience": 5, "min_delta": 0.05, "sweep": true}

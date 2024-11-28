@@ -1,9 +1,11 @@
 import logging
 import torch
+import wandb
+import numpy as np
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def validation_loss_and_ser(model, val_loader, criterion):
+def validation_loss_and_ser(model, val_loader, criterion, sweep=False):
     """
     Calculates the SER and validation loss for the given model and validation dataset.
     Args:
@@ -36,9 +38,13 @@ def validation_loss_and_ser(model, val_loader, criterion):
             incorrect_predictions += (predicted != labels).sum().item()
             total_predictions += labels.size(0)
 
-    # accuracy = 100 * correct_predictions / total_predictions
+    accuracy = 100 * correct_predictions / total_predictions
     ser = incorrect_predictions / total_predictions
     validation_loss = total_loss / len(val_loader)
+    
+    if sweep:
+        wandb.log({'Validation Loss': np.round(validation_loss, 4)})
+        wandb.log({'Validation Accuracy': np.round(accuracy, 2)})
     
     return ser, validation_loss
 
@@ -74,7 +80,7 @@ class EarlyStopper:
                 return True
         return False
 
-def train(model, train_loader, num_epochs, optimizer, criterion, val_loader, logger:logging.Logger, patience, min_delta):
+def train(model, train_loader, num_epochs, optimizer, criterion, val_loader, logger:logging.Logger, patience, min_delta, sweep=False):
     """
     Trains the given model using the provided training data loader, optimizer, and loss criterion.
     Args:
@@ -107,10 +113,15 @@ def train(model, train_loader, num_epochs, optimizer, criterion, val_loader, log
             # Log the loss every 100 steps and reset the running total
             if i % 100 == 99:
                 logger.info(f'Epoch [{x+1}], Step [{i+1}], Loss: {running_loss / 100:.4f}')
+                
+                if sweep:
+                    wandb.log({'Epoch': x+1, 'Step': i+1, 'Loss': np.round(running_loss / 100, 4)})
+                
                 running_loss = 0.0
+                
 
         # Evaluate and calculate SER after each epoch
-        ser, validation_loss = validation_loss_and_ser(model=model, val_loader=val_loader, criterion=criterion)
+        ser, validation_loss = validation_loss_and_ser(model=model, val_loader=val_loader, criterion=criterion, sweep=sweep)
         logger.info(f"SER for epoch {x}: {ser}, Validation loss: {validation_loss}")
 
         # Check if early stopping is triggered

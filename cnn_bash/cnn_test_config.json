@@ -1,5 +1,5 @@
 {
-    "test_id": "Test",
+    "test_id": "Test_auto",
     "spreading_factor": 7,
     "snr_values": [-8, -6],
     "rate": [0.7, 1],

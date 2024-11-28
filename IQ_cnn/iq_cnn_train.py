@@ -1,4 +1,4 @@
-from iq_cnn import IQCNN, RealValuedCNN, train
+from iq_cnn import IQCNN, RealValuedCNN, ComplexValuedCNN, train
 from iq_dataset import IQDataset, CustomIQTransform
 import torch
 import torch.nn as nn
@@ -6,8 +6,8 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, random_split
 import logging
 import os
-import time
 import json
+import time
 
 # load config file
 with open("cnn_bash/iq_config.json", "r") as f:
@@ -15,15 +15,21 @@ with open("cnn_bash/iq_config.json", "r") as f:
 
 
 # create output directory
-name = config['test_id']
+name = config['model_name']
 output_dir = "iq_cnn_output"
 os.makedirs(output_dir, exist_ok=True) # make general output folder if it doesn't exist
-try:
-    output_dir = os.path.join(output_dir, name + "_" + time.strftime("%Y%m%d-%H%M%S"))
-except TypeError:
-    output_dir = os.path.join(output_dir, time.strftime("%Y%m%d-%H%M%S"))
 
-os.makedirs(output_dir) # make a new folder for the current run
+try:
+    output_dir = os.path.join(output_dir, name)
+    model_dir = os.path.join(output_dir, "models")
+    os.makedirs(output_dir) # make folder with model name
+    os.makedirs(model_dir) # make folder for models
+except FileExistsError:
+    output_dir = "iq_cnn_output" # reset the output directory
+    output_dir = os.path.join(output_dir, name + time.strftime("%Y%m%d-%H%M%S"))
+    model_dir = os.path.join(output_dir, "models")
+    os.makedirs(output_dir) # if one folder already exists, create a new one with timestamp
+    os.makedirs(model_dir)
 
 # dump the config file to the output directory
 with open(os.path.join(output_dir, "config.json"), "w") as f:
@@ -54,6 +60,10 @@ criterion_choice = config['criterion']
 snr_list = config['snr_values']
 rate_list = config['rate_values']
 
+# define model architecture
+model_choice = config['model_name']
+logger.info(f"Using model: {model_choice}")
+
 # dictionary to store the symbol error rates
 symbol_error_rates = {rate: {} for rate in rate_list}
 
@@ -73,8 +83,13 @@ for rate in rate_list:
             continue
         
         # define the model
-        #model = IQCNN(M).to(device)
-        model = RealValuedCNN(M).to(device)
+        match model_choice:
+            case 'IQCNN':
+                model = IQCNN(M).to(device)
+            case 'RealValuedCNN':
+                model = RealValuedCNN(M).to(device)
+            case 'ComplexValuedCNN':
+                model = ComplexValuedCNN(M).to(device)
         
         # define the optimizer and criterion
         if optimizer_choice == 'Adam':
@@ -92,8 +107,8 @@ for rate in rate_list:
         ser = train(model, train_loader, val_loader, epochs, criterion, optimizer, device, logger)
         
         # Save model and optimizer
-        torch.save(model.state_dict(), os.path.join(output_dir, f'model_snr_{snr}_rate_{rate}.pth'))
-        torch.save(optimizer.state_dict(), os.path.join(output_dir, f'optimizer_snr_{snr}_rate_{rate}.pth'))
+        torch.save(model.state_dict(), os.path.join(model_dir, f'model_snr_{snr}_rate_{rate}.pth'))
+        torch.save(optimizer.state_dict(), os.path.join(model_dir, f'optimizer_snr_{snr}_rate_{rate}.pth'))
         
         # store the symbol error rate
         symbol_error_rates[rate][snr] = ser # create nested dictionary inside current rate key

@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --job-name=Test_autoscaled
-#SBATCH --output=./job_results/test_result_%j.out
-#SBATCH --error=./job_results/test_error_%j.err
+#SBATCH --job-name=train_models
+#SBATCH --output=./job_results/result_%j.out
+#SBATCH --error=./job_results/error_%j.err
 #SBATCH --time=12:00:00
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1
@@ -13,7 +13,7 @@ BASE_DIR="$(pwd)"
 echo "Currently in directory: $BASE_DIR"
 
 # Run Python file (evalulate_models.py)
-python -u "$BASE_DIR/cnn_bash/models_test.py" || { echo "Python script failed"; exit 1; }
+python -u "$BASE_DIR/IQ_cnn/iq_cnn_test.py" --model IQCNN || { echo "Python script failed"; exit 1; }
 
 # Exit the container shell
 
