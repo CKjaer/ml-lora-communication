@@ -48,7 +48,7 @@ if __name__=="__main__":
     if resume:
         resume_dir=init_config["resume_dir"]
         with open(os.path.join(resume_dir, "config.json")) as file: 
-            resume_config=json.load(file)
+            config=json.load(file)
         test_id="resume"+"_"+time.strftime("%Y%m%d-%H%M%S")
         output_dir=resume_dir
         data_dir = os.path.join(output_dir, "data")
@@ -75,10 +75,11 @@ if __name__=="__main__":
         level=logging.INFO,
     )
     # Save config file
-    logger.info("save config file")
-    config["test_id"] = test_id
-    with open(os.path.join(output_dir, "config.json"), "w") as f:
-        json.dump(config, f)
+    if not resume:
+        logger.info("save config file")
+        config["test_id"] = test_id
+        with open(os.path.join(output_dir, "config.json"), "w") as f:
+            json.dump(config, f)
     
     # Models to be tested, if empty all models in the folder will be tested
     logger.info("Evaluating CNN models with test data...")
@@ -148,6 +149,9 @@ if __name__=="__main__":
 
     elif config["mixed_test"]==True: 
         for Tmodel in trained_models:
+            if resume:
+                if Tmodel+"\n" in tested_models:
+                    continue
             SERs=test_model(logger=logger, 
                     test_dir=config["test_dir"],
                     img_size=config["img_size"],
@@ -157,6 +161,7 @@ if __name__=="__main__":
                     base_model=config["model"],
                     M=2**config["spreading_factor"])
             pd.DataFrame(SERs, columns=config["snr_values"], index=config["rate"]).to_csv(os.path.join(data_dir, f"mixed_test_{Tmodel.replace('.pth', '', -1)}.csv"))
+            progress_txt.write(Tmodel+"\n")
             logger.info(f'saved mixed_test_{Tmodel.replace(".pth", "", -1)}.csv')           
     else:
         logger.error("No test option chosen: mixtest")
