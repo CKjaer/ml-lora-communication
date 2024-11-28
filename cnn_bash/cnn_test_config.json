@@ -6,7 +6,7 @@
     "test_dir": "output/autoscaling_test_set_20241121-152225/plots",
     "img_size": [128, 128],
     "model": "LoRaCNN",
-    "trained_model_folder": "cnn_output/train_ML_models/FinalTesfeyModels/models/",
+    "trained_model_folder": "output/models/",
     "trained_model": "",
     "mixed_test": false,
 

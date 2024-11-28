@@ -1,1 +1,0 @@
-{"test_id": "Test_20241122-133618", "spreading_factor": 7, "snr_values": [-8, -6], "rate": [0.7, 1], "train_dir": "/ceph/project/LoRa_Symbol_Detection/ml-lora-communication/??", "img_size": [128, 128], "model": "LoRaCNN", "batch_size": 25, "optimizer": "SGD", "num_epochs": 3, "learning_rate": 0.01, "patience": 5, "min_delta": 0.05, "sweep": false}
