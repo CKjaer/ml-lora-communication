@@ -56,7 +56,7 @@ def load_data(directory, logger: logging.Logger, header="iq"):
     # Use ProcessPoolExecutor to read files in parallel
     # store all data and error messages in a list
     with ProcessPoolExecutor() as executor:
-        results = list(tqdm(executor.map(process_file, file_info_list), total=len(file_info_list), desc="Loading data"))
+        results = list(tqdm(executor.map(process_file, file_info_list), total=len(file_info_list)//2, desc="Loading data"))
 
     # Process the results
     for data, error in results:
