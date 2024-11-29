@@ -1,6 +1,6 @@
 {
     "test_id": "IQCNN",
-    "input_dir": "output/autoscaling_training_set_20241121-134229/csv",
+    "input_dir": "output/autoscaling_test_set_20241121-152225/csv",
 
     "spreading_factor": 7,
     "snr_values": [-16, -14, -12, -10, -8, -6],
