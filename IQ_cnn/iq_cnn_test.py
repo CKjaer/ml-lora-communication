@@ -59,12 +59,13 @@ symbol_error_rates = {rate: {} for rate in rate_list}
 
 for rate in rate_list:
     for snr in snr_list:
+        start_time = time.time()
         logger.info(f"Calculating SER for snr: {snr}, rate {rate}")
         
         # subset the data
         dataset.subset_data(snr=snr, rate_param=rate)
         try:
-            test_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=15)
+            test_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=64)
         except ValueError:
             logger.error(f"No samples found for snr: {snr}, rate: {rate}. Skipping...")
             continue
