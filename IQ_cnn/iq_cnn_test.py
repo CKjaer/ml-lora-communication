@@ -95,7 +95,7 @@ for rate in rate_list:
         criterion = nn.CrossEntropyLoss()
         
         # evaluate the model
-        ser = evaluate_and_calculate_ser(model, test_loader, criterion, device, logger, start_time)
+        ser = evaluate_and_calculate_ser(model, test_loader, criterion, device, logger, start_time=start_time)
         
         # store the symbol error rate
         symbol_error_rates[rate][snr] = ser
