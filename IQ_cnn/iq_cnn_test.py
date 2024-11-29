@@ -64,7 +64,7 @@ for rate in rate_list:
         # subset the data
         dataset.subset_data(snr=snr, rate_param=rate)
         try:
-            test_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+            test_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=15)
         except ValueError:
             logger.error(f"No samples found for snr: {snr}, rate: {rate}. Skipping...")
             continue
