@@ -100,3 +100,6 @@ for rate in rate_list:
         # store the symbol error rate
         symbol_error_rates[rate][snr] = ser
         
+        # dump the symbol error rates to a JSON file
+        with open(os.path.join(output_dir, "symbol_error_rates.json"), "w") as f:
+            json.dump(symbol_error_rates, f)
