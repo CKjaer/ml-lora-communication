@@ -8,19 +8,10 @@ import logging
 import os
 import time
 import json
-import argparse
 
-# parse arguments
-parser = argparse.ArgumentParser()
-parser.add_argument("--model", type=str, help="Directory to output of trained models (IQCNN, RealValuedCNN, ComplexValuedCNN)", required=True)
-args = parser.parse_args()
-
-
-# load config file from specified output directory
-model_dir = os.path.join("iq_cnn_output", args.model)
-with open(os.path.join(model_dir, "config.json"), "r") as f:
+# load config
+with open("cnn_bash/iq_test_config.json", "r") as f:
     config = json.load(f)
-
 
 # create output directory
 name = config['model_name']
@@ -53,7 +44,7 @@ dataset = IQDataset(config['input_dir'], transform=CustomIQTransform(), logger=l
 
 # define hyperparameters
 M = 2**config['spreading_factor']
-batch_size = 10000
+batch_size = config['batch_size']
 
 # define data parameters
 snr_list = config['snr_values']
@@ -68,12 +59,13 @@ symbol_error_rates = {rate: {} for rate in rate_list}
 
 for rate in rate_list:
     for snr in snr_list:
+        start_time = time.time()
         logger.info(f"Calculating SER for snr: {snr}, rate {rate}")
         
         # subset the data
         dataset.subset_data(snr=snr, rate_param=rate)
         try:
-            test_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+            test_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=64)
         except ValueError:
             logger.error(f"No samples found for snr: {snr}, rate: {rate}. Skipping...")
             continue
@@ -81,21 +73,33 @@ for rate in rate_list:
         # define the model
         match model_choice:
             case "IQCNN":
-                model = IQCNN(M).to(device)
+                model = IQCNN(M).to(device) # create the model
+                model_dir = "iq_cnn_output/IQCNN/models" # get path to model state dicts
             case "RealValuedCNN":
                 model = RealValuedCNN(M).to(device)
+                model_dir = "iq_cnn_output/RealValuedCNN/models"
             case "ComplexValuedCNN":
                 model = ComplexValuedCNN(M).to(device)
+                model_dir = "iq_cnn_output/ComplexValuedCNN/models"
             case _: # default case
+                logger.error(f"Model {model_choice} not recognized.")
                 raise ValueError(f"Model {model_choice} not recognized.")
+                
         
         # load the model and setup criterion
-        model.load_state_dict(torch.load(os.path.join(model_dir, f"models/model_snr_{snr}_rate_{rate}.pth")))
+        try:
+            model.load_state_dict(torch.load(os.path.join(model_dir, f"model_snr_{snr}_rate_{rate}.pth")))
+        except FileNotFoundError:
+            logger.error(f"model_snr_{snr}_rate_{rate}.pth not found in path: {model_dir}")
+            break # stop the program
         criterion = nn.CrossEntropyLoss()
         
         # evaluate the model
-        ser = evaluate_and_calculate_ser(model, test_loader, criterion, device, logger)
+        ser = evaluate_and_calculate_ser(model, test_loader, criterion, device, logger, start_time=start_time)
         
         # store the symbol error rate
         symbol_error_rates[rate][snr] = ser
         
+        # dump the symbol error rates to a JSON file
+        with open(os.path.join(output_dir, "symbol_error_rates.json"), "w") as f:
+            json.dump(symbol_error_rates, f)

@@ -1,14 +1,11 @@
 {
-    "test_id": "continuation_IQCNN",
-    "input_dir": "output/20241121-134229/csv",
-
+    "test_id": "first_run",
+    "input_dir": "./output/20241121-134229/csv",
     "spreading_factor": 7,
     "snr_values": [-16, -14, -12, -10, -8, -6, -4],
-    "rate_values": [1],
-
-    "_comment_model_names": ["IQCNN", "RealValuedCNN", "ComplexValuedCNN"],
-    "model_name": "IQCNN",
-
+    "rate_values": [0, 0.25, 0.5, 0.7, 1],
+    "_comment_model_names": ["IQCNN", "RealValuedCNN"],
+    "model_name": "RealValuedCNN",
     "batch_size": 256,
     "num_epochs": 50,
     "learning_rate": 0.001,

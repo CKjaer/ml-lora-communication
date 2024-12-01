@@ -5,6 +5,7 @@ from torchsummary import summary
 import logging
 from tqdm import tqdm
 from iq_dataset import IQDataset, CustomIQTransform
+import time
 
     
 class IQCNN(nn.Module):
@@ -161,7 +162,7 @@ def train(model: nn.Module, train_loader: DataLoader, evaluation_loader: DataLoa
 
 
 # Evaluation function (called inside the training loop)
-def evaluate_and_calculate_ser(model: nn.Module, evaluation_loader: DataLoader, criterion: nn.Module, device, logger: logging, epoch: int=None):
+def evaluate_and_calculate_ser(model: nn.Module, evaluation_loader: DataLoader, criterion: nn.Module, device, logger: logging, epoch: int=None, start_time:float=None):
     """
     Evaluates the model and calculates the Symbol Error Rate (SER).
 
@@ -172,6 +173,7 @@ def evaluate_and_calculate_ser(model: nn.Module, evaluation_loader: DataLoader, 
         device (_type_): GPU or CPU.
         logger (logging.Logger): Logger object.
         epoch (int): Current epoch number.
+        start_time (float): Start time of the evaluation.
 
     Returns:
         float: Symbol error rate after evaluation.
@@ -211,8 +213,9 @@ def evaluate_and_calculate_ser(model: nn.Module, evaluation_loader: DataLoader, 
         logger.info(f'Final Loss: {average_loss:.4f}')
         logger.info(f'Final Accuracy: {accuracy:.2f}%')
         logger.info(f'Final Symbol Error Rate (SER): {ser:.6f}')
+        logger.info(f'Evaluated using {total_predictions} samples')
+        logger.info(f'Time taken for evaluation: {time.time() - start_time:.2f} seconds')
         logger.info("########################################")
-        
     return ser
 
 if __name__ == "__main__":

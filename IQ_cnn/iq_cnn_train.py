@@ -10,7 +10,7 @@ import json
 import time
 
 # load config file
-with open("cnn_bash/iq_config.json", "r") as f:
+with open("cnn_bash/iq_train_config.json", "r") as f:
     config = json.load(f)
 
 
