@@ -3,7 +3,7 @@
 #SBATCH --output=./job_results/test_result_%j.out
 #SBATCH --error=./job_results/test_error_%j.err
 #SBATCH --time=12:00:00
-#SBATCH --ntasks=1
+#SBATCH --ntasks=64
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=16G

@@ -25,7 +25,7 @@ def calculate_ser(device, model, test_loader):
             inputs, labels = inputs.to(device), labels.to(device)
             outputs = model(inputs)
             _, predicted = torch.max(outputs.data, 1) # Get the predicted labels
-
+    
             # Calculate prediction statistics
             incorrect_predictions += (predicted != labels).sum().item()
             total_predictions += labels.size(0)
