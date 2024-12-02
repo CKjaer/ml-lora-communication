@@ -14,7 +14,7 @@ if __name__ == "__main__":
     
     filepath = os.path.abspath(__file__)
     directory = os.path.abspath(os.path.join(filepath, "../sir_sims"))  # Change to your SIR directory
-    test_time = "2024_11_27_10_02_50"  # Update to your desired timestamp
+    test_time = "2024_11_27_13_21_06"  # Update to your desired timestamp
     
     # Initialize data_list as a list of dictionaries
     # SF, SIR, error count, simulated symbols, SER
@@ -62,8 +62,9 @@ if __name__ == "__main__":
     ax.set_yscale("log")
     ax.set_xlabel("SIR [dB]")
     ax.set_ylabel("SER")
+    ax.set_xticks(np.arange(df['SIR'].min(), df['SIR'].max()+1, 2))
     ax.grid(True, which="both", alpha=0.5)
-    ax.set_ylim(1e-5, 1)
+    ax.set_ylim(1e-4, 1)
     ax.set_xlim(df['SIR'].min(), df['SIR'].max())
     ax.legend(loc='upper right')
     

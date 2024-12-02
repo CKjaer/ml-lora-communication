@@ -48,12 +48,13 @@ if __name__ == "__main__":
         basic_dechirp = tf.math.conj(basic_chirp)
 
         # Simulation parameters
-        n_symbols = int(1e7)
-        batch_size = int(200e3)  # Number of symbols per batch
-        nr_of_batches = int(n_symbols / batch_size)
+        n_symbols = [2,2,2,2,2,2]
+        nr_of_batches = 2
             # NB: n_symbols must be divisible by batch_size
+        batch_size_list = [(n*M)//nr_of_batches for n in n_symbols]
+        print(f"Batch sizes: {batch_size_list}")
 
-        snr_values = tf.cast(tf.linspace(-4, -16, 7), dtype=tf.float64)
+        snr_values = tf.cast(tf.linspace(-6, -16, 6), dtype=tf.float64)
         rate_params = tf.constant([0.0, 0.25, 0.5, 0.7, 1.0], dtype=tf.float64)
         result_list = tf.zeros(
             (snr_values.shape[0], rate_params.shape[0]), dtype=tf.float64
@@ -74,6 +75,7 @@ if __name__ == "__main__":
                 for batch in tf.range(nr_of_batches):
                     #print(f"\t Batch {batch} of {nr_of_batches} for rate {rate_params[i]} in snr {snr_values[j]}")
                     # Generate the user message and look up the upchirps
+                    batch_size = tf.cast(batch_size_list[j], dtype=tf.int32)
                     msg_tx = tf.random.uniform(
                         (batch_size,), minval=0, maxval=M, dtype=tf.int32
                     )
@@ -112,7 +114,6 @@ if __name__ == "__main__":
                     # Calculate the number of errors in batch
                     msg_tx = tf.squeeze(msg_tx)
                     batch_result = tf.math.count_nonzero(msg_tx != msg_rx)
-
                     error_count += batch_result
 
                 # Update the result list
@@ -122,14 +123,14 @@ if __name__ == "__main__":
                     updates=[error_count],
                 )
                 print(
-                    f"Rate: {rate_params[i]}, SNR: {snr_values[j]} dB, error count: {tf.gather_nd(result_list, [[j, i]])} SER: {result_list[j, i]/n_symbols:E}"
+                    f"Rate: {rate_params[i]}, SNR: {snr_values[j]} dB, error count: {tf.gather_nd(result_list, [[j, i]])} SER: {result_list[j, i]/n_symbols[j]:E}"
                 )
                 print(f"SNR time: {time.time() - snr_start_time}")
         print(f"Simulation duration: {time.time() - start_time}")
 
         # Stack and cast the results to float64
         SF_list = tf.fill([len(snr_values)], tf.cast(SF, tf.float64))
-        N_list = tf.fill([len(snr_values)], tf.cast(n_symbols, tf.float64))
+        N_list = tf.convert_to_tensor(n_symbols)
         snr_list = tf.cast(snr_values, tf.float64)
 
 
