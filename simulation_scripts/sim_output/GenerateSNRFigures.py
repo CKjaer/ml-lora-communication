@@ -15,7 +15,7 @@ if __name__ == "__main__":
         print(filepath)
         directory = os.path.abspath(os.path.join(filepath, "../snr_sims"))
         print(directory)
-        test_time = "2024_11_18_21_39_53"
+        test_time = "2024_11_27_13_05_32"
         # Initialize data_list as a list of dictionaries
         # SF, SNR, error count, simulated symbols, SER
         data_list = []
@@ -43,7 +43,6 @@ if __name__ == "__main__":
             # Plot SER curves as function of SNR
             zero_data = df[df["Rate"]=='0.00']
             current_data = df[df["Rate"]==rate_param]
-            SF = [7]
             SF = [7]
             rate = float(rate_param)
             if (len(SF) != 1):

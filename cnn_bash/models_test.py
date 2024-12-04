@@ -92,13 +92,13 @@ if __name__=="__main__":
     #initiate progress txt
     
     if resume and os.path.exists(os.path.join(output_dir, "progress.txt")):
-        progress_txt=open(os.path.join(output_dir, "progress.txt"), "a")
         tested_models=open(os.path.join(output_dir, "progress.txt"), "r")
+        progress_txt=open(os.path.join(output_dir, "progress.txt"), "a")
         tested_models=tested_models.readlines()
         data_txt=open(os.path.join(output_dir, "data.txt"), "a")
     else:
-        progress_txt=open(os.path.join(output_dir, "progress.txt"), "w")
-        data_txt=open(os.path.join(output_dir, "data.txt"), "w")
+        progress_txt=open(os.path.join(output_dir, "progress.txt"), "x")
+        data_txt=open(os.path.join(output_dir, "data.txt"), "x")
     
 
     
@@ -160,7 +160,10 @@ if __name__=="__main__":
                     rates=config["rate"],
                     base_model=config["model"],
                     M=2**config["spreading_factor"])
-            pd.DataFrame(SERs, columns=config["snr_values"], index=config["rate"]).to_csv(os.path.join(data_dir, f"mixed_test_{Tmodel.replace('.pth', '', -1)}.csv"))
+            print(SERs)
+            frame=pd.DataFrame(SERs, columns=config["rate"], index=config["snr_values"])
+            print(frame)
+            frame.to_csv(os.path.join(data_dir, f"mixed_test_{Tmodel.replace('.pth', '', -1)}.csv"))
             progress_txt.write(Tmodel+"\n")
             logger.info(f'saved mixed_test_{Tmodel.replace(".pth", "", -1)}.csv')           
     else:
