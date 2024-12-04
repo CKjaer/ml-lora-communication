@@ -56,9 +56,9 @@ if __name__ == "__main__":
     ax.set_xlim(-10, 10)
     ax.legend(loc='upper right')
 
-    # plt.tight_layout()
-    # plt.show()
-    # exit()
+    plt.tight_layout()
+    plt.show()
+    exit()
     plt.savefig(
         os.path.join(data_folder, "plots", f"snr_test_result_lam{rate_param}.pdf"),
         format = "pdf",
