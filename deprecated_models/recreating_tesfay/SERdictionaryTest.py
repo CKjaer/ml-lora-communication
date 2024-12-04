@@ -53,12 +53,12 @@ if __name__ == "__main__":
             label=f"CNN λ=0.00",
             linestyle="dashed",
             color="blue",
-            marker="v"
+            marker="s"
         )
         ax.plot(
             snr_values,
             ser_values,
-            marker="v",
+            marker="s",
             color="blue",
             label=f"CNN λ={rate:.2f}"
         )
