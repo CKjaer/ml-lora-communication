@@ -25,9 +25,9 @@ classical_ser_data = {float(outer_key): {int(inner_key): float(value) for inner_
 if __name__ == "__main__":
     outputpath = "iq_cnn_output/test_IQCNN/plots"
     os.makedirs(outputpath, exist_ok=True)
-    # plt.rcParams['mathtext.fontset'] = 'custom'
-    # plt.rcParams['mathtext.rm'] = 'TeX Gyre Pagella'
-    # plt.rcParams['font.family'] ='TeX Gyre Pagella'
+    plt.rcParams['mathtext.fontset'] = 'custom'
+    plt.rcParams['mathtext.rm'] = 'Palatino Linotype'
+    plt.rcParams['font.family'] ='Palatino Linotype'
     fs = 20
     plt.rcParams.update({'font.size': fs})
         
