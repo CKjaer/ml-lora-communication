@@ -15,7 +15,7 @@ if __name__ == "__main__":
         print(filepath)
         directory = os.path.abspath(os.path.join(filepath, "../snr_sims"))
         print(directory)
-        test_time = "2024_11_18_21_39_53"
+        test_time = "2024_12_04_11_30_28"
         # Initialize data_list as a list of dictionaries
         # SF, SNR, error count, simulated symbols, SER
         data_list = []

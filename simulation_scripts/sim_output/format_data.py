@@ -2,20 +2,13 @@ import os
 import numpy as np
 import pandas as pd
 
-dir=os.path.join(r"C:\Users\lukas\Desktop\AAU\EIT7\Project\test_data")
-type= "auto_scaled"
-dir=os.path.join(r"C:\Users\lukas\Desktop\AAU\EIT7\Project\test_data", type)
+type= "no_ray"
+dir=os.path.dirname(r"C:\Users\rdybs\Desktop\gitnstuff\ml-lora-communication\simulation_scripts\sim_output\testno_ray.csv")
 print(dir)
 
 out_list=os.listdir(dir)
 out_list=[i for i in out_list if i.endswith(".log")]
-print(out_list)
 
-progress= open(os.path.join(dir, "progress.txt"), "r")
-data=open(os.path.join(dir, "data.txt"), "r")
-
-data=data.readlines()
-progress=progress.readlines()
 log_data=[]
 for log in out_list:
     file_out=open(os.path.join(dir, log), "r")

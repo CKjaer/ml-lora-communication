@@ -103,7 +103,7 @@ if __name__ == '__main__':
     N_samp_raw = [10]
     snr_values_raw = [-4,-8,-12,-16]
     SF_raw = 7
-    rate = [0.5]
+    rate = [1.0]
     SIR_Random = False
 
     og_path = os.path.join(outputdir,"csv")

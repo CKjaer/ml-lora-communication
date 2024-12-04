@@ -124,7 +124,7 @@ def generate_interferer_symbols(batch_size, rate_param, M, upchirp_lut, Pt, Pj, 
     # Scale and combine the interferer symbols
     for i in tf.range(max_interferers):
         cs = inter_symbols[:, i, :]
-        ra = rand_arrival[:, i]
+        ra = tf.zeros([batch_size],tf.int32)
         shifted_symbol = tf.roll(cs, shift=-ra, axis=tf.ones_like(ra))[:,:M]
         chs = interferer_amp[:, i, tf.newaxis] * shifted_symbol
         half_shifted_inter += (chs)
