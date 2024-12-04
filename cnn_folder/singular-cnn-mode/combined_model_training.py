@@ -98,13 +98,13 @@ transform = transforms.Compose([
     transforms.Normalize(mean=[0.5], std=[0.5])  # Normalize data
 ])
 dataset = BinaryImageDataset(data_dir, transform=transform)
-data_loader = DataLoader(dataset, batch_size=64, shuffle=True)
+data_loader = DataLoader(dataset, batch_size=16, shuffle=True)
 
 # Combined model initialization
 model = LoRaCNN().to(device)
 
 # Loss function and optimizer
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+optimizer = optim.SGD(model.parameters(), lr=0.015)
 criterion = nn.CrossEntropyLoss()
 
 # Training
