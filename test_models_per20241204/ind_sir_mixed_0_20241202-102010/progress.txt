@@ -1,0 +1,1 @@
+LoRaCNN_snr_0_rate_0.25.pth
