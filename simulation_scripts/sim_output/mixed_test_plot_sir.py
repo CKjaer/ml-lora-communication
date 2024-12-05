@@ -36,7 +36,6 @@ if __name__ == "__main__":
         ser_values_0,
         marker="v",
         label=f"Model SIR=0 dB",
-        color="black",
     )
 
     # -6 dB mixed test
@@ -45,7 +44,6 @@ if __name__ == "__main__":
         ser_values_6['SER'],
         marker="s",
         label=f"Model SIR=-6 dB",
-        color="black",
     )  
 
     ax.set_yscale("log")
@@ -54,13 +52,14 @@ if __name__ == "__main__":
     ax.grid(True, which="both", alpha=0.5)
     ax.set_ylim(1e-5, 1)
     ax.set_xlim(-10, 10)
-    ax.legend(loc='upper right')
+    ax.legend(loc='lower right')
 
-    plt.tight_layout()
-    plt.show()
-    exit()
+    # plt.tight_layout()
+    # plt.show()
+    # exit()
+
     plt.savefig(
-        os.path.join(data_folder, "plots", f"snr_test_result_lam{rate_param}.pdf"),
+        os.path.join(current_file_dir, "test_data", "mixed_test_sir_data", "sir_test_result.pdf"),
         format = "pdf",
         bbox_inches = "tight"
     )
