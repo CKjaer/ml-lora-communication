@@ -2,14 +2,13 @@ import os
 import numpy as np
 import pandas as pd
 
-dir=os.path.join(r"C:\Users\lukas\Desktop\AAU\EIT7\Project\test_data")
-type= "auto_scaled"
-dir=os.path.join(r"C:\Users\lukas\Desktop\AAU\EIT7\Project\test_data", type)
-print(dir)
+dir = os.path.dirname(os.path.realpath(__file__))
+type= "SIR"
+dir=os.path.join(dir, "test_data",type)
 
 out_list=os.listdir(dir)
 out_list=[i for i in out_list if i.endswith(".log")]
-print(out_list)
+
 
 progress= open(os.path.join(dir, "progress.txt"), "r")
 data=open(os.path.join(dir, "data.txt"), "r")
@@ -52,7 +51,7 @@ for i in range(len(log_data)):
 
 
 current_dir=os.path.dirname(os.path.realpath(__file__))
-pd.DataFrame(model_SERs, columns=unique_rate, index=unique_snr).to_csv(os.path.join(current_dir, f"test{type}.csv"))
+pd.DataFrame(model_SERs, columns=unique_rate, index=unique_snr).to_csv(os.path.join(current_dir,f"test_{type}.csv"))
 
 
 
