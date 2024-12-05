@@ -17,10 +17,15 @@ with open("iq_cnn_output/test_IQCNN/symbol_error_rates.json", "r") as f:
 # load classical decoder data
 with open("iq_cnn_output/test_IQCNN/classical_ser.json", "r") as f:
     classical_ser_data = json.load(f)
+    
+with open("iq_cnn_output/test_IQCNN/cnn_fsd_ser.json", "r") as f:
+    fsd_ser_data = json.load(f)
 
 # Convert the keys of the outer dictionary to floats and the keys of the inner dictionaries to ints
 ser_data = {float(outer_key): {int(inner_key): float(value) for inner_key, value in inner_dict.items()} for outer_key, inner_dict in ser_data.items()}
 classical_ser_data = {float(outer_key): {int(inner_key): float(value) for inner_key, value in inner_dict.items()} for outer_key, inner_dict in classical_ser_data.items()}
+fsd_ser_data = {float(outer_key): {int(inner_key): float(value) for inner_key, value in inner_dict.items()} for outer_key, inner_dict in fsd_ser_data.items()}
+
 
 if __name__ == "__main__":
     outputpath = "iq_cnn_output/test_IQCNN/plots"
@@ -35,9 +40,11 @@ if __name__ == "__main__":
         snr_values = sorted(values.keys())  # Just sort the keys directly
         ser_values = [values[snr] for snr in snr_values]  # loop through to not mix up the order
         classical_ser_values = [classical_ser_data[rate][snr] for snr in snr_values]
+        fsd_ser_values = [fsd_ser_data[rate][snr] for snr in snr_values]
         
         print(f"ser_values: {ser_values}")
         print(f"classical_ser_values: {classical_ser_values}")
+        print(f"fsd_ser_values: {fsd_ser_values}")
         
         #savetxt(os.path.join(outputpath,f'snr_vs_ser_rate_{rate}.csv'), np.array([snr_values, ser_values]).T, delimiter=';', fmt='%d;%.6f')
 
@@ -45,22 +52,23 @@ if __name__ == "__main__":
             zero_ser_values = ser_values
             zero_snr_values = snr_values
             zero_classical_ser_values = classical_ser_values
+            zero_fsd_ser_values = fsd_ser_values
         
         fig, ax = plt.subplots(1, 1, figsize=(8, 6))
         ax.plot(
             zero_snr_values,
             zero_ser_values,
-            label=f"CNN λ=0.00",
+            label=f"cnn-tsd λ=0.00",
             linestyle="dashed",
-            color="blue",
-            marker="s"
+            color="red",
+            marker="o"
         )
         ax.plot(
             snr_values,
             ser_values,
-            marker="s",
-            color="blue",
-            label=f"CNN λ={rate:.2f}"
+            marker="o",
+            color="red",
+            label=f"cnn-tsd λ={rate:.2f}"
         )
         ax.plot(
             zero_snr_values,
@@ -76,6 +84,21 @@ if __name__ == "__main__":
             marker="v",
             color="black",
             label=f"Classical λ={rate:.2f}"
+        )
+        ax.plot(
+            snr_values,
+            fsd_ser_values,
+            marker="s",
+            color="blue",
+            label=f"cnn-fsd λ={rate:.2f}"
+        )
+        ax.plot(
+            zero_snr_values,
+            zero_fsd_ser_values,
+            label=f"cnn-fsd λ=0.00",
+            linestyle="dashed",
+            color="blue",
+            marker="s"
         )
         ax.set_xlabel('SNR [dB]')
         ax.set_ylabel('SER')
