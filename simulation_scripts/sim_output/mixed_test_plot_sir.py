@@ -15,35 +15,61 @@ if __name__ == "__main__":
     plt.rcParams.update({'font.size': fs})
 
     sir_values = np.array([-10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10])
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    data_folder = os.path.join(current_dir, 'test_data\\mixed_test_sir_data')
 
     # SIR -6 dB mixed test extracted from the .log files
-    ser_values_0 = np.array([0.13349609375, 0.0421328125, 0.03232421875, 0.04416015625, 0.16213671875, 
+    ser_values_6 = np.array([0.13349609375, 0.0421328125, 0.03232421875, 0.04416015625, 0.16213671875, 
                             0.38101171875, 0.6534921875, 0.76808203125, 0.85131640625, 0.936171875, 0.916796875])
 
-
     # SIR 0 dB mixed test read from the csv file
-    current_file_dir = os.path.dirname(os.path.abspath(__file__))
-    file_path = os.path.join(current_file_dir, "test_data/mixed_test_sir_data/mixed_test_LoRaCNN_snr_0_rate_0.25.csv")
-    ser_values_6 = pd.read_csv(file_path, sep=',')
-    print(ser_values_6)
-    ser_values_6.columns = ['SNR', 'SER']
+    file_path = os.path.join(data_folder, "mixed_test_LoRaCNN_snr_0_rate_0.25.csv")
+    ser_values_0 = pd.read_csv(file_path, sep=',')
+    ser_values_0.columns = ['SNR', 'SER']
     
+    # Entire CNN model
+    file_path = os.path.join(data_folder, "2024_12_04_10_33_05_SIR_simulations_results_SF7_rate0.25.txt")
+    ser_values_classic = pd.read_csv(file_path, sep=',', skiprows=1)
+    print(ser_values_classic.iloc[:, -1])
+
+    # Entire CNN model
+    file_path = os.path.join(data_folder, "test_SIR.csv")
+    ser_values_cnn = pd.read_csv(file_path, sep=',')
+    print(ser_values_cnn.iloc[:, -1])
     
     fig, ax = plt.subplots(1, 1, figsize=(8, 6))       
     # 0 dB mixed test
     ax.plot(
         sir_values,
-        ser_values_0,
-        marker="v",
+        ser_values_6,
+        marker="o",
         label=f"Model SIR=0 dB",
     )
-
+ 
     # -6 dB mixed test
     ax.plot(
         sir_values,
-        ser_values_6['SER'],
+        ser_values_0['SER'],
+        marker="D",
+        label="Model SIR=-6 dB",
+
+    )  
+    # CNN decoder
+    ax.plot(
+        sir_values,
+        ser_values_cnn.iloc[:, -1],
         marker="s",
-        label=f"Model SIR=-6 dB",
+        label="CNN model",
+        color = 'blue'
+    )  
+
+    # Classical decoder
+    ax.plot(
+        sir_values,
+        ser_values_classic.iloc[:, -2],
+        marker='v',
+        label=f"Classical decoder",
+        color = 'black', 
     )  
 
     ax.set_yscale("log")
@@ -59,7 +85,7 @@ if __name__ == "__main__":
     # exit()
 
     plt.savefig(
-        os.path.join(current_file_dir, "test_data", "mixed_test_sir_data", "sir_test_result.pdf"),
+        os.path.join(data_folder, "sir_test_result.pdf"),
         format = "pdf",
         bbox_inches = "tight"
     )
