@@ -1,0 +1,24 @@
+2024-11-30 19:04:25 INFO     save config file
+2024-11-30 19:04:25 INFO     Evaluating CNN models with test data...
+2024-11-30 20:01:19 INFO     Evalulated cnn_output/train_SIR_20241130-011727/models/LoRaCNN_snr_-6_rate_0.25.pth for SNR: -6 and rate:0.25. SER is 0.03232421875
+2024-11-30 20:01:20 INFO     Tested model snr:[-6] rate:[0.25] Result SER:0.03232421875
+2024-11-30 22:30:27 INFO     Evalulated cnn_output/train_SIR_20241130-011727/models/LoRaCNN_snr_-8_rate_0.25.pth for SNR: -8 and rate:0.25. SER is 0.03444921875
+2024-11-30 22:30:28 INFO     Tested model snr:[-8] rate:[0.25] Result SER:0.03444921875
+2024-11-30 23:45:10 INFO     Evalulated cnn_output/train_SIR_20241130-011727/models/LoRaCNN_snr_-2_rate_0.25.pth for SNR: -2 and rate:0.25. SER is 0.16499609375
+2024-11-30 23:45:13 INFO     Tested model snr:[-2] rate:[0.25] Result SER:0.16499609375
+2024-12-01 00:59:29 INFO     Evalulated cnn_output/train_SIR_20241130-011727/models/LoRaCNN_snr_8_rate_0.25.pth for SNR: 8 and rate:0.25. SER is 0.00016015625
+2024-12-01 00:59:31 INFO     Tested model snr:[8] rate:[0.25] Result SER:0.00016015625
+2024-12-01 02:11:01 INFO     Evalulated cnn_output/train_SIR_20241130-011727/models/LoRaCNN_snr_0_rate_0.25.pth for SNR: 0 and rate:0.25. SER is 0.14003125
+2024-12-01 02:11:01 INFO     Tested model snr:[0] rate:[0.25] Result SER:0.14003125
+2024-12-01 02:29:05 INFO     Evalulated cnn_output/train_SIR_20241130-011727/models/LoRaCNN_snr_10_rate_0.25.pth for SNR: 10 and rate:0.25. SER is 5.078125e-05
+2024-12-01 02:29:05 INFO     Tested model snr:[10] rate:[0.25] Result SER:5.078125e-05
+2024-12-01 02:48:04 INFO     Evalulated cnn_output/train_SIR_20241130-011727/models/LoRaCNN_snr_6_rate_0.25.pth for SNR: 6 and rate:0.25. SER is 0.00072265625
+2024-12-01 02:48:05 INFO     Tested model snr:[6] rate:[0.25] Result SER:0.00072265625
+2024-12-01 03:11:49 INFO     Evalulated cnn_output/train_SIR_20241130-011727/models/LoRaCNN_snr_-4_rate_0.25.pth for SNR: -4 and rate:0.25. SER is 0.0422109375
+2024-12-01 03:11:49 INFO     Tested model snr:[-4] rate:[0.25] Result SER:0.0422109375
+2024-12-01 03:38:51 INFO     Evalulated cnn_output/train_SIR_20241130-011727/models/LoRaCNN_snr_2_rate_0.25.pth for SNR: 2 and rate:0.25. SER is 0.0413359375
+2024-12-01 03:38:52 INFO     Tested model snr:[2] rate:[0.25] Result SER:0.0413359375
+2024-12-01 03:56:48 INFO     Evalulated cnn_output/train_SIR_20241130-011727/models/LoRaCNN_snr_-10_rate_0.25.pth for SNR: -10 and rate:0.25. SER is 0.049
+2024-12-01 03:56:48 INFO     Tested model snr:[-10] rate:[0.25] Result SER:0.049
+2024-12-01 04:10:01 INFO     Evalulated cnn_output/train_SIR_20241130-011727/models/LoRaCNN_snr_4_rate_0.25.pth for SNR: 4 and rate:0.25. SER is 0.00563671875
+2024-12-01 04:10:02 INFO     Tested model snr:[4] rate:[0.25] Result SER:0.00563671875

@@ -63,7 +63,6 @@ cover/
 *.pot
 
 # Django stuff:
-*.log
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
@@ -155,7 +154,6 @@ output/
 *.pth
 data/
 venv/
-*.log
 cnn_folder/torch_logs/
 wandb/
 cnn_models/recreating_tesfay/restructered_cnn.py

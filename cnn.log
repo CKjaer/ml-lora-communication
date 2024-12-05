@@ -1,0 +1,106 @@
+2024-10-31 09:50:36 INFO     Starting the program
+2024-10-31 09:50:36 INFO     Using device: cpu
+2024-10-31 09:51:24 INFO     Starting the program
+2024-10-31 09:51:24 INFO     Using device: cpu
+2024-10-31 09:53:59 INFO     Starting the program
+2024-10-31 09:53:59 INFO     Using device: cpu
+2024-10-31 09:54:46 INFO     Starting the program
+2024-10-31 09:54:46 INFO     Using device: cpu
+2024-10-31 09:55:52 INFO     Starting the program
+2024-10-31 09:55:52 INFO     Using device: cpu
+2024-10-31 09:55:53 INFO     Total images after filtering by specific label -10.0: 12800
+2024-10-31 09:56:24 INFO     Starting the program
+2024-10-31 09:56:24 INFO     Using device: cpu
+2024-10-31 09:56:25 INFO     Total images after filtering by specific label -10.0: 12800
+2024-10-31 10:13:28 INFO     Starting the program
+2024-10-31 10:13:28 INFO     Using device: cpu
+2024-10-31 10:13:29 INFO     Total images after filtering by specific label -10.0: 12800
+2024-10-31 10:16:07 INFO     Starting the program
+2024-10-31 10:16:07 INFO     Using device: cpu
+2024-10-31 10:16:08 INFO     Total images after filtering by specific label -10.0: 12800
+2024-10-31 10:17:25 INFO     Starting the program
+2024-10-31 10:17:25 INFO     Using device: cpu
+2024-10-31 10:17:26 INFO     Total images after filtering by specific label -14.0: 12800
+2024-10-31 10:19:02 INFO     Starting the program
+2024-10-31 10:19:02 INFO     Using device: cpu
+2024-10-31 10:19:03 INFO     Total images after filtering by specific label -14.0: 12800
+2024-10-31 10:24:03 INFO     Starting the program
+2024-10-31 10:24:03 INFO     Using device: cpu
+2024-10-31 10:24:04 INFO     Total images after filtering by specific label -10.0: 12800
+2024-10-31 10:28:14 INFO     Starting the program
+2024-10-31 10:28:14 INFO     Using device: cpu
+2024-10-31 10:28:15 INFO     Total images after filtering by specific label -6.0: 12800
+2024-10-31 10:32:53 INFO     Starting the program
+2024-10-31 10:32:53 INFO     Using device: cpu
+2024-10-31 10:32:54 INFO     Total images after filtering by specific label -6.0: 12800
+2024-10-31 10:33:37 INFO     Starting the program
+2024-10-31 10:33:37 INFO     Using device: cpu
+2024-10-31 10:33:38 INFO     Total images after filtering by specific label -6.0: 12800
+2024-10-31 10:37:38 INFO     Starting the program
+2024-10-31 10:37:38 INFO     Using device: cpu
+2024-10-31 10:39:03 INFO     Starting the program
+2024-10-31 10:39:03 INFO     Using device: cpu
+2024-10-31 10:39:21 INFO     Starting the program
+2024-10-31 10:39:21 INFO     Using device: cpu
+2024-10-31 10:39:48 INFO     Starting the program
+2024-10-31 10:39:48 INFO     Using device: cpu
+2024-10-31 10:42:33 INFO     Starting the program
+2024-10-31 10:42:33 INFO     Using device: cpu
+2024-10-31 10:42:51 INFO     Starting the program
+2024-10-31 10:42:51 INFO     Using device: cpu
+2024-10-31 10:44:26 INFO     Starting the program
+2024-10-31 10:44:26 INFO     Using device: cpu
+2024-10-31 10:46:27 INFO     Starting the program
+2024-10-31 10:46:27 INFO     Using device: cpu
+2024-10-31 10:50:27 INFO     Starting the program
+2024-10-31 10:50:27 INFO     Using device: cpu
+2024-10-31 10:50:37 INFO     Starting the program
+2024-10-31 10:50:37 INFO     Using device: cpu
+2024-10-31 10:51:42 INFO     Starting the program
+2024-10-31 10:51:42 INFO     Using device: cpu
+2024-10-31 10:53:18 INFO     Starting the program
+2024-10-31 10:53:18 INFO     Using device: cpu
+2024-10-31 10:53:35 INFO     Starting the program
+2024-10-31 10:53:35 INFO     Using device: cpu
+2024-11-01 16:00:43 INFO     Starting the program
+2024-11-01 16:00:43 INFO     Using device: cpu
+2024-11-01 16:01:03 INFO     Starting the program
+2024-11-01 16:01:03 INFO     Using device: cpu
+2024-11-01 16:01:17 INFO     Starting the program
+2024-11-01 16:01:17 INFO     Using device: cpu
+2024-11-01 16:01:51 INFO     Starting the program
+2024-11-01 16:01:51 INFO     Using device: cpu
+2024-11-01 16:01:51 INFO     Total images after filtering by specific label -6.0: 0
+2024-11-01 16:02:32 INFO     Starting the program
+2024-11-01 16:02:32 INFO     Using device: cpu
+2024-11-01 16:02:33 INFO     Total images after filtering by specific label -10.0: 1280
+2024-11-01 16:03:42 INFO     Starting the program
+2024-11-01 16:03:42 INFO     Using device: cpu
+2024-11-01 16:03:43 INFO     Total images after filtering by specific label -10.0: 1280
+2024-11-01 16:05:05 INFO     Starting the program
+2024-11-01 16:05:05 INFO     Using device: cpu
+2024-11-01 16:05:06 INFO     Total images after filtering by specific label -10.0: 1280
+2024-11-01 16:06:38 INFO     Starting the program
+2024-11-01 16:06:38 INFO     Using device: cpu
+2024-11-01 16:06:39 INFO     Total images after filtering by specific label -10.0: 1280
+2024-11-01 16:07:33 INFO     Starting the program
+2024-11-01 16:07:33 INFO     Using device: cpu
+2024-11-01 16:07:33 INFO     Total images after filtering by specific label -10.0: 1280
+2024-11-01 16:09:26 INFO     Starting the program
+2024-11-01 16:09:26 INFO     Using device: cpu
+2024-11-01 16:09:26 INFO     Total images after filtering by specific label -10.0: 1280
+2024-11-01 16:11:08 INFO     Starting the program
+2024-11-01 16:11:08 INFO     Using device: cpu
+2024-11-01 16:11:08 INFO     Total images after filtering by specific label -10.0: 1280
+2024-11-01 16:11:58 INFO     Starting the program
+2024-11-01 16:11:58 INFO     Using device: cpu
+2024-11-01 16:11:59 INFO     Total images after filtering by specific label -10.0: 1280
+2024-11-01 16:12:54 INFO     Starting the program
+2024-11-01 16:12:54 INFO     Using device: cpu
+2024-11-01 16:12:55 INFO     Total images after filtering by specific label -10.0: 1280
+2024-11-01 16:14:00 INFO     Starting the program
+2024-11-01 16:14:00 INFO     Using device: cpu
+2024-11-01 16:14:01 INFO     Total images after filtering by specific label -10.0: 1280
+2024-11-01 16:15:30 INFO     Starting the program
+2024-11-01 16:15:30 INFO     Using device: cpu
+2024-11-01 16:15:30 INFO     Total images after filtering by specific label -10.0: 1280

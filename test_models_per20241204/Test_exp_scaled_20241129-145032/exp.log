@@ -1,0 +1,74 @@
+2024-11-29 14:50:32 INFO     save config file
+2024-11-29 14:50:32 INFO     Evaluating CNN models with test data...
+2024-11-29 22:53:37 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-6_rate_0.25.pth for SNR: -6 and rate:0.25. SER is 0.0073554707501280086
+2024-11-29 22:53:40 INFO     Tested model snr:[-6] rate:[0.25] Result SER:0.0073554707501280086
+2024-11-29 23:40:01 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-8_rate_0.25.pth for SNR: -8 and rate:0.25. SER is 0.01564503205128205
+2024-11-29 23:40:01 INFO     Tested model snr:[-8] rate:[0.25] Result SER:0.01564503205128205
+2024-11-30 00:41:26 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-8_rate_0.5.pth for SNR: -8 and rate:0.5. SER is 0.027734375
+2024-11-30 00:41:27 INFO     Tested model snr:[-8] rate:[0.5] Result SER:0.027734375
+2024-11-30 01:02:39 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-10_rate_1.pth for SNR: -10 and rate:1.0. SER is 0.13421474358974358
+2024-11-30 01:02:39 INFO     Tested model snr:[-10] rate:[1.0] Result SER:0.13421474358974358
+2024-12-01 16:17:52 INFO     Evaluating CNN models with test data...
+2024-12-01 16:28:50 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-10_rate_1.pth for SNR: -10 and rate:1.0. SER is 0.13421474358974358
+2024-12-01 16:28:50 INFO     Tested model snr:[-10] rate:[1.0] Result SER:0.13421474358974358
+2024-12-01 17:18:32 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-6_rate_0.7.pth for SNR: -6 and rate:0.7. SER is 0.022366431451612902
+2024-12-01 17:18:36 INFO     Tested model snr:[-6] rate:[0.7] Result SER:0.022366431451612902
+2024-12-01 17:26:21 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-10_rate_0.5.pth for SNR: -10 and rate:0.5. SER is 0.08974358974358974
+2024-12-01 17:26:21 INFO     Tested model snr:[-10] rate:[0.5] Result SER:0.08974358974358974
+2024-12-01 17:36:18 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-14_rate_0.5.pth for SNR: -14 and rate:0.5. SER is 0.5970982142857143
+2024-12-01 17:36:18 INFO     Tested model snr:[-14] rate:[0.5] Result SER:0.5970982142857143
+2024-12-01 17:44:03 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-16_rate_0.7.pth for SNR: -16 and rate:0.7. SER is 0.8058035714285714
+2024-12-01 17:44:04 INFO     Tested model snr:[-16] rate:[0.7] Result SER:0.8058035714285714
+2024-12-01 17:53:16 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-8_rate_1.pth for SNR: -8 and rate:1.0. SER is 0.05251402243589744
+2024-12-01 17:53:16 INFO     Tested model snr:[-8] rate:[1.0] Result SER:0.05251402243589744
+2024-12-01 18:03:28 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-14_rate_0.0.pth for SNR: -14 and rate:0.0. SER is 0.5178571428571429
+2024-12-01 18:03:28 INFO     Tested model snr:[-14] rate:[0.0] Result SER:0.5178571428571429
+2024-12-01 18:09:53 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-12_rate_0.5.pth for SNR: -12 and rate:0.5. SER is 0.31473214285714285
+2024-12-01 18:09:53 INFO     Tested model snr:[-12] rate:[0.5] Result SER:0.31473214285714285
+2024-12-01 19:02:52 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-6_rate_0.5.pth for SNR: -6 and rate:0.5. SER is 0.014001896121351767
+2024-12-01 19:02:53 INFO     Tested model snr:[-6] rate:[0.5] Result SER:0.014001896121351767
+2024-12-01 19:09:25 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-10_rate_0.0.pth for SNR: -10 and rate:0.0. SER is 0.044571314102564104
+2024-12-01 19:09:25 INFO     Tested model snr:[-10] rate:[0.0] Result SER:0.044571314102564104
+2024-12-01 19:15:57 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-16_rate_0.25.pth for SNR: -16 and rate:0.25. SER is 0.8002232142857143
+2024-12-01 19:15:57 INFO     Tested model snr:[-16] rate:[0.25] Result SER:0.8002232142857143
+2024-12-01 19:22:17 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-16_rate_0.0.pth for SNR: -16 and rate:0.0. SER is 0.7823660714285714
+2024-12-01 19:22:17 INFO     Tested model snr:[-16] rate:[0.0] Result SER:0.7823660714285714
+2024-12-01 19:28:48 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-10_rate_0.25.pth for SNR: -10 and rate:0.25. SER is 0.07001201923076923
+2024-12-01 19:28:48 INFO     Tested model snr:[-10] rate:[0.25] Result SER:0.07001201923076923
+2024-12-01 19:33:58 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-16_rate_1.pth for SNR: -16 and rate:1.0. SER is 0.8136160714285714
+2024-12-01 19:33:58 INFO     Tested model snr:[-16] rate:[1.0] Result SER:0.8136160714285714
+2024-12-01 19:40:56 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-12_rate_0.0.pth for SNR: -12 and rate:0.0. SER is 0.23995535714285715
+2024-12-01 19:40:56 INFO     Tested model snr:[-12] rate:[0.0] Result SER:0.23995535714285715
+2024-12-01 19:45:46 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-14_rate_0.25.pth for SNR: -14 and rate:0.25. SER is 0.5334821428571429
+2024-12-01 19:45:46 INFO     Tested model snr:[-14] rate:[0.25] Result SER:0.5334821428571429
+2024-12-01 19:51:47 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-14_rate_1.pth for SNR: -14 and rate:1.0. SER is 0.6272321428571429
+2024-12-01 19:51:47 INFO     Tested model snr:[-14] rate:[1.0] Result SER:0.6272321428571429
+2024-12-01 20:05:19 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-8_rate_0.0.pth for SNR: -8 and rate:0.0. SER is 0.0021334134615384613
+2024-12-01 20:05:20 INFO     Tested model snr:[-8] rate:[0.0] Result SER:0.0021334134615384613
+2024-12-01 20:12:37 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-12_rate_0.25.pth for SNR: -12 and rate:0.25. SER is 0.265625
+2024-12-01 20:12:38 INFO     Tested model snr:[-12] rate:[0.25] Result SER:0.265625
+2024-12-01 20:20:35 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-12_rate_0.7.pth for SNR: -12 and rate:0.7. SER is 0.29910714285714285
+2024-12-01 20:20:35 INFO     Tested model snr:[-12] rate:[0.7] Result SER:0.29910714285714285
+2024-12-01 20:26:45 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-14_rate_0.7.pth for SNR: -14 and rate:0.7. SER is 0.5725446428571429
+2024-12-01 20:26:45 INFO     Tested model snr:[-14] rate:[0.7] Result SER:0.5725446428571429
+2024-12-01 20:31:32 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-16_rate_0.5.pth for SNR: -16 and rate:0.5. SER is 0.8270089285714286
+2024-12-01 20:31:33 INFO     Tested model snr:[-16] rate:[0.5] Result SER:0.8270089285714286
+2024-12-01 21:51:01 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-6_rate_1.pth for SNR: -6 and rate:1.0. SER is 0.025122607846902203
+2024-12-01 21:51:02 INFO     Tested model snr:[-6] rate:[1.0] Result SER:0.025122607846902203
+2024-12-01 22:54:23 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-6_rate_0.0.pth for SNR: -6 and rate:0.0. SER is 1.800115207373272e-05
+2024-12-01 22:54:24 INFO     Tested model snr:[-6] rate:[0.0] Result SER:1.800115207373272e-05
+2024-12-01 22:59:15 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-12_rate_1.pth for SNR: -12 and rate:1.0. SER is 0.32924107142857145
+2024-12-01 22:59:15 INFO     Tested model snr:[-12] rate:[1.0] Result SER:0.32924107142857145
+2024-12-01 23:07:36 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-8_rate_0.7.pth for SNR: -8 and rate:0.7. SER is 0.038711939102564104
+2024-12-01 23:07:36 INFO     Tested model snr:[-8] rate:[0.7] Result SER:0.038711939102564104
+2024-12-01 23:12:37 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-10_rate_0.7.pth for SNR: -10 and rate:0.7. SER is 0.10887419871794872
+2024-12-01 23:12:37 INFO     Tested model snr:[-10] rate:[0.7] Result SER:0.10887419871794872
+2024-11-30 10:19:50 INFO     Evaluating CNN models with test data...
+2024-11-30 17:34:22 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-6_rate_0.25.pth for SNR: -6 and rate:0.25. SER is 0.0073554707501280086
+2024-11-30 17:34:24 INFO     Tested model snr:[-6] rate:[0.25] Result SER:0.0073554707501280086
+2024-11-30 18:25:10 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-8_rate_0.25.pth for SNR: -8 and rate:0.25. SER is 0.01564503205128205
+2024-11-30 18:25:11 INFO     Tested model snr:[-8] rate:[0.25] Result SER:0.01564503205128205
+2024-11-30 19:16:40 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-8_rate_0.5.pth for SNR: -8 and rate:0.5. SER is 0.027734375
+2024-11-30 19:16:42 INFO     Tested model snr:[-8] rate:[0.5] Result SER:0.027734375
+2024-11-30 19:55:46 INFO     Evalulated /ceph/project/LoRa_Symbol_Detection/ml-lora-communication/cnn_output/train_exp_20241128-085049/models/LoRaCNN_snr_-10_rate_1.pth for SNR: -10 and rate:1.0. SER is 0.13421474358974358
+2024-11-30 19:55:46 INFO     Tested model snr:[-10] rate:[1.0] Result SER:0.13421474358974358

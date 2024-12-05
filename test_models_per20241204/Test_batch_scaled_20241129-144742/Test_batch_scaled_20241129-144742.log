@@ -1,0 +1,10 @@
+2024-11-29 14:47:42 INFO     save config file
+2024-11-29 14:47:42 INFO     Evaluating CNN models with test data...
+2024-11-29 22:43:37 INFO     Evalulated cnn_output/train_batchscaled_20241128-102936/models/LoRaCNN_snr_-6_rate_0.25.pth for SNR: -6 and rate:0.25. SER is 0.012629808307731695
+2024-11-29 22:43:41 INFO     Tested model snr:[-6] rate:[0.25] Result SER:0.012629808307731695
+2024-11-29 23:29:34 INFO     Evalulated cnn_output/train_batchscaled_20241128-102936/models/LoRaCNN_snr_-8_rate_0.25.pth for SNR: -8 and rate:0.25. SER is 0.021935096153846152
+2024-11-29 23:29:35 INFO     Tested model snr:[-8] rate:[0.25] Result SER:0.021935096153846152
+2024-11-30 00:17:10 INFO     Evalulated cnn_output/train_batchscaled_20241128-102936/models/LoRaCNN_snr_-8_rate_0.5.pth for SNR: -8 and rate:0.5. SER is 0.038461538461538464
+2024-11-30 00:17:11 INFO     Tested model snr:[-8] rate:[0.5] Result SER:0.038461538461538464
+2024-11-30 00:53:17 INFO     Evalulated cnn_output/train_batchscaled_20241128-102936/models/LoRaCNN_snr_-10_rate_1.pth for SNR: -10 and rate:1.0. SER is 0.1530448717948718
+2024-11-30 00:53:17 INFO     Tested model snr:[-10] rate:[1.0] Result SER:0.1530448717948718

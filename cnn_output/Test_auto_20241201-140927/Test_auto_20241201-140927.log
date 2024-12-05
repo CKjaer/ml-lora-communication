@@ -1,0 +1,26 @@
+2024-12-01 14:09:27 INFO     save config file
+2024-12-01 14:09:27 INFO     Evaluating CNN models with test data...
+2024-12-01 14:09:27 INFO     Start testing models...
+2024-12-01 14:09:27 INFO     Testing model: LoRaCNN_snr_-6_rate_0.5.pth
+2024-12-01 14:09:27 INFO     Testing model: LoRaCNN_snr_-6_rate_0.7.pth
+2024-12-01 14:09:27 INFO     Testing model: LoRaCNN_snr_-8_rate_0.5.pth
+2024-12-01 14:09:27 INFO     Testing model: LoRaCNN_snr_-8_rate_0.7.pth
+2024-12-01 14:09:27 INFO     have opened files
+2024-12-01 14:09:27 INFO     Appending stuff
+2024-12-01 14:09:27 INFO     Counted instances of snr and rate
+2024-12-01 14:09:27 INFO     unique_snr: [-8 -6]
+2024-12-01 14:09:27 INFO     unique_rate: [0.5 0.7]
+2024-12-01 14:09:27 INFO     len of modelsers : 2
+2024-12-01 14:09:27 INFO     [-6]_[0.5]: NOT PRETESTED!
+2024-12-01 14:10:04 INFO     Evalulated train_exp_20241128-085049/models\LoRaCNN_snr_-6_rate_0.5.pth for SNR: -6 and rate:0.5. SER is 0.01028999064546305
+2024-12-01 14:10:04 INFO     Tested model snr:[-6] rate:[0.5] Result SER:0.01028999064546305
+2024-12-01 14:10:04 INFO     [-6]_[0.7]: NOT PRETESTED!
+2024-12-01 14:10:41 INFO     Evalulated train_exp_20241128-085049/models\LoRaCNN_snr_-6_rate_0.7.pth for SNR: -6 and rate:0.7. SER is 0.014515132798023472
+2024-12-01 14:10:41 INFO     Tested model snr:[-6] rate:[0.7] Result SER:0.014515132798023472
+2024-12-01 14:10:41 INFO     [-8]_[0.5]: NOT PRETESTED!
+2024-12-01 14:10:53 INFO     Evalulated train_exp_20241128-085049/models\LoRaCNN_snr_-8_rate_0.5.pth for SNR: -8 and rate:0.5. SER is 0.02702702702702703
+2024-12-01 14:10:53 INFO     Tested model snr:[-8] rate:[0.5] Result SER:0.02702702702702703
+2024-12-01 14:10:53 INFO     [-8]_[0.7]: NOT PRETESTED!
+2024-12-01 14:11:04 INFO     Evalulated train_exp_20241128-085049/models\LoRaCNN_snr_-8_rate_0.7.pth for SNR: -8 and rate:0.7. SER is 0.031496062992125984
+2024-12-01 14:11:04 INFO     Tested model snr:[-8] rate:[0.7] Result SER:0.031496062992125984
+2024-12-01 14:11:04 INFO     Testing complete.

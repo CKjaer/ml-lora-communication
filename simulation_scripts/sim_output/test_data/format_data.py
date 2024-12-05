@@ -2,8 +2,8 @@ import os
 import numpy as np
 import pandas as pd
 
-type= "batch"
-dir=os.path.dirname(r"C:\Users\rdybs\Desktop\gitnstuff\ml-lora-communication\simulation_scripts\sim_output\batch.csv")
+type= "exp"
+dir=os.path.dirname(r"C:\Users\rdybs\Desktop\gitnstuff\ml-lora-communication\simulation_scripts\sim_output\exp.csv")
 print(dir)
 
 out_list=os.listdir(dir)

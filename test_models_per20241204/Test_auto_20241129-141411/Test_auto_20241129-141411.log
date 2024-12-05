@@ -1,0 +1,14 @@
+2024-11-29 14:14:11 INFO     save config file
+2024-11-29 14:14:11 INFO     Evaluating CNN models with test data...
+2024-11-29 14:54:08 INFO     Evalulated cnn_output/train_ML_models/FinalTesfeyModels/models/LoRaCNN_snr_-6_rate_0.25.pth for SNR: -6 and rate:0.25. SER is 0.015035962301587302
+2024-11-29 14:54:10 INFO     Tested model snr:[-6] rate:[0.25] Result SER:0.015035962301587302
+2024-11-29 16:55:17 INFO     Evalulated cnn_output/train_ML_models/FinalTesfeyModels/models/LoRaCNN_snr_-8_rate_0.25.pth for SNR: -8 and rate:0.25. SER is 0.030639022435897435
+2024-11-29 16:55:25 INFO     Tested model snr:[-8] rate:[0.25] Result SER:0.030639022435897435
+2024-11-29 20:41:11 INFO     Evalulated cnn_output/train_ML_models/FinalTesfeyModels/models/LoRaCNN_snr_-8_rate_0.5.pth for SNR: -8 and rate:0.5. SER is 0.05760216346153846
+2024-11-29 20:41:21 INFO     Tested model snr:[-8] rate:[0.5] Result SER:0.05760216346153846
+2024-11-30 00:47:25 INFO     Evalulated cnn_output/train_ML_models/FinalTesfeyModels/models/LoRaCNN_snr_-6_rate_0.7.pth for SNR: -6 and rate:0.7. SER is 0.04238671274961597
+2024-11-30 00:47:25 INFO     Tested model snr:[-6] rate:[0.7] Result SER:0.04238671274961597
+2024-11-30 01:06:42 INFO     Evalulated cnn_output/train_ML_models/FinalTesfeyModels/models/LoRaCNN_snr_-10_rate_0.5.pth for SNR: -10 and rate:0.5. SER is 0.12650240384615385
+2024-11-30 01:06:42 INFO     Tested model snr:[-10] rate:[0.5] Result SER:0.12650240384615385
+2024-11-30 02:09:25 INFO     Evalulated cnn_output/train_ML_models/FinalTesfeyModels/models/LoRaCNN_snr_-14_rate_0.5.pth for SNR: -14 and rate:0.5. SER is 0.5569196428571429
+2024-11-30 02:09:32 INFO     Tested model snr:[-14] rate:[0.5] Result SER:0.5569196428571429

@@ -1,0 +1,11 @@
+2024-12-01 15:13:59 INFO     save config file
+2024-12-01 15:13:59 INFO     Evaluating CNN models with test data...
+2024-12-01 15:14:04 INFO     Evalulated cnn_output/train_ML_models/Test/models/LoRaCNN_snr_-6_rate_0.25.pth for SNR: -6 and rate:0.25. SER is 0.9859375
+2024-12-01 15:14:04 INFO     Tested model snr:[-6] rate:[0.25] Result SER:0.9859375
+2024-12-01 15:14:08 INFO     Evalulated cnn_output/train_ML_models/Test/models/LoRaCNN_snr_-8_rate_0.25.pth for SNR: -8 and rate:0.25. SER is 0.5625
+2024-12-01 15:14:08 INFO     Tested model snr:[-8] rate:[0.25] Result SER:0.5625
+2024-12-01 15:14:13 INFO     Evalulated cnn_output/train_ML_models/Test/models/LoRaCNN_snr_-6_rate_0.7.pth for SNR: -6 and rate:0.7. SER is 0.9921875
+2024-12-01 15:14:13 INFO     Tested model snr:[-6] rate:[0.7] Result SER:0.9921875
+2024-12-01 15:14:17 INFO     Evalulated cnn_output/train_ML_models/Test/models/LoRaCNN_snr_-8_rate_0.7.pth for SNR: -8 and rate:0.7. SER is 0.615625
+2024-12-01 15:14:17 INFO     Tested model snr:[-8] rate:[0.7] Result SER:0.615625
+2024-12-01 15:14:17 INFO     Testing complete.
