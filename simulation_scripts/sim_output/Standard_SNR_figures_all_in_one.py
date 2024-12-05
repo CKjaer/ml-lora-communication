@@ -94,37 +94,37 @@ if __name__ == "__main__":
                 ax.legend([f"Classical λ={rate}",f"CNN λ={rate}"],loc='lower right')
                 # ax.legend([f"CNN λ={rate}"],loc='lower right')
                 # ax.legend(["λ=0.00",f"λ={rate:.2f}"],loc='upper right')
-                if rate!=0:
-                # Create an inset with the Poisson PMF stem plot
-                    inset_ax = inset_axes(
-                        ax,
-                        width="30%",
-                        height="40%",
-                        loc="lower left",
-                        bbox_to_anchor=(0.1, 0.1, 1, 1),
-                        bbox_transform=ax.transAxes,
-                    )
-                    # plt.show()
-                    # exit()
-                    l = np.linspace(0,10,11)
-                    poisson_dist = stats.poisson.pmf(l, mu=rate)
-                    # print(poisson_dist)
-                    mask = (poisson_dist >= 0.005)
-                    inset_ax.set_title(f"PMF, λ={rate:.2f}", fontsize = (fs - 2))
-                    inset_ax.set_xlabel(r"$\mathrm{N_i}$", labelpad=-4, fontsize = (fs - 2))
-                    inset_ax.set_xlim([0, 10])
-                    inset_ax.set_ylim([0, 0.8])
-                    inset_ax.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8])
 
-                    stem_inset = inset_ax.stem(
-                        l[mask],
-                        poisson_dist[mask],
-                        basefmt=" ",
-                        linefmt="k-",
-                    )
-                    # Allow clipping of the stem plot
-                    for artist in stem_inset.get_children():
-                        artist.set_clip_on(False)
+                # Create an inset with the Poisson PMF stem plot
+                inset_ax = inset_axes(
+                    ax,
+                    width="30%",
+                    height="40%",
+                    loc="lower left",
+                    bbox_to_anchor=(0.1, 0.1, 1, 1),
+                    bbox_transform=ax.transAxes,
+                )
+                # plt.show()
+                # exit()
+                l = np.linspace(0,10,11)
+                poisson_dist = stats.poisson.pmf(l, mu=rate)
+                # print(poisson_dist)
+                mask = (poisson_dist >= 0.005)
+                inset_ax.set_title(f"PMF, λ={rate:.2f}", fontsize = (fs - 2))
+                inset_ax.set_xlabel(r"$\mathrm{N_i}$", labelpad=-4, fontsize = (fs - 2))
+                inset_ax.set_xlim([0, 10])
+                inset_ax.set_ylim([0, 0.8])
+                inset_ax.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8])
+
+                stem_inset = inset_ax.stem(
+                    l[mask],
+                    poisson_dist[mask],
+                    basefmt=" ",
+                    linefmt="k-",
+                )
+                # Allow clipping of the stem plot
+                for artist in stem_inset.get_children():
+                    artist.set_clip_on(False)
                 # plt.tight_layout()
                 #plt.savefig(
                 #    f"{filepath}/../snr_sims/{test_time}_SNR_simulations_results_SF{str(int(float(SF[0])))}_lam{rate_param}.png"

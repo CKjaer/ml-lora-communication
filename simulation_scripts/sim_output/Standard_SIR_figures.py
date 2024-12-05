@@ -14,7 +14,7 @@ if __name__ == "__main__":
     
     filepath = os.path.abspath(__file__)
     directory = os.path.abspath(os.path.join(filepath, "../sir_sims"))  # Change to your SIR directory
-    test_time = "2024_11_27_13_21_06"  # Update to your desired timestamp
+    test_time = "2024_12_04_10_33_05"  # Update to your desired timestamp
     
     # Initialize data_list as a list of dictionaries
     # SF, SIR, error count, simulated symbols, SER
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     
     plt.tight_layout()
     plt.savefig(
-        f"snr_{filename.replace(".csv", "").replace("test_", "")}_lam{0.25}.pdf",
+        f"sir_{test_type}_lam{0.25}.pdf",
         format="pdf",
         bbox_inches="tight"
     )
