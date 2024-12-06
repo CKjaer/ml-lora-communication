@@ -1,15 +1,14 @@
 {
-    "test_id": "Test_auto",
-    "spreading_factor": 7,
-    "snr_values": [-16, -14, -12],
-    "rate": [0.0, 0.25],
-    "test_dir": "output/20241030-093008/plots",
-    "img_size": [128, 128],
-    "model": "LoRaCNN",
-    "trained_model_folder": "output/models/",
-    "trained_model": "",
-    "mixed_test": false,
-
-    "resume": true,
-    "resume_dir": "cnn_output/Test_auto_20241201-135707"
+	"test_id": "BigSet3Epoch",
+	"spreading_factor": 7,
+	"snr_values": [-16, -14, -12, -10, -8, -6],
+	"rate": [0.5],
+	"test_dir": "output/20241204-151422/plots",
+	"img_size": [128, 128],
+	"model": "LoRaCNN",
+	"trained_model_folder":"cnn_output/big_set_exp_train_20241204-180023/models",
+	"trained_model":"",
+	"mixed_test": false,
+	"resume": false,
+	"resume_dir": ""
 }

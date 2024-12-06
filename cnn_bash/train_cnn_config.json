@@ -1,31 +1,19 @@
 {
-<<<<<<< HEAD
-    "test_id": "train_batchscaled",
+    "test_id": "big_set_exp_train",
     "spreading_factor": 7,
-    "snr_values": [-16, -14, -12, -10, -8, -6],
-    "rate": [0.0, 0.25, 0.5, 0.7, 1],
-    "train_dir": "/ceph/project/LoRa_Symbol_Detection/ml-lora-communication/output/batch_scaled_training_set_20241125-104128/plots",
-=======
-    "test_id": "train",
-    "spreading_factor": 7,
-    "snr_values": [-8, -6],
-    "rate": [0.7, 1],
-    "train_dir": "output/20241030-093008/plots",
->>>>>>> 79982202c2a6885d885ff99845c0ee432c89ccdc
+    "snr_values": [-6, -8, -10, -12, -14, -16],
+    "rate": [0.5],
+    "train_dir": "output/20241204-141510/plots",
     "img_size": [128, 128],
     "model": "LoRaCNN",
     "batch_size": 16,
     "optimizer": "SGD",
-    "num_epochs": 20,
+    "num_epochs": 3,
     "learning_rate": 0.01533,
     "patience": 5,
     "min_delta": 0.05,
-<<<<<<< HEAD
-    "sweep": false
-=======
     "sweep": false,
 
     "resume": false,
     "resume_dir":""
->>>>>>> 79982202c2a6885d885ff99845c0ee432c89ccdc
 }
