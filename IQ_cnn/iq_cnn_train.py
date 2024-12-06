@@ -76,8 +76,8 @@ for rate in rate_list:
         train_set, val_set = random_split(dataset, [int(0.8*len(dataset)), len(dataset) - int(0.8*len(dataset))]) # 80-20 split
         
         try:
-            train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
-            val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False)
+            train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=64)
+            val_loader = DataLoader(val_set, batch_size=batch_size, shuffle=False, num_workers=64)
         except ValueError:
             logger.error(f"No samples found for snr: {snr}, rate: {rate}. Skipping...")
             continue

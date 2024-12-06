@@ -117,8 +117,8 @@ def load_data(data_dir, training:bool, batch_size, SNR, rate_param, img_size:lis
         train_dataset, val_dataset = random_split(dataset, [train_size, validation_size])
         
         # Load the data
-        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-        val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=64)
+        val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=64)
         return train_loader, val_loader
     else:
         # Load the entire dataset for testing
