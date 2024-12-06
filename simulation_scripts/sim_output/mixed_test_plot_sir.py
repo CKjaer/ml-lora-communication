@@ -27,7 +27,7 @@ if __name__ == "__main__":
     ser_values_0 = pd.read_csv(file_path, sep=',')
     ser_values_0.columns = ['SNR', 'SER']
     
-    # Entire CNN model
+    # Classic CNN model
     file_path = os.path.join(data_folder, "2024_12_04_10_33_05_SIR_simulations_results_SF7_rate0.25.txt")
     ser_values_classic = pd.read_csv(file_path, sep=',', skiprows=1)
     print(ser_values_classic.iloc[:, -1])
@@ -43,7 +43,8 @@ if __name__ == "__main__":
         sir_values,
         ser_values_6,
         marker="o",
-        label=f"Model SIR=0 dB",
+        label=f"Model SIR=-6 dB",
+        color = 'red'
     )
  
     # -6 dB mixed test
@@ -51,7 +52,8 @@ if __name__ == "__main__":
         sir_values,
         ser_values_0['SER'],
         marker="D",
-        label="Model SIR=-6 dB",
+        label="Model SIR=-0 dB",
+        color = 'orange'
 
     )  
     # CNN decoder
@@ -66,7 +68,7 @@ if __name__ == "__main__":
     # Classical decoder
     ax.plot(
         sir_values,
-        ser_values_classic.iloc[:, -2],
+        ser_values_classic.iloc[:, -1],
         marker='v',
         label=f"Classical decoder",
         color = 'black', 
@@ -78,7 +80,7 @@ if __name__ == "__main__":
     ax.grid(True, which="both", alpha=0.5)
     ax.set_ylim(1e-5, 1)
     ax.set_xlim(-10, 10)
-    ax.legend(loc='lower right')
+    ax.legend(loc='lower left')
 
     # plt.tight_layout()
     # plt.show()
