@@ -16,7 +16,8 @@ Two methods of preprocessing on the complex-valued samples are tested. One with 
 - PyTorch (For the CNN model)
 - TensorFlow (For test/training simulation)
 
-## Model Architecture
+## Model Architectures
+#### CNN - Frequency-domain Symbol Detector 
 | Layer | Type             | Kernel size/stride | Output Channels | Output Shape  | Parameters  |
 |-------|-------------------|--------------------|-----------------|---------------|-------------|
 | 1     | Convolution      | 4×4/1             | 32              | 129×129       | 544         |
@@ -31,6 +32,23 @@ Two methods of preprocessing on the complex-valued samples are tested. One with 
 | 10    | Fully Connected  |                    | 256             |               | 131,328     |
 | 11    | Batch Normalization |                    | 256             |               | 512         |
 | 12    | Fully Connected  |                    | 128             |               | 32,896      |
+
+#### CNN - Time-domain Symbol Detector
+| Layer | Type               | Kernel size (stride) | Output Channels | Output Shape | Parameters |
+|-------|--------------------|-----------------------|-----------------|--------------|------------|
+| 1     | Convolution 1      | 1 × 7 (1)            | 64              | 2 × 128      | 512        |
+| 2     | Batch Normalization|                       |                 | 2 × 128      | 128        |
+| 3     | ReLU               |                       |                 | 2 × 128      | 0          |
+| 4     | Max Pooling        | 1 × 2 (2)            |                 | 2 × 64       | 0          |
+| 5     | Convolution 2      | 1 × 7 (1)            | 128             | 2 × 64       | 57,472     |
+| 6     | Batch Normalization|                       |                 | 2 × 64       | 256        |
+| 7     | Max Pooling        | 1 × 2 (2)            |                 | 2 × 32       | 0          |
+| 8     | Convolution 3      | 1 × 7 (1)            | 256             | 2 × 32       | 229,632    |
+| 9     | Batch Normalization|                       |                 | 2 × 32       | 512        |
+| 10    | Max Pooling        | 1 × 2 (2)            |                 | 2 × 16       | 0          |
+| 11    | Flatten            |                       |                 | 8192         | 0          |
+| 12    | Dropout (0.1)      |                       |                 | 8192         | 0          |
+| 13    | Fully Connected    |                       | 128             |              | 1,048,704  |
 
 
 ## Contact 
