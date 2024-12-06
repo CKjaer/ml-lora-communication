@@ -48,7 +48,7 @@ Two methods of preprocessing on the complex-valued samples are tested. One with 
 | 10    | Max Pooling        | 1 × 2 (2)            |                 | 2 × 16       | 0          |
 | 11    | Flatten            |                       |                 | 8192         | 0          |
 | 12    | Dropout (0.1)      |                       |                 | 8192         | 0          |
-| 13    | Fully Connected    |                       | 128             |              | 1,048,704  |
+| 13    | Fully Connected 1    |                       | 128             |              | 1,048,704  |
 
 
 ## Contact 
