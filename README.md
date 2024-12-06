@@ -1,9 +1,8 @@
-# CNN Symbol Decoder for LoRa Uplink
+# CNN-Based Symbol Decoder for LoRa Uplink
 
 This project implements a Convolutional Neural Network (CNN) to perform decoding of LoRa symbols. The test/training generation is a simulation of the LoRa modulation/demodulation with an asynchronous spreading factor collision across a complex Gaussian channel. The propagation model samples the number collisions as a Poisson process for increasing rate parameters.
 
-Two methods of preprocessing on the complex-valued samples are tested. One with the FFT data being converted to non-scaled binary images used as a 2D input for the CNN and another with the direct use of the IQ data.
-
+Two methods of preprocessing on the complex-valued samples are tested. One with the FFT data being converted to binary images used as a 2D input for the CNN, where different methods of scaling are examined. Additionally, the direct use of IQ data is implemented. The model architectures for the FFT-CNN and the IQ-CNN are derived from [1] and [2], respectively.
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
@@ -16,8 +15,6 @@ Two methods of preprocessing on the complex-valued samples are tested. One with 
 ## Prerequisites
 - PyTorch (For the CNN model)
 - TensorFlow (For test/training simulation)
-
-
 
 ## Model Architecture
 | Layer | Type             | Kernel size/stride | Output Channels | Output Shape  | Parameters  |
@@ -35,6 +32,7 @@ Two methods of preprocessing on the complex-valued samples are tested. One with 
 | 11    | Batch Normalization |                    | 256             |               | 512         |
 | 12    | Fully Connected  |                    | 128             |               | 32,896      |
 
+
 ## Contact 
 Contact [cnielo21@student.aau.dk](mailto:cnielo21@student.aau.dk) for questions regarding the project.
 
@@ -44,3 +42,8 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 ## Acknowledgements
 - Supervisors Troels Bundgaard Sørensen & Poonam Maurya
 - [AAU HPC Services](https://hpc.aau.dk/ai-lab/)
+
+## References
+1. Angesom Ataklity Tesfay et al. “Deep Learning-based Signal Detection for Uplink in LoRa-like Networks”. In: 2021 IEEE 32nd Annual International Symposium on Personal, Indoor and Mobile Radio Communications (PIMRC). ISSN: 2166-9589. Sept. 2021, pp. 617–621. doi: 10.1109/PIMRC50174.2021.9569470. url: https://ieeexplore.ieee.org/document/9569470
+2. Kosta Dakic et al. “LoRa Signal Demodulation Using Deep Learning, a Time-Domain Approach”. en. In: 2021 IEEE 93rd Vehicular Technology Conference (VTC2021-Spring). Helsinki, Finland: IEEE, Apr. 2021, pp. 1–6. isbn: 978-1-72818-964-2. doi: 10.1109/VTC2021-Spring51267.2021.9448711. url: https://ieeexplore.ieee.org/document/9448711/
+
