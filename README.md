@@ -18,20 +18,20 @@ Two methods of preprocessing on the complex-valued samples are tested. One with 
 
 ## Model Architectures
 #### CNN - Frequency-domain Symbol Detector 
-| Layer | Type             | Kernel size/stride | Output Channels | Output Shape  | Parameters  |
-|-------|-------------------|--------------------|-----------------|---------------|-------------|
-| 1     | Convolution      | 4×4/1             | 32              | 129×129       | 544         |
-| 2     | Batch Normalization |                    | 32              | 129×129       | 64          |
-| 3     | Average Pooling  | 2×2/2             | 32              | 64×64         | 0           |
-| 4     | Convolution      | 4×4/1             | 64              | 65×65         | 32,832      |
-| 5     | Batch Normalization |                    | 64              | 65×65         | 128         |
-| 6     | Average Pooling  | 2×2/2             | 64              | 32×32         | 0           |
-| 7     | Flatten          |                    | 65536           |               | 0           |
-| 8     | Fully Connected  |                    | 512             |               | 33,554,944  |
-| 9     | Batch Normalization |                    | 512             |               | 1,024       |
-| 10    | Fully Connected  |                    | 256             |               | 131,328     |
-| 11    | Batch Normalization |                    | 256             |               | 512         |
-| 12    | Fully Connected  |                    | 128             |               | 32,896      |
+| Layer | Type             | Kernel size (stride) | Output Channels | Output Shape  | Parameters  |
+|-------|------------------|----------------------|-----------------|---------------|-------------|
+| 1     | Convolution 1    | 4×4 (1)              | 32              | 129×129       | 544         |
+| 2     | Batch Normalization |                   | 32              | 129×129       | 64          |
+| 3     | Average Pooling  | 2×2 (2)              | 32              | 64×64         | 0           |
+| 4     | Convolution 2      | 4×4 (1)              | 64              | 65×65         | 32,832      |
+| 5     | Batch Normalization |                   | 64              | 65×65         | 128         |
+| 6     | Average Pooling  | 2×2 (2)              | 64              | 32×32         | 0           |
+| 7     | Flatten          |                      | 65536           |               | 0           |
+| 8     | Fully Connected 1 |                      | 512             |               | 33,554,944  |
+| 9     | Batch Normalization |                   | 512             |               | 1,024       |
+| 10    | Fully Connected 2 |                      | 256             |               | 131,328     |
+| 11    | Batch Normalization |                   | 256             |               | 512         |
+| 12    | Fully Connected 3 |                      | 128             |               | 32,896      |
 
 #### CNN - Time-domain Symbol Detector
 | Layer | Type               | Kernel size (stride) | Output Channels | Output Shape | Parameters |
