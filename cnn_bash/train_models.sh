@@ -1,12 +1,12 @@
 #!/bin/bash
-#SBATCH --job-name=train_exp
-#SBATCH --output=./job_results/train_result_%j.out
-#SBATCH --error=./job_results/train_error_%j.err
+#SBATCH --job-name=tra2_big_set_exp
+#SBATCH --output=./job_results/bigset_test_result_%j.out
+#SBATCH --error=./job_results/bigset_test_error_%j.err
 #SBATCH --time=12:00:00
 #SBATCH --ntasks=1
 #SBATCH --gres=gpu:1
-#SBATCH --cpus-per-task=1
-#SBATCH --mem=16G
+#SBATCH --cpus-per-task=15
+#SBATCH --mem=24GB
 
 singularity shell --nv "$(pwd)/pytorch_24.09.sif" << 'EOF'
 BASE_DIR="$(pwd)"

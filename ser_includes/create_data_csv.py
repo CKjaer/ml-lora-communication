@@ -83,7 +83,7 @@ def create_data_csvs(log:logging, N_samples:int, snr_values:int, SF:int, output_
                     savetxt(fft_filename, fft_result, delimiter=';')
 
                     iq_filename = output_dir+"/"+f"iq_{snr}_symbol_{j}_rate_{current_rate:.2}.csv"
-                    savetxt(iq_filename, dechirped_rx, delimiter=';')
+                    savetxt(iq_filename, chirped_rx, delimiter=';')
 
                     #log_and_print(log,f"\tProcessed symbol {j}/{M} for SNR {snr} in {end_time - beginning_time:.4f} seconds - Total: {j+i*M}/{M*len(snr_values)}")
             log_and_print(log,f"Total CSV creation time: {time.time() - start_time}")
