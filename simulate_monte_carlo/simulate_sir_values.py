@@ -2,9 +2,16 @@ import os
 import sys
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.abspath(os.path.join(script_dir, '..')))
+sys.path.append(os.path.abspath(os.path.join(script_dir, "..")))
 
-from ser_includes.lora_phy import create_basechirp, upchirp_lut, generate_interferer_symbols, process_batch, dechirp, generate_noise
+from ser_includes.lora_phy import (
+    create_basechirp,
+    upchirp_lut,
+    generate_interferer_symbols,
+    process_batch,
+    dechirp,
+    generate_noise,
+)
 from ser_includes.model_space import detect
 
 import matplotlib.pyplot as plt
@@ -127,13 +134,12 @@ if __name__ == "__main__":
             f"SF, SIR, error count, simulated symbols, SER"
         )
         savetxt(file_name, output.numpy().T, delimiter=",", header=head)
-        
-        plt.rcParams['mathtext.fontset'] = 'custom'
-        plt.rcParams['mathtext.rm'] = 'Palatino Linotype'
-        plt.rcParams['font.family'] ='Palatino Linotype'
-        fs = 20
-        plt.rcParams.update({'font.size': fs})
 
+        plt.rcParams["mathtext.fontset"] = "custom"
+        plt.rcParams["mathtext.rm"] = "Palatino Linotype"
+        plt.rcParams["font.family"] = "Palatino Linotype"
+        fs = 20
+        plt.rcParams.update({"font.size": fs})
 
         # Plot SER curves as function of SIR
         figure = plt.figure(figsize=(8, 6))
@@ -161,6 +167,6 @@ if __name__ == "__main__":
 
         plt.savefig(
             f"{output_path}/{time_str}_SIR_simulations_results_SF{SF}_rate{rate_param.numpy()}.pdf",
-            format = "pdf",
-            bbox_inches = "tight"
+            format="pdf",
+            bbox_inches="tight",
         )
