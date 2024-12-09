@@ -56,7 +56,7 @@ Code available in [CNN-FSD](model_includes/ML_models/LoRaCNN.py)
 Code available in [CNN-TSD](IQ_cnn/iq_cnn.py)
 
 ## Repository Content 
-[cnn_output](cnn_output) for the trained models saved as .pth files.
+[cnn_output](cnn_output) for the trained models saved as .pth files. \
 [simulate_monte_carlo](simulate_monte_carlo) for running the Monte Carlo simulation of the collision model and [generate_training_data](generate_training_data) for easier generation of training/test data.
 
 The code is structured to run in a singularity container with [cnn_bash](cnn_bash) containing .json configuration files for adaptable settings to hyperparameters and test/training data paths.
