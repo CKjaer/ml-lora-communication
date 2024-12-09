@@ -43,7 +43,7 @@ if __name__ == "__main__":
         sir_values,
         ser_values_6,
         marker="o",
-        label=f"Model SIR=-6 dB",
+        label=f"CNN-FSD, SIR=-6 dB",
         color = 'red'
     )
  
@@ -52,7 +52,7 @@ if __name__ == "__main__":
         sir_values,
         ser_values_0['SER'],
         marker="D",
-        label="Model SIR=-0 dB",
+        label="CNN-FSD, SIR=0 dB",
         color = 'orange'
 
     )  
@@ -61,7 +61,7 @@ if __name__ == "__main__":
         sir_values,
         ser_values_cnn.iloc[:, -1],
         marker="s",
-        label="CNN model",
+        label="CNN-FSD",
         color = 'blue'
     )  
 

@@ -108,7 +108,7 @@ if __name__ == "__main__":
             snr_vals,
             ser_df_6[rate_param],
             marker=markers[i],
-            label=f"Model SNR=-6 dB, λ={rate_param}",
+            label=f"CNN-FSD, SNR=-6 dB, λ={rate_param}",
             color="#1f77b4",
         )
     
@@ -134,7 +134,7 @@ if __name__ == "__main__":
             snr_vals,
             ser_df_10[rate_param],
             marker=markers[i],
-            label=f"Model SNR=-10 dB, λ={rate_param}",
+            label=f"CNN-FSD, SNR=-10 dB, λ={rate_param}",
             color="#ff7f0e",
         )
 
