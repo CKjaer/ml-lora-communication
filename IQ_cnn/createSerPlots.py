@@ -10,15 +10,16 @@ import os
 import json
 
 
-# Load the JSON data
-with open("iq_cnn_output/test_IQCNN/symbol_error_rates.json", "r") as f:
+# Load cnn-tsd data
+with open("cnn_output/test_IQCNN/symbol_error_rates.json", "r") as f:
     ser_data = json.load(f)
 
 # load classical decoder data
-with open("iq_cnn_output/test_IQCNN/classical_ser.json", "r") as f:
+with open("cnn_output/test_IQCNN/classical_ser.json", "r") as f:
     classical_ser_data = json.load(f)
 
-with open("iq_cnn_output/test_IQCNN/cnn_fsd_ser.json", "r") as f:
+# load cnn-fsd data
+with open("cnn_output/test_IQCNN/cnn_fsd_ser.json", "r") as f:
     fsd_ser_data = json.load(f)
 
 # Convert the keys of the outer dictionary to floats and the keys of the inner dictionaries to ints
@@ -28,7 +29,7 @@ fsd_ser_data = {float(outer_key): {int(inner_key): float(value) for inner_key, v
 
 
 if __name__ == "__main__":
-    outputpath = "iq_cnn_output/test_IQCNN/plots"
+    outputpath = "cnn_output/test_IQCNN/plots"
     os.makedirs(outputpath, exist_ok=True)
     plt.rcParams["mathtext.fontset"] = "custom"
     plt.rcParams["mathtext.rm"] = "Palatino Linotype"
