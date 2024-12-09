@@ -1,0 +1,41 @@
+\begin{table}[ht]
+\centering
+\begin{tabular}{lccc}
+\toprule
+SNR [dB] & Rate & Accuracy Difference -6 dB [\%] & Accuracy Difference -10 dB [\%] \\
+\midrule
+-16 & 0.25 & -4.46 & -7.14 \\
+ & 0.5 & -4.02 & -7.81 \\
+ & 0.7 & -4.46 & -11.05 \\
+ & 1.0 & -6.92 & -9.26 \\
+\midrule
+-14 & 0.25 & 0.33 & -3.68 \\
+ & 0.5 & 4.13 & -2.57 \\
+ & 0.7 & 3.68 & -1.67 \\
+ & 1.0 & 2.46 & -2.34 \\
+\midrule
+-12 & 0.25 & 4.69 & -0.78 \\
+ & 0.5 & 6.36 & 1.34 \\
+ & 0.7 & 6.03 & 0.45 \\
+ & 1.0 & 4.80 & 0.78 \\
+\midrule
+-10 & 0.25 & 2.83 & 0.00 \\
+ & 0.5 & 3.61 & 0.00 \\
+ & 0.7 & 2.53 & 0.00 \\
+ & 1.0 & 3.24 & 0.00 \\
+\midrule
+-8 & 0.25 & 0.12 & 0.03 \\
+ & 0.5 & 0.20 & 0.14 \\
+ & 0.7 & 0.12 & 0.17 \\
+ & 1.0 & 0.30 & 0.10 \\
+\midrule
+-6 & 0.25 & 0.00 & 0.17 \\
+ & 0.5 & 0.00 & 0.33 \\
+ & 0.7 & 0.00 & 0.29 \\
+ & 1.0 & 0.00 & 0.11 \\
+\midrule
+\bottomrule
+\end{tabular}
+\caption{Accuracy differences between the original CNN model and the mixed test model for different SNR values and rate parameters.}
+\label{tab:accuracy_diff}
+\end{table}
