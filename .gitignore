@@ -165,8 +165,5 @@ fftplot.py
 ML_output/
 *_dummy
 test_models_per20241204
-<<<<<<< HEAD
 deprecated_models
-=======
 .ipynb
->>>>>>> 2c542d6a334185c801a6244df77a27e00bdf5cbe
