@@ -7,6 +7,7 @@ Two methods of preprocessing on the complex-valued samples are tested. One with 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
 - [Model Architecture](#model-architecture)
+- [Code Organization](#code-organization)
 - [Contact](#contact)
 - [License](#license)
 - [Acknowledgements](#acknowledgements)
@@ -33,6 +34,8 @@ Two methods of preprocessing on the complex-valued samples are tested. One with 
 | 11    | Batch Normalization |                   | 256             |               | 512         |
 | 12    | Fully Connected 3 |                      | 128             |               | 32,896      |
 
+Code available in [CNN-TSD](model_includes/ML_models/LoRaCNN.py)
+
 #### CNN - Time-domain Symbol Detector
 | Layer | Type               | Kernel size (stride) | Output Channels | Output Shape | Parameters |
 |-------|--------------------|-----------------------|-----------------|--------------|------------|
@@ -50,6 +53,10 @@ Two methods of preprocessing on the complex-valued samples are tested. One with 
 | 12    | Dropout (0.1)      |                       |                 | 8192         | 0          |
 | 13    | Fully Connected 1    |                       | 128             |              | 1,048,704  |
 
+Code available in [CNN-TSD](model_includes/ML_models/LoRaCNN.py)
+
+## Code Organization
+[cnn_path](cnn_path/)
 
 ## Contact 
 Contact [cnielo21@student.aau.dk](mailto:cnielo21@student.aau.dk) for questions regarding the project.
