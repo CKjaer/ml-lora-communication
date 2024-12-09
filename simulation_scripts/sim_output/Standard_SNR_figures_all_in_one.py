@@ -32,12 +32,15 @@ if __name__ == "__main__":
                     f.close()
         df_classical = pd.DataFrame(data_list)
 
-        current_dir=os.path.dirname(os.path.realpath(__file__))
-        test_type= "exp_scaled"
-        df=pd.read_csv(os.path.join(current_dir, "test_data",f"test_{test_type}.csv"))
-        rate_params=df.columns[1:]
-        snr_params=df.iloc[:,0]
-
+        names=["exp_scaled","batch_scaled","auto_scaled"]
+        df=[]
+        for name in names:
+            current_dir=os.path.dirname(os.path.realpath(__file__))
+            test_type= name
+            df.append(pd.read_csv(os.path.join(current_dir, "test_data",f"test_{test_type}.csv")))
+        rate_params=df[0].columns[1:]
+        # snr_params=df.iloc[:,0]
+        
         
         # Save the results to a .txt file for every rate parameter and create a plot
         for i, rate_param in enumerate(rate_params):
@@ -63,27 +66,35 @@ if __name__ == "__main__":
                     label=f"Classical, λ={rate:.2f}",
                     color="black",
                 )
+                legend_list = [f"Classical, λ={rate:.2f}"]
 
-                # classical with no interfering users
-                # ax.plot(
-                #     zero_data['SNR'].astype(float).astype(int),
-                #     zero_data['SER'].astype(float),
-                #     marker="x",
-                #     linestyle="dashed",
-                #     label=f"classical, λ={rate:.2f}",
-                #     color="black",
-                # )
+                for x in range(len(df)):
+                    rate_params=df[x].columns[1:]
+                    snr_params=df[x].iloc[:,0]
+                    test_type=names[x]
+                    if test_type=="exp_scaled":
+                        color="red"
+                        linestyle="dashdot"
+                        test_name="SNR-based"
+                    if test_type=="batch_scaled":
+                        color="green"
+                        linestyle="dotted"
+                        test_name="CO-SNR"
+                    if test_type=="auto_scaled":
+                        color="blue"
+                        linestyle="-"
+                        test_name="Peak"
+                    # with Poisson distributed interferers
+                    ax.plot(
+                        snr_params,
+                        df[x].iloc[:,i+1],
+                        marker="s",
+                        label=f"CNN-FSD, λ={rate}",
+                        linestyle=linestyle,
+                        color=color,
+                    )  # Poisson decoder with λ=rate_param
+                    legend_list.append(f"{test_name} CNN-FSD, λ={rate:.2f}")
 
-
-                # with Poisson distributed interferers
-                ax.plot(
-                    snr_params,
-                    df.iloc[:,i+1],
-                    marker="s",
-                    label=f"CNN, λ={rate}",
-                    # label=f"SF{SF}, λ={rate:.2f}",
-                    color="blue",
-                )  # Poisson decoder with λ=rate_param
                 ax.set_yscale("log")
                 ax.set_xlabel("SNR [dB]")
                 ax.set_ylabel("SER")
@@ -91,46 +102,48 @@ if __name__ == "__main__":
                 ax.set_ylim(1e-5, 1)
                 # ax.set_xlim(-16, -6)
                 ax.set_xlim(-16, -6)
-                ax.legend([f"Classical λ={rate}",f"CNN λ={rate}"],loc='lower right')
+                ax.legend(legend_list,loc='lower left')
                 # ax.legend([f"CNN λ={rate}"],loc='lower right')
                 # ax.legend(["λ=0.00",f"λ={rate:.2f}"],loc='upper right')
 
-                # Create an inset with the Poisson PMF stem plot
-                inset_ax = inset_axes(
-                    ax,
-                    width="30%",
-                    height="40%",
-                    loc="lower left",
-                    bbox_to_anchor=(0.1, 0.1, 1, 1),
-                    bbox_transform=ax.transAxes,
-                )
-                # plt.show()
-                # exit()
-                l = np.linspace(0,10,11)
-                poisson_dist = stats.poisson.pmf(l, mu=rate)
-                # print(poisson_dist)
-                mask = (poisson_dist >= 0.005)
-                inset_ax.set_title(f"PMF, λ={rate:.2f}", fontsize = (fs - 2))
-                inset_ax.set_xlabel(r"$\mathrm{N_i}$", labelpad=-4, fontsize = (fs - 2))
-                inset_ax.set_xlim([0, 10])
-                inset_ax.set_ylim([0, 0.8])
-                inset_ax.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8])
 
-                stem_inset = inset_ax.stem(
-                    l[mask],
-                    poisson_dist[mask],
-                    basefmt=" ",
-                    linefmt="k-",
-                )
-                # Allow clipping of the stem plot
-                for artist in stem_inset.get_children():
-                    artist.set_clip_on(False)
+                # Create an inset with the Poisson PMF stem plot
+                # inset_ax = inset_axes(
+                #     ax,
+                #     width="30%",
+                #     height="40%",
+                #     loc="lower left",
+                #     bbox_to_anchor=(0.1, 0.1, 1, 1),
+                #     bbox_transform=ax.transAxes,
+                # )
+                # if rate!=0:
+                #     l = np.linspace(0,10,11)
+                #     poisson_dist = stats.poisson.pmf(l, mu=rate)
+                #     # print(poisson_dist)
+                #     mask = (poisson_dist >= 0.005)
+                #     inset_ax.set_title(f"PMF, λ={rate:.2f}", fontsize = (fs - 2))
+                #     inset_ax.set_xlabel(r"$\mathrm{N_i}$", labelpad=-4, fontsize = (fs - 2))
+                #     inset_ax.set_xlim([0, 10])
+                #     inset_ax.set_ylim([0, 0.8])
+                #     inset_ax.set_yticks([0.0, 0.2, 0.4, 0.6, 0.8])
+
+                #     stem_inset = inset_ax.stem(
+                #         l[mask],
+                #         poisson_dist[mask],
+                #         basefmt=" ",
+                #         linefmt="k-",
+                #     )
+                #     # Allow clipping of the stem plot
+                #     for artist in stem_inset.get_children():
+                #         artist.set_clip_on(False)
+
+
                 # plt.tight_layout()
                 #plt.savefig(
                 #    f"{filepath}/../snr_sims/{test_time}_SNR_simulations_results_SF{str(int(float(SF[0])))}_lam{rate_param}.png"
                 #)
                 plt.savefig(
-                    os.path.join(current_dir, "test_data",test_type,"plots",f"snr_{test_type}_lam{rate_param}.pdf"),
+                    os.path.join(current_dir, f"snr_combined_lam{rate_param}.pdf"),
                     
                     # f"{directory}/SNR_simulations_results_SF{str(int(float(SF[0])))}_lam{rate_param}.pdf",
                     format = "pdf",

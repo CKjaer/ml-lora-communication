@@ -64,7 +64,7 @@ if __name__ == "__main__":
         df['SIR'].astype(float),
         df['SER'].astype(float),
         marker="v",
-        label=f"Classical",
+        label=f"Classical, λ=0.25",
         color="black"
     )
     #plot the CNN results
@@ -72,7 +72,7 @@ if __name__ == "__main__":
         snr_params,
         df_CNN.iloc[:,1],
         marker="s",
-        label=f"CNN",
+        label=f"CNN-FSD, λ=0.25",
         color="blue"
     )
     ax.set_yscale("log")

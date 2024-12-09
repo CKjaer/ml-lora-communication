@@ -33,12 +33,23 @@ if __name__ == "__main__":
         df_classical = pd.DataFrame(data_list)
 
         current_dir=os.path.dirname(os.path.realpath(__file__))
-        test_type= "exp_scaled"
+        test_type= "batch_scaled"
+
+        if test_type=="exp_scaled":
+            color="red"
+            linestyle="dashdot"
+        if test_type=="batch_scaled":
+            color="green"
+            linestyle="dotted"
+        if test_type=="auto_scaled":
+            color="blue"
+            linestyle="-"
+
         df=pd.read_csv(os.path.join(current_dir, "test_data",f"test_{test_type}.csv"))
         rate_params=df.columns[1:]
         snr_params=df.iloc[:,0]
 
-        
+        differs=[[] for _ in range(len(rate_params))]
         # Save the results to a .txt file for every rate parameter and create a plot
         for i, rate_param in enumerate(rate_params):
             # Plot SER curves as function of SNR
@@ -63,7 +74,7 @@ if __name__ == "__main__":
                     label=f"Classical, λ={rate:.2f}",
                     color="black",
                 )
-
+                
                 # classical with no interfering users
                 # ax.plot(
                 #     zero_data['SNR'].astype(float).astype(int),
@@ -74,16 +85,20 @@ if __name__ == "__main__":
                 #     color="black",
                 # )
 
-
+                data=df.iloc[:,i+1]
                 # with Poisson distributed interferers
                 ax.plot(
                     snr_params,
-                    df.iloc[:,i+1],
+                    data,
                     marker="s",
-                    label=f"CNN, λ={rate}",
+                    label=f"CNN-FSD, λ={rate}",
+                    linestyle=linestyle,
                     # label=f"SF{SF}, λ={rate:.2f}",
-                    color="blue",
+                    color=color,
                 )  # Poisson decoder with λ=rate_param
+                
+                differs[i]=np.array(data)-np.array(current_data['SER'].astype(float))[:-1]
+
                 ax.set_yscale("log")
                 ax.set_xlabel("SNR [dB]")
                 ax.set_ylabel("SER")
@@ -136,3 +151,5 @@ if __name__ == "__main__":
                     format = "pdf",
                     bbox_inches = "tight"
                 )
+
+
