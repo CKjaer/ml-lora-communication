@@ -16,7 +16,7 @@ with open("cnn_bash/iq_train_config.json", "r") as f:
 
 # create output directory
 name = config['model_name']
-output_dir = "iq_cnn_output"
+output_dir = "cnn_output"
 os.makedirs(output_dir, exist_ok=True) # make general output folder if it doesn't exist
 
 try:
@@ -25,7 +25,7 @@ try:
     os.makedirs(output_dir) # make folder with model name
     os.makedirs(model_dir) # make folder for models
 except FileExistsError:
-    output_dir = "iq_cnn_output" # reset the output directory
+    output_dir = "cnn_output" # reset the output directory
     output_dir = os.path.join(output_dir, name + time.strftime("%Y%m%d-%H%M%S"))
     model_dir = os.path.join(output_dir, "models")
     os.makedirs(output_dir) # if one folder already exists, create a new one with timestamp
