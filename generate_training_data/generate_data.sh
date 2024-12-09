@@ -13,7 +13,7 @@ BASE_DIR="$(pwd)"
 echo "Currently in directory: $BASE_DIR - Should start from ml-lora-communication"
 
 # Run Python file (generate_data.py)
-python -u "$BASE_DIR/generate_scripts/generate_data.py" || { echo "Python script failed"; exit 1; }
+python -u "$BASE_DIR/generate_training_data/generate_data.py" || { echo "Python script failed"; exit 1; }
 
 # Exit the container shell
 
