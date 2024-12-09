@@ -7,7 +7,7 @@ Two methods of preprocessing on the complex-valued samples are tested. One with 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
 - [Model Architecture](#model-architecture)
-- [Code Organization](#code-organization)
+- [Repository Content](#repository-content)
 - [Contact](#contact)
 - [License](#license)
 - [Acknowledgements](#acknowledgements)
@@ -34,7 +34,7 @@ Two methods of preprocessing on the complex-valued samples are tested. One with 
 | 11    | Batch Normalization |                   | 256             |               | 512         |
 | 12    | Fully Connected 3 |                      | 128             |               | 32,896      |
 
-Code available in [CNN-TSD](model_includes/ML_models/LoRaCNN.py)
+Code available in [CNN-FSD](model_includes/ML_models/LoRaCNN.py)
 
 #### CNN - Time-domain Symbol Detector
 | Layer | Type               | Kernel size (stride) | Output Channels | Output Shape | Parameters |
@@ -53,10 +53,13 @@ Code available in [CNN-TSD](model_includes/ML_models/LoRaCNN.py)
 | 12    | Dropout (0.1)      |                       |                 | 8192         | 0          |
 | 13    | Fully Connected 1    |                       | 128             |              | 1,048,704  |
 
-Code available in [CNN-TSD](model_includes/ML_models/LoRaCNN.py)
+Code available in [CNN-TSD](IQ_cnn/iq_cnn.py)
 
-## Code Organization
-[cnn_path](cnn_path/)
+## Repository Content 
+[cnn_output](cnn_output) for the trained models saved as .pth files.
+[simulate_monte_carlo](simulate_monte_carlo) for running the Monte Carlo simulation of the collision model and [generate_training_data](generate_training_data) for easier generation of training/test data.
+
+The code is structured to run in a singularity container with [cnn_bash](cnn_bash) containing .json configuration files for adaptable settings to hyperparameters and test/training data paths.
 
 ## Contact 
 Contact [cnielo21@student.aau.dk](mailto:cnielo21@student.aau.dk) for questions regarding the project.
