@@ -57,26 +57,12 @@ if __name__ == "__main__":
     filename = "test_auto_scaled.csv"
     ser_cnn = pd.read_csv(os.path.join(current_file_dir, filename))
     
-
-    # Compute difference in SNR at a given SER level,  lambda = 0.25
-
-    # Logarithmic interpolation
+    # Reverse interpolation to find the SNR value for a target SER
     from scipy.interpolate import interp1d
     ser_target = 1e-1
 
     interpolator = interp1d(ser_df_6['0.25'], ser_df_6.iloc[:, 0], kind='linear')
-
     snr_target = interpolator(ser_target)
-    
-    
-    for i, rate_param in enumerate(rate_params):    
-        interpolator = interp1d(np.log10(ser_df_6[rate_param]), ser_df_6.iloc[:, 0], kind='linear')
-        ser = 10 ** interpolator(ser_cnn[rate_param])
-        snr_target = interpolator(np.log10(ser_target))
-        
-
-    print(ser_cnn)
-    ser_target = 1e-4
 
     # Accuracy difference between the two models
     accuracy_diff_6 = np.zeros([len(snr_vals), len(rate_params)])
