@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     sir_values = np.array([-10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10])
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    data_folder = os.path.join(current_dir, 'test_data\\mixed_test_sir_data')
+    data_folder = os.path.join(current_dir, 'mixed_test_sir_data')
 
     # SIR -6 dB mixed test extracted from the .log files
     ser_values_6 = np.array([0.13349609375, 0.0421328125, 0.03232421875, 0.04416015625, 0.16213671875, 
@@ -43,7 +43,7 @@ if __name__ == "__main__":
         sir_values,
         ser_values_6,
         marker="o",
-        label=f"CNN-FSD, SIR=-6 dB",
+        label=r"$\mathrm{CNN\text{-}FSD_{-6 \, dB}}$",
         color = 'red'
     )
  
@@ -52,7 +52,7 @@ if __name__ == "__main__":
         sir_values,
         ser_values_0['SER'],
         marker="D",
-        label="CNN-FSD, SIR=0 dB",
+        label=r"$\mathrm{CNN\text{-}FSD_{0 \, dB}}$",
         color = 'orange'
 
     )  
@@ -73,7 +73,7 @@ if __name__ == "__main__":
         label=f"Classical decoder",
         color = 'black', 
     )  
-
+    ax.set_xticks(np.arange(-10, 11, 2))
     ax.set_yscale("log")
     ax.set_xlabel("SIR [dB]")
     ax.set_ylabel("SER")
@@ -81,10 +81,6 @@ if __name__ == "__main__":
     ax.set_ylim(1e-5, 1)
     ax.set_xlim(-10, 10)
     ax.legend(loc='lower left')
-
-    # plt.tight_layout()
-    # plt.show()
-    # exit()
 
     plt.savefig(
         os.path.join(data_folder, "sir_test_result.pdf"),
