@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
     for rate, values in ser_data.items():
         snr_values = sorted(values.keys())  # Just sort the keys directly
-        ser_values = [values[snr] for snr in snr_values]  # loop through to not mix up the order
+        ser_values = [values[snr] for snr in snr_values]  # loop through to not mix up the order after sorting
         classical_ser_values = [classical_ser_data[rate][snr] for snr in snr_values]
         fsd_ser_values = [fsd_ser_data[rate][snr] for snr in snr_values]
 
@@ -49,19 +49,19 @@ if __name__ == "__main__":
 
         # savetxt(os.path.join(outputpath,f'snr_vs_ser_rate_{rate}.csv'), np.array([snr_values, ser_values]).T, delimiter=';', fmt='%d;%.6f')
 
-        if rate == 0:
-            zero_ser_values = ser_values
-            zero_snr_values = snr_values
-            zero_classical_ser_values = classical_ser_values
-            zero_fsd_ser_values = fsd_ser_values
+        # if rate == 0:
+        #     zero_ser_values = ser_values
+        #     zero_snr_values = snr_values
+        #     zero_classical_ser_values = classical_ser_values
+        #     zero_fsd_ser_values = fsd_ser_values
 
         fig, ax = plt.subplots(1, 1, figsize=(8, 6))
-        ax.plot(zero_snr_values, zero_ser_values, label=f"CNN-TSD λ=0.00", linestyle="dashed", color="red", marker="o")
+        # ax.plot(zero_snr_values, zero_ser_values, label=f"CNN-TSD λ=0.00", linestyle="dashed", color="red", marker="o")
         ax.plot(snr_values, ser_values, marker="o", color="red", label=f"CNN-TSD λ={rate:.2f}")
-        ax.plot(zero_snr_values, zero_classical_ser_values, label=f"Classical λ=0.00", linestyle="dashed", color="black", marker="v")
+        # ax.plot(zero_snr_values, zero_classical_ser_values, label=f"Classical λ=0.00", linestyle="dashed", color="black", marker="v")
         ax.plot(snr_values, classical_ser_values, marker="v", color="black", label=f"Classical λ={rate:.2f}")
         ax.plot(snr_values, fsd_ser_values, marker="s", color="blue", label=f"CNN-FSD λ={rate:.2f}")
-        ax.plot(zero_snr_values, zero_fsd_ser_values, label=f"CNN-FSD λ=0.00", linestyle="dashed", color="blue", marker="s")
+        # ax.plot(zero_snr_values, zero_fsd_ser_values, label=f"CNN-FSD λ=0.00", linestyle="dashed", color="blue", marker="s")
         ax.set_xlabel("SNR [dB]")
         ax.set_ylabel("SER")
         ax.set_yscale("log")
