@@ -41,7 +41,14 @@ if __name__ == "__main__":
         rate_params=df[0].columns[1:]
         # snr_params=df.iloc[:,0]
         
-        
+        # Reverse interpolation to find the SNR value for a target SER
+        from scipy.interpolate import interp1d
+        ser_target = 1e-1
+
+        interpolator = interp1d(ser_df_6['0.25'], ser_df_6.iloc[:, 0], kind='linear')
+        snr_target = interpolator(ser_target)
+
+# Plot the SER curves as function of SNR    
         # Save the results to a .txt file for every rate parameter and create a plot
         for i, rate_param in enumerate(rate_params):
             # Plot SER curves as function of SNR
