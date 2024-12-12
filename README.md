@@ -2,7 +2,7 @@
 
 This project implements a Convolutional Neural Network (CNN) to perform decoding of LoRa symbols. The test/training generation is a simulation of the LoRa modulation/demodulation with an asynchronous spreading factor collision across a complex Gaussian channel. The propagation model samples the number collisions as a Poisson process for increasing rate parameters.
 
-Two methods of preprocessing on the complex-valued samples are tested. One with the FFT data being converted to binary images used as a 2D input for the CNN, where different methods of scaling are examined. Additionally, the direct use of IQ data is implemented. The model architectures for the FFT-CNN and the IQ-CNN are derived from [1] and [2], respectively.
+Two methods of preprocessing on the complex-valued samples are tested. One with the FFT data being converted to binary images used as a 2D input for the CNN, where different methods of scaling are examined. Additionally, the direct use of IQ data is implemented. The model architectures for the CNN-FSD and the CNN-TSD are derived from [1] and [2], respectively.
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)

@@ -37,7 +37,7 @@ if __name__ == "__main__":
     print(plt.rcParams['axes.prop_cycle'].by_key()['color'])
 
     current_file_dir = os.path.dirname(os.path.abspath(__file__))
-    data_folder = os.path.join(current_file_dir, "test_data", "mixed_test_snr_data")
+    data_folder = os.path.join(current_file_dir, "mixed_test_snr_data")
     
     # Load data for -6 dB mixed test
     ser_df_6 = read_data('mixed_test_LoRaCNN_snr_-6', data_folder)  
@@ -55,46 +55,53 @@ if __name__ == "__main__":
 
     # Read SER from original CNN model for every rate parameter
     filename = "test_auto_scaled.csv"
-    ser_cnn = pd.read_csv(os.path.join(current_file_dir, "test_data", filename))
+    ser_cnn = pd.read_csv(os.path.join(current_file_dir, filename))
+    
+    # Reverse interpolation to find the SNR value for a target SER
+    from scipy.interpolate import interp1d
+    ser_target = 1e-1
+
+    interpolator = interp1d(ser_df_6['0.25'], ser_df_6.iloc[:, 0], kind='linear')
+    snr_target = interpolator(ser_target)
 
     # Accuracy difference between the two models
     accuracy_diff_6 = np.zeros([len(snr_vals), len(rate_params)])
     accuracy_diff_10 = np.zeros([len(snr_vals), len(rate_params)])
     for i, rate_param in enumerate(rate_params):
-        ser_diff_6 = np.array(1 - ser_cnn[rate_param]) - np.array(1 - ser_df_6[rate_param])
-        print(ser_diff_6)
-        accuracy_diff_6[:, i] =  ser_diff_6 * 100
+        ser_cnn_arr = np.array(ser_cnn[rate_param])
+        ser_arr_6 = np.array(ser_df_6[rate_param])
+        accuracy_diff_6[:, i]  = np.abs((ser_arr_6 - ser_cnn_arr) / ser_cnn_arr) * 100 
 
     
-        ser_diff_10 = np.array(1 - ser_cnn[rate_param]) - np.array(1 - ser_df_10[rate_param])
-        accuracy_diff_10[:, i] = ser_diff_10 * 100
+        # ser_diff_10 = np.array(1 - ser_df_10[rate_param]) - np.array(1 - ser_cnn[rate_param])
+        # accuracy_diff_10[:, i] = ser_diff_10 * 100
 
     print(accuracy_diff_6)
     print(accuracy_diff_10)
 
     
-   # Create a LaTeX table for the accuracy differences using booktabs style
-    with open(os.path.join(data_folder, "accuracy_diff_table.tex"), "w") as f:
-        f.write("\\begin{table}[ht]\n")
-        f.write("\\centering\n")
-        f.write("\\begin{tabular}{lccc}\n")  # Remove vertical lines for booktabs style
-        f.write("\\toprule\n")
-        f.write("SNR [dB] & Rate & Accuracy Difference -6 dB [\\%] & Accuracy Difference -10 dB [\\%] \\\\\n")
-        f.write("\\midrule\n")
-        for i, snr in enumerate(snr_vals):
-            first_row = True  # Flag for printing SNR only once per group
-            for j, rate_param in enumerate(rate_params):
-                if first_row:
-                    f.write(f"{snr} & {rate_param} & {accuracy_diff_6[i, j]:.2f} & {accuracy_diff_10[i, j]:.2f} \\\\\n")
-                    first_row = False
-                else:
-                    f.write(f" & {rate_param} & {accuracy_diff_6[i, j]:.2f} & {accuracy_diff_10[i, j]:.2f} \\\\\n")
-            f.write("\\midrule\n")
-        f.write("\\bottomrule\n")
-        f.write("\\end{tabular}\n")
-        f.write("\\caption{Accuracy differences between the original CNN model and the mixed test model for different SNR values and rate parameters.}\n")
-        f.write("\\label{tab:accuracy_diff}\n")
-        f.write("\\end{table}\n")
+#    # Create a LaTeX table for the accuracy differences using booktabs style
+#     with open(os.path.join(data_folder, "accuracy_diff_table.tex"), "w") as f:
+#         f.write("\\begin{table}[ht]\n")
+#         f.write("\\centering\n")
+#         f.write("\\begin{tabular}{lccc}\n")  # Remove vertical lines for booktabs style
+#         f.write("\\toprule\n")
+#         f.write("SNR [dB] & Rate & Accuracy Difference -6 dB [\\%] & Accuracy Difference -10 dB [\\%] \\\\\n")
+#         f.write("\\midrule\n")
+#         for i, snr in enumerate(snr_vals):
+#             first_row = True  # Flag for printing SNR only once per group
+#             for j, rate_param in enumerate(rate_params):
+#                 if first_row:
+#                     f.write(f"{snr} & {rate_param} & {accuracy_diff_6[i, j]:.2f} & {accuracy_diff_10[i, j]:.2f} \\\\\n")
+#                     first_row = False
+#                 else:
+#                     f.write(f" & {rate_param} & {accuracy_diff_6[i, j]:.2f} & {accuracy_diff_10[i, j]:.2f} \\\\\n")
+#             f.write("\\midrule\n")
+#         f.write("\\bottomrule\n")
+#         f.write("\\end{tabular}\n")
+#         f.write("\\caption{Accuracy differences between the original CNN model and the mixed test model for different SNR values and rate parameters.}\n")
+#         f.write("\\label{tab:accuracy_diff}\n")
+#         f.write("\\end{table}\n")
 
 
 
@@ -108,7 +115,7 @@ if __name__ == "__main__":
             snr_vals,
             ser_df_6[rate_param],
             marker=markers[i],
-            label=f"CNN-FSD, SNR=-6 dB, λ={rate_param}",
+            label=r"$\mathrm{CNN\text{-}FSD_{-6 \, dB}}$, " + f"λ={rate_param}",
             color="#1f77b4",
         )
     
@@ -134,7 +141,7 @@ if __name__ == "__main__":
             snr_vals,
             ser_df_10[rate_param],
             marker=markers[i],
-            label=f"CNN-FSD, SNR=-10 dB, λ={rate_param}",
+            label=r"$\mathrm{CNN\text{-}FSD_{-10 \, dB}}$, " + f"λ={rate_param}",
             color="#ff7f0e",
         )
 
