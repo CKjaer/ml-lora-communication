@@ -164,7 +164,6 @@ def evaluate_model_by_rate_and_snr(model, data_loader):
                 snr = float(filename.split("snr_")[1].split("_")[0])  # Extract SNR
                 rate = filename.split("rate_")[1].split("_")[0]        # Extract Rate
                 
-                # Initialize dictionary for this rate if not present
                 if rate not in ser_per_rate_snr:
                     ser_per_rate_snr[rate] = {}
                     logger.info(f"Initialized storage for rate {rate}.")
@@ -172,7 +171,6 @@ def evaluate_model_by_rate_and_snr(model, data_loader):
                     ser_per_rate_snr[rate][snr] = {"total": 0, "incorrect": 0}
                     logger.info(f"Initialized storage for SNR {snr} under rate {rate}.")
 
-                # Update counts
                 ser_per_rate_snr[rate][snr]["total"] += 1
                 if label != pred:
                     ser_per_rate_snr[rate][snr]["incorrect"] += 1
@@ -195,8 +193,8 @@ def evaluate_model_by_rate_and_snr(model, data_loader):
     return ser_per_rate_snr
 
 
-## KEEP THAT (GAINEKOAK TEST DATA GABE ITEN DO) BLUE SQUARE
-# Add the test dataset evaluation
+
+
 test_data_dir = os.path.abspath(os.path.join(current_folder, '/ceph/project/LoRa_Symbol_Detection/ml-lora-communication/output/autoscaling_test_set_20241121-152225/plots'))
 test_dataset = BinaryImageDataset(test_data_dir, transform=transform)
 test_data_loader = DataLoader(test_dataset, batch_size=512, shuffle=True, num_workers=80)
