@@ -133,15 +133,6 @@ cython_debug/
 
 # data folder
 data/
-test_data_fft*
-test_data_for_plots
-plots/
-plots/
-*.pyc
-csv/
-job_results/
-output/
-data/
 
 test_data_fft*
 test_data_for_plots
