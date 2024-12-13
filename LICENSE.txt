@@ -1,4 +1,4 @@
-Copyright 2024 Christian Kjærsgaard Nielsen, Mattin Jauregui, Lukas Fasken, Kadyrzhan Tortayev, Christoffer Dalsgaard Lyholm & Rasmus Haupt Dybkjær
+Copyright 2024 Christian Kjærsgaard Nielsen, Christoffer Dalsgaard Lyholm, Kadyrzhan Tortayev, Lukas Fasken, Mattin Jauregui & Rasmus Haupt Dybkjær
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
