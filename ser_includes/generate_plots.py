@@ -18,9 +18,8 @@ def generate_plots(data, logger, spreading_factor: int, num_samples: int, direct
     y_scale = {}
     for i, snr in enumerate(np.unique(data['snr'])):
         logger.info(f"Unique snr: {snr}")
-        snr_linear = np.power(10.0,(snr / 10.0))
-        user_amp = np.sqrt(snr_linear * noise_power)
-        y_scale[snr] = 2*(user_amp*num_symbols+noise_power)
+        user_pow = np.power(10.0,(snr / 10.0)) * noise_power
+        y_scale[snr] = 1.5*(np.sqrt(user_pow)*num_symbols+np.sqrt(noise_power))
         logger.info(f"{snr}: {y_scale[snr]}")
     
     # create a lin space for the frequency values
@@ -139,7 +138,7 @@ def find_max(df, logger):
 
 if __name__ == "__main__":
 
-    folder = "20241101-102808"
+    folder = "20241212-113337"
     outputfolder = os.path.join(os.path.dirname(__file__),"output",folder)
     if not os.path.exists(os.path.join(outputfolder,"csv")):
         print(f"Folder {folder}/csv does not exist")
